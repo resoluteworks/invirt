@@ -1,6 +1,7 @@
 export OP_ACCOUNT := my.1password.com
 include .env
 export
+include gradle.properties
 
 env:
 	rm -f .env
