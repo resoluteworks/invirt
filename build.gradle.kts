@@ -1,6 +1,8 @@
 plugins {
+    base
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0-rc-2"
     id("jacoco-report-aggregation")
+    id("com.github.nbaztec.coveralls-jacoco") version "1.2.19"
 }
 
 group = "io.resoluteworks"
@@ -42,6 +44,16 @@ tasks.register<JacocoReport>("jacocoRootReport") {
         xml.required.set(true)
         csv.required.set(false)
     }
+}
+
+coverallsJacoco {
+    reportSourceSets = subprojects
+        .filter { it.hasCoverage }
+        .map {
+            File(it.projectDir, "src/main/kotlin")
+        }
+
+    reportPath = project.layout.buildDirectory.file("reports/jacoco/jacocoRootReport/jacocoRootReport.xml").get().asFile.absolutePath
 }
 
 val Project.hasCoverage get() = name != "invirt-bom" && name != "invirt-test"

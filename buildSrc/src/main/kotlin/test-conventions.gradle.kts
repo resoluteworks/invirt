@@ -1,5 +1,6 @@
 plugins {
     id("common-conventions")
+    id("jacoco")
 }
 
 dependencies {
@@ -23,4 +24,11 @@ tasks.withType<Test> {
         showStandardStreams = true
     }
     finalizedBy("jacocoTestReport")
+}
+
+tasks.jacocoTestReport {
+    reports {
+        xml.required = true
+        html.required = true
+    }
 }

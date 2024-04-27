@@ -1,3 +1,5 @@
+rootProject.name = "invirt"
+
 include ("invirt-bom")
 include ("invirt-data")
 include ("invirt-http4k")

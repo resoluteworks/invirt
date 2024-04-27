@@ -1,6 +1,5 @@
 plugins {
     kotlin("jvm")
-    id("jacoco")
     id("artifact-conventions")
 }
 

@@ -7,8 +7,8 @@ env:
 	op read "op://Development/resolute-works-open-source/invirt.env.local" > .env
 
 test:
-	./gradlew clean test
-	./gradlew jacocoRootReport
+	./gradlew clean test jacocoRootReport
+	./gradlew coverallsJacoco
 
 publish:
 	./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository

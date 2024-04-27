@@ -3,6 +3,7 @@ package invirt.okhttp
 import invirt.okhttp.internals.trustAllCerts
 import okhttp3.FormBody
 import okhttp3.Headers.Companion.toHeaders
+import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -23,15 +24,6 @@ fun OkHttpClient.Builder.ignoreSslErrors(): OkHttpClient.Builder {
     val sslSocketFactory = sslContext.socketFactory
     sslSocketFactory(sslSocketFactory, trustAllCerts[0] as X509TrustManager)
     hostnameVerifier { _, _ -> true }
-    return this
-}
-
-fun OkHttpClient.Builder.baseUrl(baseUrl: String): OkHttpClient.Builder {
-    addInterceptor { chain ->
-        val request = chain.request()
-        val newRequest = request.newBuilder().url(baseUrl + request.url).build()
-        chain.proceed(newRequest)
-    }
     return this
 }
 
