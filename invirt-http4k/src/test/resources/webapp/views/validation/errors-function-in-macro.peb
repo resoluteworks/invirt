@@ -1,0 +1,5 @@
+{% macro test() %}
+    {{ errors().hasErrors("name") }} - {{ errors().error("name") }}
+{% endmacro %}
+
+{{ test() }}

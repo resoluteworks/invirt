@@ -1,0 +1,30 @@
+<turbo-frame id="add-user-form">
+    <form action="/users/add" method="POST" data-turbo-frame="user-list" class="flex flex-col w-full gap-4 py-4">
+        <div class="flex flex-row items-start">
+            <div class="w-2/5 flex flex-col gap-1">
+                <input type="text" name="email" value="{{ model.email }}" placeholder="Email"
+                       class="w-full input input-bordered {{ errors.hasErrors("email") ? 'input-error' : '' }}"/>
+
+                <div class="text-error text-sm font-semibold {{ errors.hasErrors('email') ? 'block' : 'hidden' }}">
+                    {{ errors.error("email") }}
+                </div>
+            </div>
+
+            <div class="w-2/5 flex flex-col gap-1 pl-2">
+                <input type="text" name="name" value="{{ model.name }}" placeholder="Name"
+                       class="w-full input input-bordered {{ errors.hasErrors("name") ? 'input-error' : '' }}"/>
+
+                <div class="text-error text-sm font-semibold {{ errors.hasErrors('name') ? 'block' : 'hidden' }}">
+                    {{ errors.error("name") }}
+                </div>
+            </div>
+        </div>
+
+        <div class="w-1/5">
+            <div class="flex flex-row gap-4">
+                <a href="/" class="btn btn-outline">Cancel</a>
+                <button class="btn btn-neutral">Create user</button>
+            </div>
+        </div>
+    </form>
+</turbo-frame>

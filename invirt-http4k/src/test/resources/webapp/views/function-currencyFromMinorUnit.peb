@@ -1,0 +1,1 @@
+{{ currencyFromMinorUnit(model.amount, model.currency) }}

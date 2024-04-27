@@ -1,0 +1,34 @@
+<turbo-frame id="user-list">
+    <table class="table border-t border-base-200">
+        <thead>
+            <tr>
+                <th class="w-2/5">Email</th>
+                <th class="w-2/5">Name</th>
+                <th class="w-1/5">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in model.users %}
+                <tr class="{{ model.highlightUserId == user.id ? 'bg-green-100' : '' }}">
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.name }}</td>
+                    <td>
+                        <div class="flex flex-row items-center gap-2">
+                            <a href="/users/{{ user.id }}/edit" data-turbo-frame="edit-user-dialog" class="btn btn-sm btn-outline btn-neutral">Edit</a>
+                            <form action="/users/{{ user.id }}/delete" method="POST">
+                                <button type="submit" class="btn btn-sm btn-outline btn-error">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <turbo-frame id="add-user-form">
+        <div class="flex flex-col items-start pt-8">
+            <a href="/users/add" class="btn btn-neutral" data-turbo-frame="add-user-row">Add user</a>
+        </div>
+    </turbo-frame>
+
+</turbo-frame>

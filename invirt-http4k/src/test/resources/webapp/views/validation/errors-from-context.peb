@@ -1,0 +1,4 @@
+{% for error in errors.validationErrors %}
+    {{ error.propertyPath }} - {{ error.message }}
+
+{% endfor %}
