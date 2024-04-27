@@ -15,3 +15,9 @@ publish:
 
 publish-local:
 	./gradlew publish -x initializeSonatypeStagingRepository -x publishMavenJavaPublicationToSonatypeRepository
+
+release:
+	@echo $(invirtVersion)
+	git tag "v$(invirtVersion)" -m "Release v$(invirtVersion)"
+	git push --tags --force
+	@echo Finished building version $(invirtVersion)
