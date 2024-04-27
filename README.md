@@ -9,7 +9,7 @@ rendering with [Pebble templates](https://pebbletemplates.io/).
 It is **not** a framework for building microservices. 
 
 ## Motivation 
-JavaScript-heavy single-page applications (SPA) have been for years the only _reasonable_ alternatives
+JavaScript-heavy single-page applications (SPA) have been for years the only _reasonable_ alternative
 to PHP and Ruby on Rails, when it comes to building web applications.
 
 At the same time, server-side rendering on the JVM has had a bad reputation for decades and even the most
