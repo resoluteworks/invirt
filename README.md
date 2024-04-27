@@ -8,9 +8,9 @@ rendering with [Pebble templates](https://pebbletemplates.io/).
 
 It is **not** a framework for building microservices. 
 
-## Motivation
-Microservices architectures, API-first designs, and JavaScript-heavy single-page applications (SPA)
-have been for many years the only reasonable alternatives to PHP and Ruby on Rails.
+## Motivation 
+JavaScript-heavy single-page applications (SPA) have been for years the only _reasonable_ alternatives
+to PHP and Ruby on Rails, when it comes to building web applications.
 
 At the same time, server-side rendering on the JVM has had a bad reputation for decades and even the most
 popular frameworks in this space have done little to improve developer experience
@@ -23,6 +23,6 @@ this thinking can be challenged.
 We now have decent templating engines like [Pebble](https://pebbletemplates.io/)
 (and many others) on the JVM. Frameworks like [http4k](https://www.http4k.org/) push the
 boundaries of a modern programming language (Kotlin) and create a great balance
-between developer experience and startup time. Last, but not least, there's [Hotwire](https://hotwired.dev/),
-which enables us to produce modern and responsive web applications using almost exclusively
+between developer experience and startup time. Last, but not least, [Hotwire](https://hotwired.dev/)
+enables us to produce modern and responsive web applications using almost exclusively
 server-side rendering and little to no JavaScript.
