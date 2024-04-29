@@ -2,63 +2,65 @@ package invirt.http4k.filters
 
 import invirt.http4k.GET
 import io.github.oshai.kotlinlogging.KLogger
+import io.github.oshai.kotlinlogging.KLoggingEventBuilder
 import io.kotest.core.spec.style.StringSpec
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
+import org.http4k.core.Filter
 import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Response
 import org.http4k.core.Status
 import org.http4k.core.then
+import org.http4k.routing.path
 import org.http4k.routing.routes
 
-class HttpAccessLogFilterTest : StringSpec({
+class HttpAccessLogFilterTest : StringSpec() {
 
-    "defaults" {
-        mockkObject(HttpAccessLogFilter) {
-            val log = mockk<KLogger>()
-            every { log.info(any<() -> Any?>()) } returns Unit
-            every { HttpAccessLogFilter.log } returns log
+    init {
 
-            val httpHandler = HttpAccessLogFilter().then(
-                routes(
-                    "/ok" GET { Response(Status.OK) },
-                    "/error" GET { Response(Status.BAD_REQUEST) }
-                )
-            )
+        "defaults - errors only" {
+            val filter = HttpAccessLogFilter()
+            testLogFilter(filter, Status.OK, false)
+            testLogFilter(filter, Status.SEE_OTHER, false)
+            testLogFilter(filter, Status.BAD_REQUEST, true)
+            testLogFilter(filter, Status.FORBIDDEN, true)
+            testLogFilter(filter, Status.UNAUTHORIZED, true)
+            testLogFilter(filter, Status.INTERNAL_SERVER_ERROR, true)
+            testLogFilter(filter, Status.BAD_GATEWAY, true)
+        }
 
-            // Check that we don't log HTTP 200
-            httpHandler(Request(Method.GET, "/ok"))
-            verify(exactly = 0) { log.info(any<() -> Any?>()) }
-
-            // Check that we log everything else
-            httpHandler(Request(Method.GET, "/error"))
-            verify { log.info(any<() -> Any?>()) }
+        "all statuses" {
+            val filter = HttpAccessLogFilter(false)
+            testLogFilter(filter, Status.OK, true)
+            testLogFilter(filter, Status.SEE_OTHER, true)
+            testLogFilter(filter, Status.BAD_REQUEST, true)
+            testLogFilter(filter, Status.FORBIDDEN, true)
+            testLogFilter(filter, Status.UNAUTHORIZED, true)
+            testLogFilter(filter, Status.INTERNAL_SERVER_ERROR, true)
+            testLogFilter(filter, Status.BAD_GATEWAY, true)
         }
     }
 
-    "custom statuses" {
+    private fun testLogFilter(filter: Filter, status: Status, expectCalled: Boolean) {
         mockkObject(HttpAccessLogFilter) {
             val log = mockk<KLogger>()
-            every { log.info(any<() -> Any?>()) } returns Unit
+            every { log.atInfo(any<(KLoggingEventBuilder) -> Unit>()) } returns Unit
             every { HttpAccessLogFilter.log } returns log
 
-            val httpHandler = HttpAccessLogFilter(Status.FORBIDDEN).then(
+            val httpHandler = filter.then(
                 routes(
-                    "/error" GET { Response(Status.FORBIDDEN) },
-                    "/ok" GET { Response(Status.OK) }
+                    "/status/{status}" GET { Response(Status(it.path("status")!!.toInt(), "")) },
                 )
             )
-
-            // Check that we don't log HTTP FORBIDDEN
-            httpHandler(Request(Method.GET, "/error"))
-            verify(exactly = 0) { log.info(any<() -> Any?>()) }
-
-            // Check that we log everything else
-            httpHandler(Request(Method.GET, "/ok"))
-            verify { log.info(any<() -> Any?>()) }
+            httpHandler(Request(Method.GET, "/status/${status.code}"))
+            if (expectCalled) {
+                verify { log.atInfo(any<(KLoggingEventBuilder) -> Unit>()) }
+            } else {
+                verify(exactly = 0) { log.atInfo(any<(KLoggingEventBuilder) -> Unit>()) }
+            }
         }
     }
-})
+}
