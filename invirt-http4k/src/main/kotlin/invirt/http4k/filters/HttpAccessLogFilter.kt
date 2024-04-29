@@ -2,13 +2,17 @@ package invirt.http4k.filters
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.http4k.core.Filter
+import org.http4k.core.Request
 import org.http4k.filter.ResponseFilters
 
 object HttpAccessLogFilter {
 
     internal val log = KotlinLogging.logger {}
 
-    operator fun invoke(errorsOnly: Boolean = true): Filter {
+    operator fun invoke(
+        errorsOnly: Boolean = true,
+        remoteIp: (Request) -> String = { it.source?.address ?: "no-remote-ip" }
+    ): Filter {
         return ResponseFilters.ReportHttpTransaction(recordFn = { tx ->
             if (!errorsOnly || tx.response.status.code >= 400) {
                 log.atInfo {
@@ -17,7 +21,8 @@ object HttpAccessLogFilter {
                         "method" to tx.request.method,
                         "uri" to tx.request.uri,
                         "status" to tx.response.status,
-                        "durationMs" to tx.duration.toMillis()
+                        "durationMs" to tx.duration.toMillis(),
+                        "remoteIp" to remoteIp(tx.request)
                     )
                 }
             }
