@@ -34,7 +34,6 @@ class DateTimeTest : StringSpec({
         fun test(year: Int, month: Int, dayOfMonth: Int, addDays: Int, expectedDate: LocalDate) {
             LocalDateTime.ofInstant(LocalDateTime.of(year, month, dayOfMonth, 23, 10, 43).toInstant(ZoneOffset.UTC).plusDays(addDays), ZoneOffset.UTC)
                 .toLocalDate() shouldBe expectedDate
-
         }
         test(2024, 1, 1, 1, LocalDate.of(2024, 1, 2))
         test(2024, 1, 1, 15, LocalDate.of(2024, 1, 16))
@@ -46,7 +45,6 @@ class DateTimeTest : StringSpec({
         fun test(year: Int, month: Int, dayOfMonth: Int, subtractDays: Int, expectedDate: LocalDate) {
             LocalDateTime.ofInstant(LocalDateTime.of(year, month, dayOfMonth, 23, 10, 43).toInstant(ZoneOffset.UTC).minusDays(subtractDays), ZoneOffset.UTC)
                 .toLocalDate() shouldBe expectedDate
-
         }
         test(2024, 1, 1, 1, LocalDate.of(2023, 12, 31))
         test(2024, 1, 15, 14, LocalDate.of(2024, 1, 1))

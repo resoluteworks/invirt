@@ -15,7 +15,7 @@ class DateWithDaySuffixFilter : Filter {
         args: MutableMap<String, Any>,
         self: PebbleTemplate,
         context: EvaluationContext,
-        lineNumber: Int,
+        lineNumber: Int
     ): Any {
         val format = args["format"] as String
         return (input as LocalDate).formatWithDaySuffix(format)

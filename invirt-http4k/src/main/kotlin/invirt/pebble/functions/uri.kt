@@ -1,11 +1,7 @@
 package invirt.pebble.functions
 
 import invirt.data.Page
-import invirt.http4k.removeQueries
-import invirt.http4k.removeQueryValue
-import invirt.http4k.replacePage
-import invirt.http4k.replaceQuery
-import invirt.http4k.toggleQueryValue
+import invirt.http4k.*
 import invirt.pebble.currentHttp4kRequest
 
 val replaceQueryFunction = pebbleFunction("replaceQuery", "name", "value") {

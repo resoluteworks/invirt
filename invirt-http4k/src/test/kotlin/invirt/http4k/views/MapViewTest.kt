@@ -1,8 +1,5 @@
 package invirt.http4k.views
 
-import invirt.http4k.Views
-import invirt.http4k.ok
-import invirt.http4k.setDefaultViewLens
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.http4k.core.Method

@@ -12,7 +12,7 @@ import org.http4k.routing.RoutingHttpHandler
  */
 fun securedRoutes(
     check: (Principal) -> Boolean,
-    route: RoutingHttpHandler,
+    route: RoutingHttpHandler
 ): RoutingHttpHandler {
     val filter =
         Filter { next ->

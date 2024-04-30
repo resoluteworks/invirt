@@ -1,9 +1,7 @@
 package invirt.utils
 
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
-import org.testcontainers.utility.Base58.randomString
 import java.util.*
 
 class StringsTest : StringSpec({

@@ -9,7 +9,7 @@ import kotlin.reflect.KProperty1
 
 class AddUserForm(
     val email: String?,
-    val name: String?,
+    val name: String?
 ) : ValidObject<AddUserForm>, ViewResponse("add-user") {
 
     fun createUser() = User(email = email!!, name = name!!)
@@ -23,7 +23,7 @@ class AddUserForm(
 data class EditUserForm(
     val email: String?,
     val name: String?,
-    val userId: String? = null,
+    val userId: String? = null
 ) : ValidObject<EditUserForm>, ViewResponse("edit-user") {
 
     constructor(user: User) : this(

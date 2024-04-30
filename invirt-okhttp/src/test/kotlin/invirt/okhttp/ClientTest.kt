@@ -4,9 +4,6 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
-import okhttp3.Interceptor
-import okhttp3.OkHttpClient
-import okhttp3.Response
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.tls.HandshakeCertificates
@@ -14,7 +11,6 @@ import okhttp3.tls.HeldCertificate
 import java.net.InetAddress
 import java.util.*
 import javax.net.ssl.SSLHandshakeException
-
 
 class ClientTest : StringSpec({
 
@@ -108,7 +104,6 @@ class ClientTest : StringSpec({
             }
         }
 
-
         withMockRequest { _, url ->
             newHttpClient { ignoreSslErrors() }.get(url).code shouldBe 200
         }
@@ -118,6 +113,5 @@ class ClientTest : StringSpec({
                 newHttpClient().get(url)
             }
         }
-
     }
 })

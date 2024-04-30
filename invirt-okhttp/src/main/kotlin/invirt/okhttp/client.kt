@@ -3,7 +3,6 @@ package invirt.okhttp
 import invirt.okhttp.internals.trustAllCerts
 import okhttp3.FormBody
 import okhttp3.Headers.Companion.toHeaders
-import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request

@@ -1,18 +1,10 @@
 package invirt.data.mongodb
 
-import com.mongodb.client.model.Collation
-import com.mongodb.client.model.CollationStrength
-import com.mongodb.client.model.IndexModel
-import com.mongodb.client.model.IndexOptions
-import com.mongodb.client.model.Indexes
+import com.mongodb.client.model.*
 import com.mongodb.kotlin.client.MongoCollection
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlin.reflect.KClass
-import kotlin.reflect.full.createType
-import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.isSubclassOf
-import kotlin.reflect.full.isSubtypeOf
-import kotlin.reflect.full.memberProperties
+import kotlin.reflect.full.*
 
 private val log = KotlinLogging.logger {}
 

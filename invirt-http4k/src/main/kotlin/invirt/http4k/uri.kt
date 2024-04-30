@@ -1,11 +1,7 @@
 package invirt.http4k
 
 import invirt.data.Page
-import org.http4k.core.Uri
-import org.http4k.core.queries
-import org.http4k.core.query
-import org.http4k.core.toParameters
-import org.http4k.core.toUrlFormEncoded
+import org.http4k.core.*
 
 fun Uri.removeQueryValue(name: String, value: Any): Uri {
     return copy(query = query.toParameters().filterNot { it.first == name && it.second.toString() == value }.toUrlFormEncoded())
@@ -25,7 +21,7 @@ fun Uri.removeQueries(names: Collection<String>): Uri {
 fun Uri.replacePage(page: Page): Uri {
     return replaceQuery(
         "from" to page.from,
-        "size" to page.size,
+        "size" to page.size
     )
 }
 

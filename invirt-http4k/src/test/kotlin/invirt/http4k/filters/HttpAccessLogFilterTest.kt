@@ -8,12 +8,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
-import org.http4k.core.Filter
-import org.http4k.core.Method
-import org.http4k.core.Request
-import org.http4k.core.Response
-import org.http4k.core.Status
-import org.http4k.core.then
+import org.http4k.core.*
 import org.http4k.routing.path
 import org.http4k.routing.routes
 
@@ -52,7 +47,7 @@ class HttpAccessLogFilterTest : StringSpec() {
 
             val httpHandler = filter.then(
                 routes(
-                    "/status/{status}" GET { Response(Status(it.path("status")!!.toInt(), "")) },
+                    "/status/{status}" GET { Response(Status(it.path("status")!!.toInt(), "")) }
                 )
             )
             httpHandler(Request(Method.GET, "/status/${status.code}"))

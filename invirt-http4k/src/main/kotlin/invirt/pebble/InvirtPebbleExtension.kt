@@ -2,16 +2,7 @@ package invirt.pebble
 
 import invirt.http4k.requestScopeValue
 import invirt.pebble.filters.DateWithDaySuffixFilter
-import invirt.pebble.functions.currencyFromMinorUnitFunction
-import invirt.pebble.functions.errorsFunction
-import invirt.pebble.functions.jsonArrayFunction
-import invirt.pebble.functions.jsonFunction
-import invirt.pebble.functions.pebbleFunction
-import invirt.pebble.functions.removeQueriesFunction
-import invirt.pebble.functions.removeQueryValueFunction
-import invirt.pebble.functions.replacePageFunction
-import invirt.pebble.functions.replaceQueryFunction
-import invirt.pebble.functions.toggleQueryValueFunction
+import invirt.pebble.functions.*
 import invirt.utils.uuid7
 import io.pebbletemplates.pebble.extension.AbstractExtension
 import io.pebbletemplates.pebble.extension.Filter
@@ -40,7 +31,7 @@ class InvirtPebbleExtension : AbstractExtension() {
             replacePageFunction,
             removeQueryValueFunction,
             removeQueriesFunction,
-            toggleQueryValueFunction,
+            toggleQueryValueFunction
         ).associateBy { it.name }
     }
 

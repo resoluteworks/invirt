@@ -1,6 +1,6 @@
 package invirt.http4k.filters
 
-import invirt.http4k.renderTemplate
+import invirt.http4k.views.renderTemplate
 import org.http4k.core.Filter
 import org.http4k.core.Status
 

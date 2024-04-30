@@ -3,6 +3,7 @@ package invirt.http4k.handlers
 import invirt.http4k.GET
 import invirt.http4k.jsonLens
 import invirt.http4k.ok
+import invirt.http4k.views.ok
 import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.routes
 

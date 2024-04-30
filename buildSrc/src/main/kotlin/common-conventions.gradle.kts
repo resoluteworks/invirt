@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm")
     id("artifact-conventions")
+    id("org.jmailen.kotlinter")
 }
 
 repositories {
@@ -27,4 +28,8 @@ dependencies {
 java {
     withJavadocJar()
     withSourcesJar()
+}
+
+afterEvaluate {
+    tasks["test"].dependsOn(tasks["lintKotlin"])
 }

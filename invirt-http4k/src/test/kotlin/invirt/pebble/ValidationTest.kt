@@ -1,10 +1,10 @@
 package invirt.pebble
 
 import invirt.http4k.AppRequestContexts
-import invirt.http4k.ViewResponse
-import invirt.http4k.Views
-import invirt.http4k.setDefaultViewLens
+import invirt.http4k.views.ViewResponse
+import invirt.http4k.views.Views
 import invirt.http4k.views.errorResponse
+import invirt.http4k.views.setDefaultViewLens
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.validk.ValidationError
@@ -26,7 +26,7 @@ class ValidationTest : StringSpec() {
             val errors = ValidationErrors(
                 ValidationError("name", "Name too short"),
                 ValidationError("email", "Not a valid email"),
-                ValidationError("details.age", "Age must be 18 or over"),
+                ValidationError("details.age", "Age must be 18 or over")
             )
             val httpHandler = AppRequestContexts().then(invirtPebbleFilter)
                 .then(routes("/test" bind Method.GET to { Form().errorResponse(errors) }))

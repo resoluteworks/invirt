@@ -10,14 +10,9 @@ import invirt.utils.uuid7
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
-import org.http4k.core.Filter
-import org.http4k.core.Method
-import org.http4k.core.Request
-import org.http4k.core.Response
-import org.http4k.core.Status
+import org.http4k.core.*
 import org.http4k.core.cookie.Cookie
 import org.http4k.core.cookie.cookies
-import org.http4k.core.then
 import org.http4k.kotest.shouldHaveSetCookie
 import org.http4k.kotest.shouldHaveStatus
 import org.http4k.routing.routes

@@ -26,7 +26,6 @@ inline fun <reified T : MongoEntity> MongoCollection<T>.query(
     maxDocuments: Int = 1000,
     vararg sorts: Sort = emptyArray()
 ): RecordsPage<T> {
-
     val countOptions = CountOptions().limit(maxDocuments)
 
     // This isn't optimal as it performs two Mongo queries, but the alternative is using

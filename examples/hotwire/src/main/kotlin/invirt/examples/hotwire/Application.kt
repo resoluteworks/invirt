@@ -1,17 +1,7 @@
 package invirt.examples.hotwire
 
-import invirt.http4k.AppRequestContexts
-import invirt.http4k.GET
-import invirt.http4k.POST
-import invirt.http4k.ViewResponse
-import invirt.http4k.Views
+import invirt.http4k.*
 import invirt.http4k.filters.CatchAllFilter
-import invirt.http4k.ok
-import invirt.http4k.renderTemplate
-import invirt.http4k.setDefaultViewLens
-import invirt.http4k.toForm
-import invirt.http4k.turboStream
-import invirt.http4k.turboStreamRefresh
 import invirt.http4k.views.errorResponse
 import invirt.http4k.views.withView
 import invirt.pebble.invirtPebbleFilter
@@ -84,7 +74,7 @@ class Application {
                         val userId = request.path("userId")!!
                         userService.deleteUser(userId)
                         UserListResponse(userService.allUsers()).ok()
-                    },
+                    }
                 )
             )
 

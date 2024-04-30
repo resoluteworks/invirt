@@ -7,11 +7,7 @@ import invirt.test.testMongoClient
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.mockkStatic
-import io.mockk.slot
-import io.mockk.spyk
+import io.mockk.*
 import org.bson.Document
 import org.bson.codecs.pojo.annotations.BsonId
 import java.time.Instant

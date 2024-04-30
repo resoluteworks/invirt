@@ -21,7 +21,7 @@ object HttpAccessLogFilter {
                         "method" to tx.request.method,
                         "uri" to tx.request.uri.toString(),
                         "status" to tx.response.status.code,
-                        "durationMs" to tx.duration.toMillis(),
+                        "durationMs" to tx.duration.toMillis()
                     ).plus(extraFields(tx))
                 }
             }

@@ -1,8 +1,6 @@
 package invirt.http4k.views
 
 import invirt.http4k.AppRequestContexts
-import invirt.http4k.ViewResponse
-import invirt.http4k.status
 import io.validk.ValidationErrors
 import org.http4k.core.Request
 import org.http4k.core.Response

@@ -1,7 +1,5 @@
 package invirt.http4k.views
 
-import invirt.http4k.ViewResponse
-import invirt.http4k.ok
 import org.http4k.core.Response
 
 class MapView(

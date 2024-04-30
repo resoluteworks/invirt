@@ -1,10 +1,6 @@
 package invirt.data.mongodb
 
-import invirt.data.Page
-import invirt.data.Sort
-import invirt.data.SortOrder
-import invirt.data.sortAsc
-import invirt.data.sortDesc
+import invirt.data.*
 import invirt.test.randomDatabase
 import invirt.test.testMongoClient
 import io.kotest.core.spec.style.StringSpec

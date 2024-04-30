@@ -3,12 +3,7 @@ package invirt.test
 import com.mongodb.kotlin.client.MongoClient
 import com.mongodb.kotlin.client.MongoCollection
 import com.mongodb.kotlin.client.MongoDatabase
-import invirt.data.mongodb.MongoEntity
-import invirt.data.mongodb.TimestampedEntity
-import invirt.data.mongodb.collectionName
-import invirt.data.mongodb.database
-import invirt.data.mongodb.getEntityCollection
-import invirt.data.mongodb.mongoClient
+import invirt.data.mongodb.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.withClue
 import io.kotest.core.extensions.install

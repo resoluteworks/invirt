@@ -1,10 +1,10 @@
 package invirt.pebble
 
 import invirt.data.Page
-import invirt.http4k.Views
-import invirt.http4k.ok
-import invirt.http4k.renderTemplate
-import invirt.http4k.setDefaultViewLens
+import invirt.http4k.views.Views
+import invirt.http4k.views.ok
+import invirt.http4k.views.renderTemplate
+import invirt.http4k.views.setDefaultViewLens
 import invirt.http4k.views.withView
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.comparables.shouldBeGreaterThan
@@ -137,15 +137,19 @@ class PebbleFunctionsTest : StringSpec() {
     }
 
     private fun testFunctionModel(function: String, request: String = "/test", model: Any, expectedBody: String) {
-        val httpHandler = invirtPebbleFilter.then(routes("/test" bind Method.GET to {
-            if (model is ViewModel) {
-                model.ok()
-            } else if (model is Map<*, *>) {
-                (model as Map<String, Any>) withView "function-${function}"
-            } else {
-                throw IllegalArgumentException("Can't handle model $model")
-            }
-        }))
+        val httpHandler = invirtPebbleFilter.then(
+            routes(
+                "/test" bind Method.GET to {
+                    if (model is ViewModel) {
+                        model.ok()
+                    } else if (model is Map<*, *>) {
+                        (model as Map<String, Any>) withView "function-${function}"
+                    } else {
+                        throw IllegalArgumentException("Can't handle model $model")
+                    }
+                }
+            )
+        )
         val response = httpHandler(Request(Method.GET, request))
         response.bodyString().trim() shouldBe expectedBody
     }

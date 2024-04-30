@@ -5,7 +5,7 @@ import org.http4k.core.Request
 internal val requestThreadLocal = ThreadLocal<Request>()
 val currentHttp4kRequest: Request? get() = requestThreadLocal.get()
 
-//object RequestContext {
+// object RequestContext {
 //    val requestThreadLocal = ThreadLocal<Request>()
 //    val request: Request? get() = requestThreadLocal.get()
 //
@@ -103,4 +103,4 @@ val currentHttp4kRequest: Request? get() = requestThreadLocal.get()
 //            replaceParam("sort", sort.revert().toString())
 //        }
 //    }
-//}
+// }

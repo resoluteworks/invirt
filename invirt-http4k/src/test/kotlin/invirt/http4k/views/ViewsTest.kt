@@ -1,9 +1,6 @@
 package invirt.http4k.views
 
 import invirt.http4k.GET
-import invirt.http4k.Views
-import invirt.http4k.renderTemplate
-import invirt.http4k.setDefaultViewLens
 import invirt.pebble.functions.NoArgsPebbleFunction
 import invirt.utils.uuid7
 import io.kotest.core.spec.style.StringSpec
