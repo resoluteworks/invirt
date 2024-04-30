@@ -3,10 +3,15 @@
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/resoluteworks/invirt)
 ![Coveralls](https://img.shields.io/coverallsCoverage/github/resoluteworks/invirt)
 
-Invirt is a framework for building web applications with [Kotlin](https://kotlinlang.org/), [http4k](https://www.http4k.org/) and server-side
-rendering with [Pebble templates](https://pebbletemplates.io/).
+Invirt is a framework for building web applications with [Kotlin](https://kotlinlang.org/), [http4k](https://www.http4k.org/)
+and [Pebble templates](https://pebbletemplates.io/).
 
-It is **not** a framework for building microservices. 
+Invirt doesn't re-invent anything. We have no intention of coming up with
+our own definition of web request or HTTP handler. We simply add utility and convenience
+on top of existing and proven solutions, with the objective of creating a great
+developer experience for those who want to write web applications in Kotlin.
+
+Invirt is **not** a framework for building microservices.
 
 ## Motivation
 When it comes to building web applications that aren't trading systems or social media mammoths,
@@ -14,8 +19,7 @@ single-page applications (SPA) have been for years one of the few seemingly reas
 to platforms like PHP or Ruby on Rails.
 
 At the same time, server-side rendering on the JVM has had a bad reputation for decades and even the most
-popular frameworks in this space have done little to improve developer experience
-and deliver maintainable and easy to deploy web applications. Which, in turn, has made everyone
+popular frameworks in this space have done little to improve developer experience and productivity. Which, in turn, has made everyone
 wince at the thought of running anything "non-enterprise" on the JVM.
 
 We believe, however, that the developments in the past years have created the space for
@@ -28,6 +32,6 @@ we can now make modern and responsive web apps using almost exclusively
 server-side rendering and little to no JavaScript.
 
 To be clear, we believe in the diversity of the web, and we are in no way downplaying the incredible
-contributions that all of these ideas, languages and platforms have made to its evolution.
+contributions that all of these platforms have made to its evolution.
 This framework exists because we believe the web should evolve, it shouldn't converge, and it should
-provide options and alternatives for an audience as wide as possible.
+provide options for wide audiences.
