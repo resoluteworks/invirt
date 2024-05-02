@@ -11,7 +11,7 @@ import org.http4k.routing.routes
 class DontCacheErrorsFilterTest : StringSpec({
 
     "errors don't allow cache" {
-        val handler = DontCacheErrorsFilter()
+        val handler = DontCacheErrors()
             .then(cacheOneYear())
             .then(routes("/test" GET { Response(Status.NOT_FOUND) }))
 
@@ -21,7 +21,7 @@ class DontCacheErrorsFilterTest : StringSpec({
     }
 
     "non-errors allow cache" {
-        val handler = DontCacheErrorsFilter()
+        val handler = DontCacheErrors()
             .then(cacheOneYear())
             .then(routes("/test" GET { Response(Status.OK) }))
 
@@ -31,7 +31,7 @@ class DontCacheErrorsFilterTest : StringSpec({
     }
 
     "custom statuses" {
-        val handler = DontCacheErrorsFilter(Status.INTERNAL_SERVER_ERROR)
+        val handler = DontCacheErrors(Status.INTERNAL_SERVER_ERROR)
             .then(cacheOneYear())
             .then(routes("/test" GET { Response(Status.INTERNAL_SERVER_ERROR) }))
 

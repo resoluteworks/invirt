@@ -17,7 +17,7 @@ class HttpAccessLogFilterTest : StringSpec() {
     init {
 
         "defaults - errors only" {
-            val filter = HttpAccessLogFilter()
+            val filter = HttpAccessLog()
             testLogFilter(filter, Status.OK, false)
             testLogFilter(filter, Status.SEE_OTHER, false)
             testLogFilter(filter, Status.BAD_REQUEST, true)
@@ -28,7 +28,7 @@ class HttpAccessLogFilterTest : StringSpec() {
         }
 
         "all statuses" {
-            val filter = HttpAccessLogFilter(false)
+            val filter = HttpAccessLog(false)
             testLogFilter(filter, Status.OK, true)
             testLogFilter(filter, Status.SEE_OTHER, true)
             testLogFilter(filter, Status.BAD_REQUEST, true)
@@ -40,10 +40,10 @@ class HttpAccessLogFilterTest : StringSpec() {
     }
 
     private fun testLogFilter(filter: Filter, status: Status, expectCalled: Boolean) {
-        mockkObject(HttpAccessLogFilter) {
+        mockkObject(HttpAccessLog) {
             val log = mockk<KLogger>()
             every { log.atInfo(any<(KLoggingEventBuilder) -> Unit>()) } returns Unit
-            every { HttpAccessLogFilter.log } returns log
+            every { HttpAccessLog.log } returns log
 
             val httpHandler = filter.then(
                 routes(

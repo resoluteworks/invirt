@@ -8,7 +8,7 @@ import kotlin.reflect.KClass
 
 private val log = KotlinLogging.logger {}
 
-object CatchAllFilter {
+object CatchAll {
 
     operator fun invoke(vararg exceptionStatusMappings: Pair<KClass<out Throwable>, Status>): Filter {
         return invoke(exceptionStatusMappings.toMap())

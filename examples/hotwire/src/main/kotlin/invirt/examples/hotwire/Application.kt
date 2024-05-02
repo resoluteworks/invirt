@@ -1,10 +1,8 @@
 package invirt.examples.hotwire
 
 import invirt.http4k.*
-import invirt.http4k.filters.CatchAllFilter
-import invirt.http4k.views.errorResponse
-import invirt.http4k.views.withView
-import invirt.pebble.invirtPebbleFilter
+import invirt.http4k.filters.CatchAll
+import invirt.http4k.views.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.http4k.cloudnative.env.Environment
 import org.http4k.cloudnative.env.EnvironmentKey
@@ -29,8 +27,8 @@ class Application {
 
         val userService = UserService()
         val appHandler = AppRequestContexts()
-            .then(CatchAllFilter())
-            .then(invirtPebbleFilter)
+            .then(CatchAll())
+            .then(StoreRequestOnThread())
             .then(
                 routes(
                     "/" GET {

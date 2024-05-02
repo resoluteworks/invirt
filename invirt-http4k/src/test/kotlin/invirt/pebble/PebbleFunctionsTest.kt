@@ -1,6 +1,7 @@
 package invirt.pebble
 
 import invirt.data.Page
+import invirt.http4k.StoreRequestOnThread
 import invirt.http4k.views.Views
 import invirt.http4k.views.ok
 import invirt.http4k.views.renderTemplate
@@ -114,7 +115,7 @@ class PebbleFunctionsTest : StringSpec() {
         }
 
         "uuid" {
-            val httpHandler = invirtPebbleFilter.then(routes("/test" bind Method.GET to { renderTemplate("function-uuid") }))
+            val httpHandler = StoreRequestOnThread().then(routes("/test" bind Method.GET to { renderTemplate("function-uuid") }))
             val response1 = httpHandler(Request(Method.GET, "/test"))
             val response2 = httpHandler(Request(Method.GET, "/test"))
 
@@ -131,13 +132,13 @@ class PebbleFunctionsTest : StringSpec() {
     }
 
     private fun testFunction(function: String, request: String, expectedBody: String) {
-        val httpHandler = invirtPebbleFilter.then(routes("/test" bind Method.GET to { renderTemplate("function-${function}") }))
+        val httpHandler = StoreRequestOnThread().then(routes("/test" bind Method.GET to { renderTemplate("function-${function}") }))
         val response = httpHandler(Request(Method.GET, request))
         response.bodyString().trim() shouldBe expectedBody
     }
 
     private fun testFunctionModel(function: String, request: String = "/test", model: Any, expectedBody: String) {
-        val httpHandler = invirtPebbleFilter.then(
+        val httpHandler = StoreRequestOnThread().then(
             routes(
                 "/test" bind Method.GET to {
                     if (model is ViewModel) {

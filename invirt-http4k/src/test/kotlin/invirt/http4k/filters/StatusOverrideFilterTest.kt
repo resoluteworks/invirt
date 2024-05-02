@@ -11,7 +11,7 @@ import org.http4k.kotest.shouldHaveStatus
 class StatusOverrideFilterTest : StringSpec({
 
     "forbidden as not found" {
-        val httpHandler = StatusOverrideFilter(Status.FORBIDDEN to Status.NOT_FOUND)
+        val httpHandler = StatusOverride(Status.FORBIDDEN to Status.NOT_FOUND)
             .then(
                 org.http4k.routing.routes(
                     "/test" GET { org.http4k.core.Response(Status.FORBIDDEN) }

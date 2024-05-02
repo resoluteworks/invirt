@@ -7,7 +7,7 @@ import org.http4k.core.noCache
 /**
  * Disable caching for certain error statuses
  */
-object DontCacheErrorsFilter {
+object DontCacheErrors {
 
     operator fun invoke(vararg errorStatuses: Status = arrayOf(Status.NOT_FOUND)): Filter {
         return invoke(errorStatuses.toSet())

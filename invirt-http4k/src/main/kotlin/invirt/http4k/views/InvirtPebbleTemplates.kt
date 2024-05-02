@@ -1,6 +1,6 @@
 package invirt.http4k.views
 
-import invirt.pebble.currentHttp4kRequest
+import invirt.http4k.currentHttp4kRequest
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.pebbletemplates.pebble.PebbleEngine
 import io.pebbletemplates.pebble.error.LoaderException

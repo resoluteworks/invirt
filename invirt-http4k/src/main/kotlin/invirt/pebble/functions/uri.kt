@@ -2,7 +2,6 @@ package invirt.pebble.functions
 
 import invirt.data.Page
 import invirt.http4k.*
-import invirt.pebble.currentHttp4kRequest
 
 val replaceQueryFunction = pebbleFunction("replaceQuery", "name", "value") {
     currentHttp4kRequest!!.uri.replaceQuery(args["name"] as String to args["value"]!!)

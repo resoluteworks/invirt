@@ -1,6 +1,7 @@
 package invirt.pebble
 
 import invirt.http4k.AppRequestContexts
+import invirt.http4k.StoreRequestOnThread
 import invirt.http4k.views.ViewResponse
 import invirt.http4k.views.Views
 import invirt.http4k.views.errorResponse
@@ -28,7 +29,7 @@ class ValidationTest : StringSpec() {
                 ValidationError("email", "Not a valid email"),
                 ValidationError("details.age", "Age must be 18 or over")
             )
-            val httpHandler = AppRequestContexts().then(invirtPebbleFilter)
+            val httpHandler = AppRequestContexts().then(StoreRequestOnThread())
                 .then(routes("/test" bind Method.GET to { Form().errorResponse(errors) }))
             val response = httpHandler(Request(Method.GET, "/test"))
             response.bodyString().trimIndent() shouldBe """
@@ -42,7 +43,7 @@ class ValidationTest : StringSpec() {
             class Form : ViewResponse("validation/has-errors")
 
             fun testErrors(errors: ValidationErrors, expect: Boolean) {
-                val httpHandler = AppRequestContexts().then(invirtPebbleFilter)
+                val httpHandler = AppRequestContexts().then(StoreRequestOnThread())
                     .then(routes("/test" bind Method.GET to { Form().errorResponse(errors) }))
                 val response = httpHandler(Request(Method.GET, "/test"))
                 response.bodyString().trim() shouldBe expect.toString()
@@ -56,7 +57,7 @@ class ValidationTest : StringSpec() {
             class Form : ViewResponse("validation/errors-function-in-macro.peb")
 
             fun testErrors(errors: ValidationErrors, expect: String) {
-                val httpHandler = AppRequestContexts().then(invirtPebbleFilter)
+                val httpHandler = AppRequestContexts().then(StoreRequestOnThread())
                     .then(routes("/test" bind Method.GET to { Form().errorResponse(errors) }))
                 val response = httpHandler(Request(Method.GET, "/test"))
                 response.bodyString().trim() shouldBe expect

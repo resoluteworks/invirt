@@ -1,6 +1,8 @@
 package invirt.pebble
 
 import invirt.http4k.GET
+import invirt.http4k.StoreRequestOnThread
+import invirt.http4k.currentHttp4kRequest
 import io.kotest.assertions.throwables.shouldThrowWithMessage
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -12,7 +14,7 @@ class PebbleFilterTest : StringSpec({
 
     "request thread local" {
         lateinit var requestFromHandler: Request
-        val handler = invirtPebbleFilter.then(
+        val handler = StoreRequestOnThread().then(
             routes(
                 "/test" GET { request ->
                     requestFromHandler = currentHttp4kRequest!!
@@ -27,7 +29,7 @@ class PebbleFilterTest : StringSpec({
     }
 
     "request thread local cleared after request even when error occurs" {
-        val handler = invirtPebbleFilter
+        val handler = StoreRequestOnThread()
             .then(routes("/{value}" GET { throw IllegalStateException("Cannot proceed") }))
         shouldThrowWithMessage<IllegalStateException>("Cannot proceed") {
             handler(Request(Method.GET, "/test"))

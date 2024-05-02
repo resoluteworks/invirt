@@ -5,7 +5,7 @@ import org.http4k.core.Filter
 import org.http4k.core.HttpTransaction
 import org.http4k.filter.ResponseFilters
 
-object HttpAccessLogFilter {
+object HttpAccessLog {
 
     internal val log = KotlinLogging.logger {}
 

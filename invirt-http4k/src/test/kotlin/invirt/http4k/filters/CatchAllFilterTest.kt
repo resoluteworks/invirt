@@ -12,7 +12,7 @@ import org.http4k.routing.routes
 class CatchAllFilterTest : StringSpec({
 
     "exception to status" {
-        val handler = CatchAllFilter(
+        val handler = CatchAll(
             mapOf(
                 IllegalArgumentException::class to Status.BAD_REQUEST,
                 ClassCastException::class to Status.NOT_FOUND

@@ -1,6 +1,6 @@
 package invirt.examples.hotwire
 
-import invirt.http4k.ViewResponse
+import invirt.http4k.views.ViewResponse
 import io.validk.ValidObject
 import io.validk.Validation
 import io.validk.email

@@ -1,6 +1,5 @@
 package invirt.pebble
 
-import invirt.http4k.requestScopeValue
 import invirt.pebble.filters.DateWithDaySuffixFilter
 import invirt.pebble.functions.*
 import invirt.utils.uuid7
@@ -8,8 +7,6 @@ import io.pebbletemplates.pebble.extension.AbstractExtension
 import io.pebbletemplates.pebble.extension.Filter
 import io.pebbletemplates.pebble.extension.Function
 import java.time.LocalDate
-
-val invirtPebbleFilter: org.http4k.core.Filter = requestScopeValue(requestThreadLocal) { it }
 
 class InvirtPebbleExtension : AbstractExtension() {
 

@@ -13,7 +13,7 @@ class ErrorPagesFilterTest : StringSpec({
     beforeAny { setDefaultViewLens(Views.Classpath("webapp/views")) }
 
     "404 page" {
-        val httpHandler = ErrorPagesFilter(Status.NOT_FOUND to "error/404")
+        val httpHandler = ErrorPages(Status.NOT_FOUND to "error/404")
             .then(
                 routes(
                     "/test" GET { Response(Status.NOT_FOUND) }
@@ -24,8 +24,8 @@ class ErrorPagesFilterTest : StringSpec({
     }
 
     "forbidden mapped to not found and custom error page" {
-        val httpHandler = ErrorPagesFilter(mapOf(Status.NOT_FOUND to "error/404"))
-            .then(StatusOverrideFilter(Status.FORBIDDEN to Status.NOT_FOUND))
+        val httpHandler = ErrorPages(mapOf(Status.NOT_FOUND to "error/404"))
+            .then(StatusOverride(Status.FORBIDDEN to Status.NOT_FOUND))
             .then(
                 routes(
                     "/test" GET { Response(Status.FORBIDDEN) }
