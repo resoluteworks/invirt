@@ -2,10 +2,7 @@ package invirt.http4k
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
-import org.http4k.core.Method
-import org.http4k.core.Request
-import org.http4k.core.Response
-import org.http4k.core.Status
+import org.http4k.core.*
 import org.http4k.core.cookie.Cookie
 import org.http4k.kotest.shouldHaveSetCookie
 import org.http4k.routing.bind
@@ -33,22 +30,6 @@ class ResponseTest : StringSpec({
                 "/test"
             )
         ).bodyString() shouldBe """{"name":"Apache Productions","enabled":true}"""
-    }
-
-    "pojo.ok(bidilens)" {
-        data class JsonTestPojo(
-            val name: String,
-            val enabled: Boolean
-        )
-
-        val httpHandler = routes(
-            "/test" bind Method.GET to {
-                val lens = jsonLens<JsonTestPojo>()
-                JsonTestPojo("Something else in Geordie", true).ok(lens)
-            }
-        )
-
-        httpHandler(Request(Method.GET, "/test")).bodyString() shouldBe """{"name":"Something else in Geordie","enabled":true}"""
     }
 
     "withCookies" {

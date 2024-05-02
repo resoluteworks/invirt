@@ -11,7 +11,6 @@ import org.http4k.lens.BiDiBodyLens
 import org.http4k.lens.Header
 import java.time.Instant
 
-fun <T : Any> T.ok(lens: BiDiBodyLens<T>): Response = Response(Status.OK).with(lens of this)
 fun <T : Any> BiDiBodyLens<T>.ok(message: T): Response = Response(Status.OK).with(this of message)
 
 fun Response.withCookies(cookies: Collection<Cookie>): Response {
