@@ -13,3 +13,7 @@ val currencyFromMinorUnitFunction = pebbleFunction("currencyFromMinorUnit", "min
 val errorsFunction = pebbleFunction("errors") {
     validationErrorContextKey[currentHttp4kRequest!!]
 }
+
+val requestFunction = pebbleFunction("request") {
+    currentHttp4kRequest!!
+}

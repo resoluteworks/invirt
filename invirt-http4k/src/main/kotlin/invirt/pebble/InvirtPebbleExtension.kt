@@ -23,7 +23,8 @@ class InvirtPebbleExtension : AbstractExtension() {
             jsonFunction,
             jsonArrayFunction,
 
-            // Request query
+            // Request
+            requestFunction,
             replaceQueryFunction,
             replacePageFunction,
             removeQueryValueFunction,
