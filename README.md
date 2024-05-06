@@ -8,7 +8,7 @@ and [Pebble templates](https://pebbletemplates.io/).
 
 Invirt doesn't re-invent the wheel. We have no intention of coming up with
 our own definition of web request or HTTP handler. We simply add utility and convenience
-on top of proven solutions, with the aim of delivering a great developer experience
+on top of proven solutions, in order to deliver a better developer experience
 for those who want to write web applications in Kotlin.
 
 Invirt is **not** a framework for building microservices.
