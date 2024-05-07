@@ -28,7 +28,7 @@ class HttpAccessLogTest : StringSpec() {
         }
 
         "all statuses" {
-            val filter = HttpAccessLog(false)
+            val filter = HttpAccessLog(true)
             testLogFilter(filter, Status.OK, true)
             testLogFilter(filter, Status.SEE_OTHER, true)
             testLogFilter(filter, Status.BAD_REQUEST, true)
