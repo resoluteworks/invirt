@@ -12,7 +12,7 @@ import org.http4k.core.*
 import org.http4k.routing.path
 import org.http4k.routing.routes
 
-class HttpAccessLogFilterTest : StringSpec() {
+class HttpAccessLogTest : StringSpec() {
 
     init {
 
