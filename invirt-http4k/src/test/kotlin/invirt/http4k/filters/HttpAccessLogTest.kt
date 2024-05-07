@@ -37,6 +37,18 @@ class HttpAccessLogTest : StringSpec() {
             testLogFilter(filter, Status.INTERNAL_SERVER_ERROR, true)
             testLogFilter(filter, Status.BAD_GATEWAY, true)
         }
+
+        "ignorePaths" {
+            testLogFilter(HttpAccessLog(true, setOf("/status/200")), Status.OK, false)
+            testLogFilter(HttpAccessLog(false, setOf("/status/200")), Status.OK, false)
+            testLogFilter(HttpAccessLog(true, setOf("/status/404")), Status.NOT_FOUND, false)
+            testLogFilter(HttpAccessLog(false, setOf("/status/404")), Status.NOT_FOUND, false)
+            testLogFilter(HttpAccessLog(false, setOf("/status/400")), Status.NOT_FOUND, true)
+
+            testLogFilter(HttpAccessLog(true, setOf("/status")), Status.NOT_FOUND, false)
+            testLogFilter(HttpAccessLog(true, setOf("/status")), Status.BAD_REQUEST, false)
+            testLogFilter(HttpAccessLog(true, setOf("/status")), Status.OK, false)
+        }
     }
 
     private fun testLogFilter(filter: Filter, status: Status, expectCalled: Boolean) {

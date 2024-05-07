@@ -11,10 +11,11 @@ object HttpAccessLog {
 
     operator fun invoke(
         allStatues: Boolean = false,
+        ignorePaths: Set<String> = emptySet(),
         extraFields: (HttpTransaction) -> Map<String, String> = { emptyMap() }
     ): Filter {
         return ResponseFilters.ReportHttpTransaction(recordFn = { tx ->
-            if (allStatues || tx.response.status.code >= 400) {
+            if ((allStatues || tx.response.status.code >= 400) && ignorePaths.none { tx.request.uri.path.startsWith(it) }) {
                 log.atInfo {
                     message = "http-access"
                     payload = mapOf(
