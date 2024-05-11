@@ -1,28 +1,31 @@
-package invirt.data.mongodb
+package invirt.mongodb
 
 import com.mongodb.client.model.Indexes
-import invirt.test.randomDatabase
-import invirt.test.testCollection
-import invirt.test.testMongoClient
+import invirt.test.randomCollection
+import invirt.test.testMongo
+import invirt.utils.uuid7
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import org.bson.codecs.pojo.annotations.BsonId
+import java.time.Instant
 import java.time.LocalDate
-import java.util.*
 
-class FilterTest : StringSpec() {
+class FiltersTest : StringSpec() {
 
-    private val mongoDatabase = testMongoClient().randomDatabase()
+    private val mongo = testMongo()
 
     init {
         "gt, lt, gte, lte" {
             data class Entity(
                 val index: Int,
-                @BsonId val id: String = UUID.randomUUID().toString()
-            )
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0,
+                override val createdAt: Instant = mongoNow(),
+                override var updatedAt: Instant = mongoNow()
+            ) : StoredEntity
 
-            val collection = mongoDatabase.testCollection<Entity>()
+            val collection = mongo.database.randomCollection<Entity>()
             repeat(100) {
                 collection.insertOne(Entity(it + 1))
             }
@@ -36,10 +39,13 @@ class FilterTest : StringSpec() {
         "in" {
             data class Entity(
                 val index: Int,
-                @BsonId val id: String = UUID.randomUUID().toString()
-            )
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0,
+                override val createdAt: Instant = mongoNow(),
+                override var updatedAt: Instant = mongoNow()
+            ) : StoredEntity
 
-            val collection = mongoDatabase.testCollection<Entity>()
+            val collection = mongo.database.randomCollection<Entity>()
             val ids = mutableListOf<String>()
             repeat(4) {
                 val document = Entity(it % 2)
@@ -74,10 +80,13 @@ class FilterTest : StringSpec() {
             data class Entity(
                 val index: Int,
                 val date: LocalDate,
-                @BsonId val id: String = UUID.randomUUID().toString()
-            )
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0,
+                override val createdAt: Instant = mongoNow(),
+                override var updatedAt: Instant = mongoNow()
+            ) : StoredEntity
 
-            val collection = mongoDatabase.testCollection<Entity>()
+            val collection = mongo.database.randomCollection<Entity>()
             collection.insertMany(
                 listOf(
                     Entity(1, LocalDate.of(2024, 2, 3)),
@@ -96,10 +105,13 @@ class FilterTest : StringSpec() {
 
         "byId" {
             data class Entity(
-                @BsonId val id: String = UUID.randomUUID().toString()
-            )
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0,
+                override val createdAt: Instant = mongoNow(),
+                override var updatedAt: Instant = mongoNow()
+            ) : StoredEntity
 
-            val collection = mongoDatabase.testCollection<Entity>()
+            val collection = mongo.database.randomCollection<Entity>()
             val ids = mutableListOf<String>()
             repeat(4) {
                 val document = Entity()
@@ -113,10 +125,13 @@ class FilterTest : StringSpec() {
 
         "byIds" {
             data class Entity(
-                @BsonId val id: String = UUID.randomUUID().toString()
-            )
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0,
+                override val createdAt: Instant = mongoNow(),
+                override var updatedAt: Instant = mongoNow()
+            ) : StoredEntity
 
-            val collection = mongoDatabase.testCollection<Entity>()
+            val collection = mongo.database.randomCollection<Entity>()
             val ids = mutableListOf<String>()
             repeat(4) {
                 val document = Entity()
@@ -133,10 +148,13 @@ class FilterTest : StringSpec() {
             data class Entity(
                 val name: String,
                 val description: String,
-                @BsonId val id: String = UUID.randomUUID().toString()
-            )
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0,
+                override val createdAt: Instant = mongoNow(),
+                override var updatedAt: Instant = mongoNow()
+            ) : StoredEntity
 
-            val collection = mongoDatabase.testCollection<Entity>()
+            val collection = mongo.database.randomCollection<Entity>()
             collection.createIndex(Indexes.compoundIndex(listOf("name", "description").map { Indexes.text(it) }))
 
             val doc1 = Entity("dogs", "dogs barking")

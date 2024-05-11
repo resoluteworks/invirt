@@ -7,6 +7,7 @@ plugins {
 dependencies {
     val mongoDriverVersion: String by project
 
+    implementation(project(":invirt-utils"))
     implementation(project(":invirt-data"))
     api("org.mongodb:mongodb-driver-kotlin-sync:${mongoDriverVersion}")
 

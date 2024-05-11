@@ -1,4 +1,4 @@
-package invirt.data.mongodb
+package invirt.mongodb
 
 import com.mongodb.client.model.Sorts
 import com.mongodb.kotlin.client.FindIterable

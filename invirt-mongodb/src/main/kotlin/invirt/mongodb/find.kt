@@ -1,4 +1,4 @@
-package invirt.data.mongodb
+package invirt.mongodb
 
 import com.mongodb.client.model.Collation
 import com.mongodb.client.model.CollationStrength

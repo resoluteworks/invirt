@@ -1,64 +1,89 @@
-package invirt.data.mongodb
+package invirt.mongodb
 
 import invirt.data.*
-import invirt.test.randomDatabase
-import invirt.test.testMongoClient
+import invirt.test.testMongo
+import invirt.utils.uuid7
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.conversions.Bson
 import java.time.Instant
-import java.util.*
 
 class QueryTest : StringSpec() {
 
-    private val mongoDb = testMongoClient().randomDatabase()
+    private val mongo = testMongo()
+    private val database = mongo.database
 
     init {
+        "default args" {
+            @MongoCollection("query-default-args")
+            data class Entity(
+                val type: String,
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0,
+                override val createdAt: Instant = mongoNow(),
+                override var updatedAt: Instant = mongoNow()
+            ) : StoredEntity
+
+            val collection = database.collection<Entity>()
+            collection.insertMany((0 until 34).map { Entity("company") })
+            collection.insertMany((0 until 23).map { Entity("individual") })
+
+            val result = collection.pagedQuery()
+            result.count shouldBe 57
+            result.records.size shouldBe 10
+        }
+
         "no results" {
-            @CollectionName("query-no-results-test")
+            @MongoCollection("query-no-results-test")
             data class Entity(
                 @Indexed val type: String,
-                @BsonId override val id: String = UUID.randomUUID().toString()
-            ) : MongoEntity
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0,
+                override val createdAt: Instant = mongoNow(),
+                override var updatedAt: Instant = mongoNow()
+            ) : StoredEntity
 
-            val collection = mongoDb.getEntityCollection<Entity>()
+            val collection = database.collection<Entity>()
             collection.insertMany((0 until 10).map { Entity("company") })
             collection.insertMany((0 until 10).map { Entity("individual") })
 
-            val result = collection.query(Entity::type.eq("something-else"), Page(0, 10))
+            val result = collection.pagedQuery(Entity::type.eq("something-else"), Page(0, 10))
             result.count shouldBe 0
             result.records.size shouldBe 0
         }
 
         "paged result" {
-            @CollectionName("query-paged-result-test")
+            @MongoCollection("query-paged-result-test")
             data class Entity(
                 @Indexed val type: String,
                 @Indexed val index: Int,
-                @BsonId override val id: String = UUID.randomUUID().toString()
-            ) : MongoEntity
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0,
+                override val createdAt: Instant = mongoNow(),
+                override var updatedAt: Instant = mongoNow()
+            ) : StoredEntity
 
-            val collection = mongoDb.getEntityCollection<Entity>()
+            val collection = database.collection<Entity>()
             val companyCount = 95
             collection.insertMany((0 until companyCount).map { Entity("company", it) })
             collection.insertMany((0 until 100).map { Entity("individual", it) })
 
-            val result1 = collection.query(Entity::type.eq("company"), Page(0, 10))
+            val result1 = collection.pagedQuery(Entity::type.eq("company"), Page(0, 10))
             result1.count shouldBe companyCount
             result1.sort.shouldBeEmpty()
             result1.records.size shouldBe 10
             result1.records.map { it.type }.toSet() shouldBe setOf("company")
             result1.records.map { it.index } shouldBe (0..9).toList()
 
-            val result2 = collection.query(Entity::type.eq("company"), Page(10, 10))
+            val result2 = collection.pagedQuery(Entity::type.eq("company"), Page(10, 10))
             result2.count shouldBe companyCount
             result2.records.size shouldBe 10
             result2.records.map { it.type }.toSet() shouldBe setOf("company")
             result2.records.map { it.index } shouldBe (10..19).toList()
 
-            val result3 = collection.query(Entity::type.eq("company"), Page(90, 10))
+            val result3 = collection.pagedQuery(Entity::type.eq("company"), Page(90, 10))
             result3.count shouldBe companyCount
             result3.records.size shouldBe 5
             result3.records.map { it.type }.toSet() shouldBe setOf("company")
@@ -66,26 +91,29 @@ class QueryTest : StringSpec() {
         }
 
         "sort" {
-            @CollectionName("query-sort-test")
+            @MongoCollection("query-sort-test")
             data class Entity(
                 @Indexed val type: String,
                 @Indexed val index: Int,
 
-                @BsonId override val id: String = UUID.randomUUID().toString()
-            ) : MongoEntity
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0,
+                override val createdAt: Instant = mongoNow(),
+                override var updatedAt: Instant = mongoNow()
+            ) : StoredEntity
 
-            val collection = mongoDb.getEntityCollection<Entity>()
+            val collection = database.collection<Entity>()
             val docCount = 95
             collection.insertMany((0 until docCount).map { Entity("company", it) })
 
-            val result1 = collection.query(Entity::type.eq("company"), Page(0, 10), 1000, Entity::index.sortAsc())
+            val result1 = collection.pagedQuery(Entity::type.eq("company"), Page(0, 10), 1000, Entity::index.sortAsc())
             result1.sort shouldBe listOf(Sort("index", SortOrder.ASC))
             result1.count shouldBe docCount
             result1.records.size shouldBe 10
             result1.records.map { it.type }.toSet() shouldBe setOf("company")
             result1.records.map { it.index } shouldBe (0..9).toList()
 
-            val result2 = collection.query(Entity::type.eq("company"), Page(0, 10), 1000, Entity::index.sortDesc())
+            val result2 = collection.pagedQuery(Entity::type.eq("company"), Page(0, 10), 1000, Entity::index.sortDesc())
             result2.sort shouldBe listOf(Sort("index", SortOrder.DESC))
             result2.count shouldBe docCount
             result2.records.size shouldBe 10
@@ -94,20 +122,23 @@ class QueryTest : StringSpec() {
         }
 
         "sort with multiple fields" {
-            @CollectionName("query-sort-multiple-sorts-test")
+            @MongoCollection("query-sort-multiple-sorts-test")
             data class Entity(
                 @Indexed val type: String,
                 @Indexed val index: Int,
 
-                @BsonId override val id: String = UUID.randomUUID().toString()
-            ) : MongoEntity
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0,
+                override val createdAt: Instant = mongoNow(),
+                override var updatedAt: Instant = mongoNow()
+            ) : StoredEntity
 
-            val collection = mongoDb.getEntityCollection<Entity>()
+            val collection = database.collection<Entity>()
             val docCount = 95
             collection.insertMany((1..docCount).map { Entity("company", it) })
             collection.insertMany((1..docCount).map { Entity("individual", it) })
 
-            val result = collection.query(null, Page(0, 10), 1000, Entity::index.sortAsc(), Entity::type.sortDesc())
+            val result = collection.pagedQuery(null, Page(0, 10), 1000, Entity::index.sortAsc(), Entity::type.sortDesc())
             result.sort shouldBe listOf(Sort("index", SortOrder.ASC), Sort("type", SortOrder.DESC))
             result.count shouldBe docCount * 2
             result.records.size shouldBe 10
@@ -122,13 +153,16 @@ class QueryTest : StringSpec() {
         }
 
         "search query" {
-            @CollectionName("query-search-query-test")
+            @MongoCollection("query-search-query-test")
             data class Entity(
                 @Indexed val type: String,
                 @Indexed val index: Int,
 
-                @BsonId override val id: String = UUID.randomUUID().toString()
-            ) : MongoEntity
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0,
+                override val createdAt: Instant = mongoNow(),
+                override var updatedAt: Instant = mongoNow()
+            ) : StoredEntity
 
             data class SimpleMongoQuery(
                 override val filter: Bson?,
@@ -136,7 +170,7 @@ class QueryTest : StringSpec() {
                 override val sort: List<Sort>
             ) : MongoQuery
 
-            val collection = mongoDb.getEntityCollection<Entity>()
+            val collection = database.collection<Entity>()
             val companyCount = 95
             val individualCount = 100
             collection.insertMany((0 until companyCount).map { Entity("company", it) })
@@ -172,26 +206,27 @@ class QueryTest : StringSpec() {
         }
 
         "no filter should return all documents" {
-            @CollectionName("query-no-filter-should-return-all-docs-test")
+            @MongoCollection("query-no-filter-should-return-all-docs-test")
             data class Entity(
                 @Indexed val type: String,
 
-                @BsonId override val id: String = UUID.randomUUID().toString(),
-                override val createdAt: Instant = Instant.now(),
-                override var updatedAt: Instant = Instant.now()
-            ) : TimestampedEntity
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0,
+                override val createdAt: Instant = mongoNow(),
+                override var updatedAt: Instant = mongoNow()
+            ) : StoredEntity
 
-            val collection = mongoDb.getEntityCollection<Entity>()
+            val collection = database.collection<Entity>()
             val companyCount = 95
             val individualCount = 100
             collection.insertMany((0 until companyCount).map { Entity("company") })
             collection.insertMany((0 until individualCount).map { Entity("individual") })
-            val result = collection.query(null, Page(0, 10))
+            val result = collection.pagedQuery(null, Page(0, 10))
             result.count shouldBe companyCount + individualCount
         }
 
         "text search" {
-            @CollectionName("query-text-search-test")
+            @MongoCollection("query-text-search-test")
             data class Entity(
                 @TextIndexed
                 val name: String,
@@ -199,44 +234,51 @@ class QueryTest : StringSpec() {
                 @TextIndexed
                 val description: String,
 
-                @BsonId override val id: String = UUID.randomUUID().toString(),
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0,
                 override val createdAt: Instant = mongoNow(),
                 override var updatedAt: Instant = mongoNow()
-            ) : TimestampedEntity
+            ) : StoredEntity
 
-            val collection = mongoDb.getEntityCollection<Entity>()
+            val collection = database.collection<Entity>()
             val doc1 = Entity("dogs", "dogs barking")
             val doc2 = Entity("both", "cats and dogs")
             collection.save(doc1)
             collection.save(doc2)
 
-            collection.query(textSearch("dogs")).records.sortedBy { it.id } shouldBe listOf(doc1, doc2).sortedBy { it.id }
-            collection.query(textSearch("dog")).records.sortedBy { it.id } shouldBe listOf(doc1, doc2).sortedBy { it.id }
-            collection.query(textSearch("barking")).records shouldBe listOf(doc1)
-            collection.query(textSearch("cat")).records shouldBe listOf(doc2)
+            collection.pagedQuery(textSearch("dogs")).records.sortedBy { it.id } shouldBe listOf(doc1, doc2).sortedBy { it.id }
+            collection.pagedQuery(textSearch("dog")).records.sortedBy { it.id } shouldBe listOf(doc1, doc2).sortedBy { it.id }
+            collection.pagedQuery(textSearch("barking")).records shouldBe listOf(doc1)
+            collection.pagedQuery(textSearch("cat")).records shouldBe listOf(doc2)
         }
 
         "collection.query with maxDocuments" {
-            @CollectionName("query-collection-query-with-maxDocuments")
+            @MongoCollection("query-collection-query-with-maxDocuments")
             data class Entity(
-                @BsonId override val id: String = UUID.randomUUID().toString()
-            ) : MongoEntity
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0,
+                override val createdAt: Instant = mongoNow(),
+                override var updatedAt: Instant = mongoNow()
+            ) : StoredEntity
 
-            val collection = mongoDb.getEntityCollection<Entity>()
+            val collection = database.collection<Entity>()
             collection.insertMany((0 until 100).map { Entity() })
 
-            val result = collection.query(null, Page(0, 10), 30)
+            val result = collection.pagedQuery(null, Page(0, 10), 30)
             result.count shouldBe 30
             result.records.size shouldBe 10
         }
 
         "MongoQuery with maxDocuments" {
-            @CollectionName("query-MongoQuery-with-maxDocuments")
+            @MongoCollection("query-MongoQuery-with-maxDocuments")
             data class Entity(
-                @BsonId override val id: String = UUID.randomUUID().toString()
-            ) : MongoEntity
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0,
+                override val createdAt: Instant = mongoNow(),
+                override var updatedAt: Instant = mongoNow()
+            ) : StoredEntity
 
-            val collection = mongoDb.getEntityCollection<Entity>()
+            val collection = database.collection<Entity>()
             collection.insertMany((0 until 100).map { Entity() })
             data class SimpleMongoQuery(
                 override val filter: Bson?,

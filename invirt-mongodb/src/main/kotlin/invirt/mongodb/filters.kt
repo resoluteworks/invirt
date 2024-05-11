@@ -1,4 +1,4 @@
-package invirt.data.mongodb
+package invirt.mongodb
 
 import com.mongodb.client.model.Filters
 import org.bson.conversions.Bson

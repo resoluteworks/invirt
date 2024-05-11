@@ -1,4 +1,4 @@
-package invirt.data.mongodb
+package invirt.mongodb
 
 import com.mongodb.client.model.CountOptions
 import com.mongodb.kotlin.client.FindIterable
@@ -16,21 +16,21 @@ interface MongoQuery {
     val maxDocuments: Int get() = 1000
 }
 
-inline fun <reified T : MongoEntity> MongoCollection<T>.query(searchQuery: MongoQuery): RecordsPage<T> {
-    return this.query(searchQuery.filter, searchQuery.page, searchQuery.maxDocuments, *searchQuery.sort.toTypedArray())
+fun <E : StoredEntity> MongoCollection<E>.query(searchQuery: MongoQuery): RecordsPage<E> {
+    return this.pagedQuery(searchQuery.filter, searchQuery.page, searchQuery.maxDocuments, *searchQuery.sort.toTypedArray())
 }
 
-inline fun <reified T : MongoEntity> MongoCollection<T>.query(
-    filter: Bson?,
+fun <E : StoredEntity> MongoCollection<E>.pagedQuery(
+    filter: Bson? = null,
     page: Page = Page(0, 10),
     maxDocuments: Int = 1000,
     vararg sorts: Sort = emptyArray()
-): RecordsPage<T> {
+): RecordsPage<E> {
     val countOptions = CountOptions().limit(maxDocuments)
 
     // This isn't optimal as it performs two Mongo queries, but the alternative is using
     // aggregations (see commented code below) and things get very complex, particularly with text search
-    val (count: Long, iterable: FindIterable<T>) =
+    val (count: Long, iterable: FindIterable<E>) =
         if (filter != null) {
             Pair(this.countDocuments(filter, countOptions), this.find(filter).page(page))
         } else {

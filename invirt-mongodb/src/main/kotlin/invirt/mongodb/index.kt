@@ -1,43 +1,21 @@
-package invirt.data.mongodb
+package invirt.mongodb
 
 import com.mongodb.client.model.*
 import com.mongodb.kotlin.client.MongoCollection
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlin.reflect.KClass
-import kotlin.reflect.full.*
+import kotlin.reflect.full.createType
+import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.isSubtypeOf
+import kotlin.reflect.full.memberProperties
 
 private val log = KotlinLogging.logger {}
 
-@Target(AnnotationTarget.PROPERTY)
-@Retention(AnnotationRetention.RUNTIME)
-@MustBeDocumented
-annotation class Indexed(
-    val order: Order = Order.ASC,
-    val caseInsensitive: Boolean = true,
-    vararg val fields: String
-) {
-
-    enum class Order {
-        ASC,
-        DESC
-    }
-}
-
-@Target(AnnotationTarget.PROPERTY)
-@Retention(AnnotationRetention.RUNTIME)
-@MustBeDocumented
-annotation class TextIndexed(
-    vararg val fields: String
-)
-
-fun <T : MongoEntity> MongoCollection<T>.createEntityIndexes() {
+fun <E : StoredEntity> MongoCollection<E>.createEntityIndexes() {
     createPropertyIndexes(this.documentClass.kotlin)
 
-    // Handling Timestamped explicitly, because annotations are not inherited in Kotlin
-    // so we cannot simply add @Indexed on Timestamped.createdAt
-    if (this.documentClass.kotlin.isSubclassOf(TimestampedEntity::class)) {
-        createPropertyIndexes(TimestampedEntity::class)
-    }
+    // Handling these explicitly, because annotations are not inherited in Kotlin
+    createPropertyIndexes(StoredEntity::class)
 }
 
 private fun MongoCollection<*>.createPropertyIndexes(cls: KClass<*>) {
