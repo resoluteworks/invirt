@@ -6,6 +6,7 @@ import invirt.test.shouldHaveDescIndex
 import invirt.test.shouldHaveTextIndex
 import invirt.test.testMongo
 import invirt.utils.uuid7
+import io.kotest.assertions.throwables.shouldThrowWithMessage
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -23,21 +24,12 @@ class IndexTest : StringSpec() {
             data class Address(val city: String)
 
             data class Entity(
-                @Indexed
                 val age: Int,
-
-                @Indexed(fields = ["gender.name"])
                 val gender: Gender,
-
-                @TextIndexed
                 val firstName: String,
-
-                @TextIndexed(fields = ["address.city"])
                 val address: Address,
-
-                @Indexed
-                @TextIndexed
                 val indexedAndTextIndexed: String,
+                val sent: Instant,
 
                 @BsonId override val id: String = uuid7(),
                 override var version: Long = 0,
@@ -50,23 +42,24 @@ class IndexTest : StringSpec() {
             val collectionName = uuid7()
             database.createCollection(collectionName)
             val collection = database.getCollection<Entity>(collectionName)
-            collection.createEntityIndexes()
+            collection.createIndexes {
+                asc(Entity::age)
+                asc("gender.name")
+                asc(Entity::indexedAndTextIndexed)
+                text("address.city", "firstName", "indexedAndTextIndexed")
+            }
 
             collection shouldHaveAscIndex "age"
             collection shouldHaveAscIndex "gender.name"
             collection shouldHaveAscIndex "version"
-            collection shouldHaveAscIndex "createdAt"
-            collection shouldHaveAscIndex "updatedAt"
-
-            collection.listIndexes().forEach {
-                println(it)
-            }
+            collection shouldHaveDescIndex "createdAt"
+            collection shouldHaveDescIndex "updatedAt"
             collection.shouldHaveTextIndex("address.city", "firstName", "indexedAndTextIndexed")
         }
 
-        "create indexes - explicit ASC" {
+        "can only add text index once" {
             data class Entity(
-                @Indexed(order = Indexed.Order.ASC) val parentId: String,
+                val name: String,
                 @BsonId override val id: String = uuid7(),
                 override var version: Long = 0,
                 override val createdAt: Instant = mongoNow(),
@@ -77,14 +70,18 @@ class IndexTest : StringSpec() {
             val collectionName = uuid7()
             database.createCollection(collectionName)
             val collection = database.getCollection<Entity>(collectionName)
-            collection.createEntityIndexes()
 
-            collection shouldHaveAscIndex "parentId"
+            shouldThrowWithMessage<IllegalStateException>("Text index already added for this collection") {
+                collection.createIndexes {
+                    text(Entity::name)
+                    text("name")
+                }
+            }
         }
 
-        "create indexes - explicit DESC" {
+        "create indexes - desc" {
             data class Entity(
-                @Indexed(order = Indexed.Order.DESC) val childId: String,
+                val childId: String,
                 @BsonId override val id: String = uuid7(),
                 override var version: Long = 0,
                 override val createdAt: Instant = mongoNow(),
@@ -95,16 +92,20 @@ class IndexTest : StringSpec() {
             val collectionName = uuid7()
             database.createCollection(collectionName)
             val collection = database.getCollection<Entity>(collectionName)
-            collection.createEntityIndexes()
+            collection.createIndexes {
+                desc(Entity::childId)
+            }
 
             collection shouldHaveDescIndex "childId"
         }
 
-        "case insensitive only on strings" {
+        "case insensitive" {
             data class Entity(
-                @Indexed val age: Int,
-                @Indexed val name: String,
-                @Indexed(caseInsensitive = false) val lastName: String,
+                val age: Int,
+                val name: String,
+                val lastName: String,
+                val address: String,
+                val city: String,
                 @BsonId override val id: String = uuid7(),
                 override var version: Long = 0,
                 override val createdAt: Instant = mongoNow(),
@@ -115,16 +116,24 @@ class IndexTest : StringSpec() {
             val database = mongo.database
             database.createCollection(collectionName)
             val collection = database.getCollection<Entity>(collectionName)
-            collection.createEntityIndexes()
+            collection.createIndexes {
+                asc(Entity::age)
+                asc(Entity::name)
+                asc(Entity::lastName, caseInsensitive = true)
+                desc(Entity::address, caseInsensitive = true)
+                desc("city", caseInsensitive = true)
+            }
             val indexes = collection.listIndexes().toList()
             indexes.indexForField("age")["collation"] shouldBe null
-            indexes.indexForField("lastName")["collation"] shouldBe null
-            indexes.indexForField("name")["collation"] shouldNotBe null
+            indexes.indexForField("name")["collation"] shouldBe null
+            indexes.indexForField("lastName")["collation"] shouldNotBe null
+            indexes.indexForField("address")["collation"] shouldNotBe null
+            indexes.indexForField("city")["collation"] shouldNotBe null
         }
 
         "case insensitive sort" {
             data class Entity(
-                @Indexed val name: String,
+                val name: String,
                 @BsonId override val id: String = uuid7(),
                 override var version: Long = 0,
                 override val createdAt: Instant = mongoNow(),
@@ -135,7 +144,9 @@ class IndexTest : StringSpec() {
             val collectionName = uuid7()
             database.createCollection(collectionName)
             val collection = database.getCollection<Entity>(collectionName)
-            collection.createEntityIndexes()
+            collection.createIndexes {
+                asc(Entity::name)
+            }
 
             collection.save(Entity("B"))
             collection.save(Entity("a"))

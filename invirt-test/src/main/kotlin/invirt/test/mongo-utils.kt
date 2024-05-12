@@ -2,7 +2,8 @@ package invirt.test
 
 import com.mongodb.kotlin.client.MongoCollection
 import com.mongodb.kotlin.client.MongoDatabase
-import invirt.mongodb.*
+import invirt.mongodb.Mongo
+import invirt.mongodb.StoredEntity
 import invirt.utils.uuid7
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.extensions.install
@@ -26,9 +27,4 @@ fun Spec.testMongo(): Mongo {
 
 inline fun <reified E : StoredEntity> MongoDatabase.randomCollection(): MongoCollection<E> {
     return getCollection<E>(uuid7())
-}
-
-inline fun <reified E : StoredEntity> MongoDatabase.deleteCollection() {
-    getCollection<E>(collectionName<E>()).drop()
-    collection<E>() // So indices get recreated
 }

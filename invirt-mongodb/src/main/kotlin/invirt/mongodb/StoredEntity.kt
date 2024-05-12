@@ -5,14 +5,8 @@ import kotlin.reflect.full.findAnnotation
 
 interface StoredEntity {
     val id: String
-
-    @Indexed
     var version: Long
-
-    @Indexed
     val createdAt: Instant
-
-    @Indexed
     var updatedAt: Instant
 }
 

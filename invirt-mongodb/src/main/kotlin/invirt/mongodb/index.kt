@@ -1,61 +1,87 @@
 package invirt.mongodb
 
 import com.mongodb.client.model.*
+import com.mongodb.kotlin.client.ClientSession
 import com.mongodb.kotlin.client.MongoCollection
-import io.github.oshai.kotlinlogging.KotlinLogging
-import kotlin.reflect.KClass
-import kotlin.reflect.full.createType
-import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.isSubtypeOf
-import kotlin.reflect.full.memberProperties
+import kotlin.reflect.KProperty1
 
-private val log = KotlinLogging.logger {}
-
-fun <E : StoredEntity> MongoCollection<E>.createEntityIndexes() {
-    createPropertyIndexes(this.documentClass.kotlin)
-
-    // Handling these explicitly, because annotations are not inherited in Kotlin
-    createPropertyIndexes(StoredEntity::class)
+fun String.indexAsc(caseInsensitive: Boolean = false): IndexModel {
+    return IndexModel(Indexes.ascending(this), indexOptions(caseInsensitive))
 }
 
-private fun MongoCollection<*>.createPropertyIndexes(cls: KClass<*>) {
-    val textIndexedFields = mutableListOf<String>()
-    val indexes = mutableListOf<IndexModel>()
-    val stringType = String::class.createType()
+fun String.indexDesc(caseInsensitive: Boolean = false): IndexModel {
+    return IndexModel(Indexes.descending(this), indexOptions(caseInsensitive))
+}
 
-    cls.memberProperties.forEach { property ->
+fun textIndex(vararg fields: String): IndexModel {
+    return IndexModel(Indexes.compoundIndex(fields.map { Indexes.text(it) }))
+}
 
-        // Indexed properties
-        property.findAnnotation<Indexed>()?.let { annotation ->
-            val fields = if (annotation.fields.isEmpty()) listOf(property.name) else annotation.fields.toList()
-            fields.forEach { field ->
-                val index = when (annotation.order) {
-                    Indexed.Order.ASC -> Indexes.ascending(field)
-                    Indexed.Order.DESC -> Indexes.descending(field)
-                }
-                val indexOptions = IndexOptions()
-                if (annotation.caseInsensitive && property.returnType.isSubtypeOf(stringType)) {
-                    indexOptions.collation(Collation.builder().locale("en").collationStrength(CollationStrength.SECONDARY).build())
-                }
-                indexes.add(IndexModel(index, indexOptions))
-                log.info { "Adding ${annotation.order} index for ${cls.simpleName}.${field}" }
-            }
-        }
+fun indexAsc(vararg fields: String, caseInsensitive: Boolean = false): List<IndexModel> {
+    return fields.map { it.indexAsc(caseInsensitive) }
+}
 
-        // Text indexed properties need collecting into one index as Mongo only supports one text index
-        property.findAnnotation<TextIndexed>()?.let { annotation ->
-            val fields = if (annotation.fields.isEmpty()) listOf(property.name) else annotation.fields.toList()
-            textIndexedFields.addAll(fields)
-        }
+fun indexDesc(vararg fields: String, caseInsensitive: Boolean = false): List<IndexModel> {
+    return fields.map { it.indexDesc(caseInsensitive) }
+}
+
+fun Collection<String>.textIndex(): IndexModel = textIndex(*this.toTypedArray())
+fun <E : StoredEntity> Collection<KProperty1<E, *>>.text() = this.map { it.name }.textIndex()
+
+fun <E : StoredEntity> MongoCollection<E>.createIndexes(vararg indexes: IndexModel) {
+    createIndexes(indexes.toList())
+}
+
+fun <E : StoredEntity> MongoCollection<E>.createIndexes(clientSession: ClientSession, vararg indexes: IndexModel) {
+    createIndexes(clientSession, indexes.toList())
+}
+
+fun <E : StoredEntity> MongoCollection<E>.createIndexes(build: IndexesBuilder.() -> Unit) {
+    val indexesBuilder = IndexesBuilder()
+    indexesBuilder.asc(StoredEntity::version)
+    indexesBuilder.desc(StoredEntity::createdAt)
+    indexesBuilder.desc(StoredEntity::updatedAt)
+    indexesBuilder.build()
+    createIndexes(indexesBuilder.indexes)
+}
+
+private fun indexOptions(caseInsensitive: Boolean): IndexOptions {
+    val indexOptions = IndexOptions()
+    if (caseInsensitive) {
+        indexOptions.collation(Collation.builder().locale("en").collationStrength(CollationStrength.SECONDARY).build())
+    }
+    return indexOptions
+}
+
+class IndexesBuilder {
+    private var textIndexAdded = false
+    internal var indexes: MutableList<IndexModel> = mutableListOf()
+
+    fun asc(vararg fields: String, caseInsensitive: Boolean = false) {
+        indexes.addAll(indexAsc(*fields, caseInsensitive = caseInsensitive))
     }
 
-    if (textIndexedFields.isNotEmpty()) {
-        indexes.add(IndexModel(Indexes.compoundIndex(textIndexedFields.map { Indexes.text(it) })))
-        log.info { "Adding text index for ${textIndexedFields.joinToString(", ") { cls.simpleName + "." + it }}" }
+    fun desc(vararg fields: String, caseInsensitive: Boolean = false) {
+        indexes.addAll(indexDesc(*fields, caseInsensitive = caseInsensitive))
     }
 
-    if (indexes.isNotEmpty()) {
-        createIndexes(indexes)
-        log.info { "Created ${indexes.size} indexes for ${cls.simpleName}" }
+    fun text(vararg fields: String) {
+        if (textIndexAdded) {
+            throw IllegalStateException("Text index already added for this collection")
+        }
+        indexes.add(textIndex(*fields))
+        textIndexAdded = true
+    }
+
+    fun <E : StoredEntity> asc(vararg properties: KProperty1<E, *>, caseInsensitive: Boolean = false) {
+        asc(*properties.map { it.name }.toTypedArray(), caseInsensitive = caseInsensitive)
+    }
+
+    fun <E : StoredEntity> desc(vararg properties: KProperty1<E, *>, caseInsensitive: Boolean = false) {
+        desc(*properties.map { it.name }.toTypedArray(), caseInsensitive = caseInsensitive)
+    }
+
+    fun <E : StoredEntity> text(vararg properties: KProperty1<E, String>) {
+        text(*properties.map { it.name }.toTypedArray())
     }
 }

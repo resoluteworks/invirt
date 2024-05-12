@@ -38,7 +38,7 @@ class QueryTest : StringSpec() {
         "no results" {
             @MongoCollection("query-no-results-test")
             data class Entity(
-                @Indexed val type: String,
+                val type: String,
                 @BsonId override val id: String = uuid7(),
                 override var version: Long = 0,
                 override val createdAt: Instant = mongoNow(),
@@ -57,8 +57,8 @@ class QueryTest : StringSpec() {
         "paged result" {
             @MongoCollection("query-paged-result-test")
             data class Entity(
-                @Indexed val type: String,
-                @Indexed val index: Int,
+                val type: String,
+                val index: Int,
                 @BsonId override val id: String = uuid7(),
                 override var version: Long = 0,
                 override val createdAt: Instant = mongoNow(),
@@ -93,8 +93,8 @@ class QueryTest : StringSpec() {
         "sort" {
             @MongoCollection("query-sort-test")
             data class Entity(
-                @Indexed val type: String,
-                @Indexed val index: Int,
+                val type: String,
+                val index: Int,
 
                 @BsonId override val id: String = uuid7(),
                 override var version: Long = 0,
@@ -124,8 +124,8 @@ class QueryTest : StringSpec() {
         "sort with multiple fields" {
             @MongoCollection("query-sort-multiple-sorts-test")
             data class Entity(
-                @Indexed val type: String,
-                @Indexed val index: Int,
+                val type: String,
+                val index: Int,
 
                 @BsonId override val id: String = uuid7(),
                 override var version: Long = 0,
@@ -155,8 +155,8 @@ class QueryTest : StringSpec() {
         "search query" {
             @MongoCollection("query-search-query-test")
             data class Entity(
-                @Indexed val type: String,
-                @Indexed val index: Int,
+                val type: String,
+                val index: Int,
 
                 @BsonId override val id: String = uuid7(),
                 override var version: Long = 0,
@@ -208,7 +208,7 @@ class QueryTest : StringSpec() {
         "no filter should return all documents" {
             @MongoCollection("query-no-filter-should-return-all-docs-test")
             data class Entity(
-                @Indexed val type: String,
+                val type: String,
 
                 @BsonId override val id: String = uuid7(),
                 override var version: Long = 0,
@@ -228,10 +228,7 @@ class QueryTest : StringSpec() {
         "text search" {
             @MongoCollection("query-text-search-test")
             data class Entity(
-                @TextIndexed
                 val name: String,
-
-                @TextIndexed
                 val description: String,
 
                 @BsonId override val id: String = uuid7(),
@@ -241,6 +238,10 @@ class QueryTest : StringSpec() {
             ) : StoredEntity
 
             val collection = database.collection<Entity>()
+            collection.createIndexes {
+                text(Entity::name, Entity::description)
+            }
+
             val doc1 = Entity("dogs", "dogs barking")
             val doc2 = Entity("both", "cats and dogs")
             collection.save(doc1)
