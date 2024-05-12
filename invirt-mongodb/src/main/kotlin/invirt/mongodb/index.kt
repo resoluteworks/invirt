@@ -28,18 +28,10 @@ fun indexDesc(vararg fields: String, caseInsensitive: Boolean = false): List<Ind
     return fields.map { it.indexDesc(caseInsensitive) }
 }
 
-fun Collection<String>.textIndex(): IndexModel = textIndex(*this.toTypedArray())
-fun <E : StoredEntity> Collection<KProperty1<E, *>>.text() = this.map { it.name }.textIndex()
-
-fun <E : StoredEntity> MongoCollection<E>.createIndexes(vararg indexes: IndexModel) {
-    createIndexes(indexes.toList())
-}
-
-fun <E : StoredEntity> MongoCollection<E>.createIndexes(clientSession: ClientSession, vararg indexes: IndexModel) {
-    createIndexes(clientSession, indexes.toList())
-}
-
-fun <E : StoredEntity> MongoCollection<E>.createIndexes(build: IndexesBuilder.() -> Unit) {
+fun <E : StoredEntity> MongoCollection<E>.createIndexes(
+    clientSession: ClientSession? = null,
+    build: IndexesBuilder.() -> Unit
+) {
     val indexesBuilder = IndexesBuilder()
     indexesBuilder.asc(StoredEntity::version)
     indexesBuilder.desc(StoredEntity::createdAt)
@@ -53,7 +45,11 @@ fun <E : StoredEntity> MongoCollection<E>.createIndexes(build: IndexesBuilder.()
             "indexes" to indexesBuilder.indexes
         )
     }
-    createIndexes(indexesBuilder.indexes)
+    if (clientSession != null) {
+        createIndexes(clientSession, indexesBuilder.indexes)
+    } else {
+        createIndexes(indexesBuilder.indexes)
+    }
 }
 
 private fun indexOptions(caseInsensitive: Boolean): IndexOptions {
