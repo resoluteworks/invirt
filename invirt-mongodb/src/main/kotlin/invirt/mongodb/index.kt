@@ -42,7 +42,7 @@ fun <E : StoredEntity> MongoCollection<E>.createIndexes(
         payload = mapOf(
             "collection" to this@createIndexes.namespace.collectionName,
             "count" to indexesBuilder.indexes.size,
-            "indexes" to indexesBuilder.indexes
+            "indexes" to indexesBuilder.indexes.map { it.keys }
         )
     }
     if (clientSession != null) {
