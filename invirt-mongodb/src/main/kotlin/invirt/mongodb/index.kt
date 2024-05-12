@@ -3,7 +3,10 @@ package invirt.mongodb
 import com.mongodb.client.model.*
 import com.mongodb.kotlin.client.ClientSession
 import com.mongodb.kotlin.client.MongoCollection
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlin.reflect.KProperty1
+
+private val log = KotlinLogging.logger {}
 
 fun String.indexAsc(caseInsensitive: Boolean = false): IndexModel {
     return IndexModel(Indexes.ascending(this), indexOptions(caseInsensitive))
@@ -42,6 +45,14 @@ fun <E : StoredEntity> MongoCollection<E>.createIndexes(build: IndexesBuilder.()
     indexesBuilder.desc(StoredEntity::createdAt)
     indexesBuilder.desc(StoredEntity::updatedAt)
     indexesBuilder.build()
+    log.atInfo {
+        message = "Creating indexes for collection"
+        payload = mapOf(
+            "collection" to this@createIndexes.namespace.collectionName,
+            "count" to indexesBuilder.indexes.size,
+            "indexes" to indexesBuilder.indexes
+        )
+    }
     createIndexes(indexesBuilder.indexes)
 }
 
