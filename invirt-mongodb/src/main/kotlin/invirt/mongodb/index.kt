@@ -32,6 +32,30 @@ fun <E : StoredEntity> MongoCollection<E>.createIndexes(
     clientSession: ClientSession? = null,
     build: IndexesBuilder.() -> Unit
 ) {
+    val indexes = buildIndexes(this.namespace.collectionName, build)
+    if (clientSession != null) {
+        createIndexes(clientSession, indexes)
+    } else {
+        createIndexes(indexes)
+    }
+}
+
+/**
+ * For backwards compatibility with the Java driver
+ */
+fun com.mongodb.client.MongoCollection<*>.createIndexes(
+    clientSession: com.mongodb.client.ClientSession? = null,
+    build: IndexesBuilder.() -> Unit
+) {
+    val indexes = buildIndexes(this.namespace.collectionName, build)
+    if (clientSession != null) {
+        createIndexes(clientSession, indexes)
+    } else {
+        createIndexes(indexes)
+    }
+}
+
+private fun buildIndexes(collectionName: String, build: IndexesBuilder.() -> Unit): List<IndexModel> {
     val indexesBuilder = IndexesBuilder()
     indexesBuilder.asc(StoredEntity::version)
     indexesBuilder.desc(StoredEntity::createdAt)
@@ -40,16 +64,12 @@ fun <E : StoredEntity> MongoCollection<E>.createIndexes(
     log.atInfo {
         message = "Creating indexes for collection"
         payload = mapOf(
-            "collection" to this@createIndexes.namespace.collectionName,
+            "collection" to collectionName,
             "count" to indexesBuilder.indexes.size,
             "indexes" to indexesBuilder.indexes.map { it.keys }
         )
     }
-    if (clientSession != null) {
-        createIndexes(clientSession, indexesBuilder.indexes)
-    } else {
-        createIndexes(indexesBuilder.indexes)
-    }
+    return indexesBuilder.indexes
 }
 
 private fun indexOptions(caseInsensitive: Boolean): IndexOptions {
