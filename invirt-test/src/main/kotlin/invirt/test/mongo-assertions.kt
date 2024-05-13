@@ -4,12 +4,24 @@ import com.mongodb.kotlin.client.MongoCollection
 import invirt.mongodb.StoredEntity
 import io.kotest.assertions.withClue
 import io.kotest.matchers.equality.shouldBeEqualToIgnoringFields
+import io.kotest.matchers.longs.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.bson.Document
 import java.time.temporal.ChronoUnit
 
 infix fun StoredEntity.shouldBeUpdateOf(other: StoredEntity) {
+    val thisUpdatedAt = this.updatedAt.truncatedTo(ChronoUnit.MILLIS)
+    val otherUpdatedAt = other.updatedAt.truncatedTo(ChronoUnit.MILLIS)
+    withClue("$thisUpdatedAt is not after $otherUpdatedAt") {
+        thisUpdatedAt.isAfter(otherUpdatedAt) shouldBe true
+    }
+    withClue("$version is not greater than ${other.version} ") {
+        version shouldBeGreaterThan other.version
+    }
+}
+
+infix fun StoredEntity.shouldBeNextUpdateOf(other: StoredEntity) {
     val thisUpdatedAt = this.updatedAt.truncatedTo(ChronoUnit.MILLIS)
     val otherUpdatedAt = other.updatedAt.truncatedTo(ChronoUnit.MILLIS)
     withClue("$thisUpdatedAt is not after $otherUpdatedAt") {

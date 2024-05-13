@@ -89,7 +89,7 @@ class CollectionTest : StringSpec() {
             collection.countDocuments() shouldBe 1
 
             entity2 shouldBeSameEntity entity1
-            entity2 shouldBeUpdateOf entity1
+            entity2 shouldBeNextUpdateOf entity1
         }
 
         "collectionName" {
