@@ -11,12 +11,16 @@ private val fromQuery = Query.int().optional("from")
 private val sizeQuery = Query.int().optional("size")
 private val sortQuery = Query.optional("sort")
 
-fun Request.page(defaultFrom: Int = 0, defaultSize: Int = 10): Page {
+fun Request.page(
+    defaultFrom: Int = 0,
+    defaultSize: Int = 10,
+    maxSize: Int = defaultSize
+): Page {
     val from = fromQuery(this)
     val size = sizeQuery(this)
     return Page(
         from = from ?: defaultFrom,
-        size = size ?: defaultSize
+        size = (size ?: defaultSize).coerceAtMost(maxSize)
     )
 }
 

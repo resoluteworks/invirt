@@ -14,6 +14,8 @@ class RequestTest : StringSpec({
         Request(Method.GET, "/test").page() shouldBe Page(0, 10)
         Request(Method.GET, "/test?from=100").page() shouldBe Page(100, 10)
         Request(Method.GET, "/test?from=40&size=10").page() shouldBe Page(40, 10)
+        Request(Method.GET, "/test?from=0&size=10324").page() shouldBe Page(0, 10)
+        Request(Method.GET, "/test?from=200&size=32432").page(maxSize = 50) shouldBe Page(200, 50)
     }
 
     "Sort" {
