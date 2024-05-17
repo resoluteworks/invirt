@@ -2,6 +2,7 @@ package invirt.http4k.data
 
 import invirt.data.*
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import org.http4k.core.Method
 import org.http4k.core.Request
@@ -21,6 +22,56 @@ class RequestDataUtilsTest : StringSpec({
         Request(Method.GET, "/test?sort=field").sort() shouldBe Sort("field", SortOrder.ASC)
         Request(Method.GET, "/test?sort=field:ASC").sort() shouldBe Sort("field", SortOrder.ASC)
         Request(Method.GET, "/test?sort=field:DESC").sort() shouldBe Sort("field", SortOrder.DESC)
+    }
+
+    "Request.selectedFilters()" {
+        val options = listOf(
+            stringFilterOption("status", listOf("enabled", "disabled"), CompoundCriteria.Operator.OR),
+            intFilterOption("age", CompoundCriteria.Operator.AND),
+            stringFilterOption("type", listOf("person", "company"), CompoundCriteria.Operator.OR),
+            enumFilterOption<MaritalStatus>("marital-status", CompoundCriteria.Operator.OR)
+        )
+
+        Request(Method.GET, "/test").selectedFilters(options) shouldBe emptyList()
+
+        Request(Method.GET, "/test?type=person&age=gte:18").selectedFilters(options) shouldContainExactlyInAnyOrder
+            listOf(
+                FieldCriteria.gte("age", 18),
+                FieldCriteria.eq("type", "person")
+            )
+
+        Request(Method.GET, "/test?type=person&age=gt:18&age=lt:100").selectedFilters(options) shouldContainExactlyInAnyOrder
+            listOf(
+                FieldCriteria.gt("age", 18),
+                FieldCriteria.lt("age", 100),
+                FieldCriteria.eq("type", "person")
+            )
+
+        Request(Method.GET, "/test?type=person&age=gt:18&age=lt:100&marital-status=married&marital-status=single")
+            .selectedFilters(options) shouldContainExactlyInAnyOrder listOf(
+            FieldCriteria.gt("age", 18),
+            FieldCriteria.lt("age", 100),
+            FieldCriteria.eq("type", "person"),
+            FieldCriteria.eq("marital-status", MaritalStatus.MARRIED),
+            FieldCriteria.eq("marital-status", MaritalStatus.SINGLE)
+        )
+
+        Request(
+            Method.GET,
+            "/test?type=person&age=gt:18&age=lt:100&marital-status=mArried&size=100&marital-status=currently-separated&from=0"
+        ).selectedFilters(options) shouldContainExactlyInAnyOrder listOf(
+            FieldCriteria.gt("age", 18),
+            FieldCriteria.lt("age", 100),
+            FieldCriteria.eq("type", "person"),
+            FieldCriteria.eq("marital-status", MaritalStatus.MARRIED),
+            FieldCriteria.eq("marital-status", MaritalStatus.CURRENTLY_SEPARATED)
+        )
+
+        Request(Method.GET, "/test?type=person&type=company&status=enabled").selectedFilters(options) shouldContainExactlyInAnyOrder listOf(
+            FieldCriteria.eq("status", "enabled"),
+            FieldCriteria.eq("type", "person"),
+            FieldCriteria.eq("type", "company")
+        )
     }
 
     "Request.filterCriteria()" {
@@ -59,7 +110,10 @@ class RequestDataUtilsTest : StringSpec({
             )
         )
 
-        Request(Method.GET, "/test?type=person&age=gt:18&age=lt:100&marital-status=mArried&size=100&marital-status=currently-separated&from=0")
+        Request(
+            Method.GET,
+            "/test?type=person&age=gt:18&age=lt:100&marital-status=mArried&size=100&marital-status=currently-separated&from=0"
+        )
             .filterCriteria(options) shouldBe CompoundCriteria(
             CompoundCriteria.Operator.AND,
             listOf(

@@ -1,6 +1,31 @@
 package invirt.http4k.data
 
 import invirt.data.CompoundCriteria
+import invirt.data.FieldCriteria
+import invirt.data.FilterCriteria
+import org.http4k.core.Request
+
+class RequestQueryFilters(
+    val options: List<QueryFilterOption<*>>,
+    val selected: List<FieldCriteria<*>>,
+    val criteria: FilterCriteria?
+) {
+
+    private val selectedValues: Map<String, Set<Any>> = selected
+        .groupBy { it.field }
+        .map { group -> group.key to group.value.map { it.value }.toSet() }
+        .toMap()
+
+    fun selected(field: String, value: Any): Boolean {
+        return selectedValues[field]?.contains(value) ?: false
+    }
+
+    constructor(request: Request, options: List<QueryFilterOption<*>>) : this(
+        options = options,
+        selected = request.selectedFilters(options),
+        criteria = request.filterCriteria(options)
+    )
+}
 
 class QueryFilterOption<Value : Any>(
     val field: String,
