@@ -1,6 +1,8 @@
 package invirt.mongodb
 
+import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Indexes
+import invirt.data.Filter
 import invirt.test.randomCollection
 import invirt.test.testMongo
 import invirt.utils.uuid7
@@ -8,6 +10,7 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import org.bson.codecs.pojo.annotations.BsonId
+import org.bson.conversions.Bson
 import java.time.Instant
 import java.time.LocalDate
 
@@ -166,6 +169,27 @@ class FiltersTest : StringSpec() {
             collection.find(textSearch("dog")).toList().sortedBy { it.id } shouldBe listOf(doc1, doc2).sortedBy { it.id }
             collection.find(textSearch("barking")).toList() shouldBe listOf(doc1)
             collection.find(textSearch("cat")).toList() shouldBe listOf(doc2)
+        }
+
+        "Filter.mongoFilter()" {
+            Filter.eq("type", "person").mongoFilter() shouldBe Filters.eq("type", "person")
+            Filter.gt("age", 34).mongoFilter() shouldBe Filters.gt("age", 34)
+            Filter.gte("age", 56).mongoFilter() shouldBe Filters.gte("age", 56)
+            Filter.lt("length", 12).mongoFilter() shouldBe Filters.lt("length", 12)
+            Filter.lte("length", 56).mongoFilter() shouldBe Filters.lte("length", 56)
+            Filter.ne("status", "open").mongoFilter() shouldBe Filters.ne("status", "open")
+        }
+
+        "Collection<Bson>.or()" {
+            emptySet<Bson>().or() shouldBe null
+            listOf(Filters.eq("type", "person"), Filters.gte("size", 20)).or() shouldBe
+                Filters.or(Filters.eq("type", "person"), Filters.gte("size", 20))
+        }
+
+        "Collection<Bson>.and()" {
+            emptySet<Bson>().and() shouldBe null
+            listOf(Filters.eq("type", "person"), Filters.gte("size", 20)).and() shouldBe
+                Filters.and(Filters.eq("type", "person"), Filters.gte("size", 20))
         }
     }
 }

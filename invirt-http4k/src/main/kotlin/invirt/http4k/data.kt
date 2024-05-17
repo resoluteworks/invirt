@@ -1,5 +1,6 @@
 package invirt.http4k
 
+import invirt.data.Filter
 import invirt.data.Page
 import invirt.data.Sort
 import invirt.data.SortOrder
@@ -11,11 +12,7 @@ private val fromQuery = Query.int().optional("from")
 private val sizeQuery = Query.int().optional("size")
 private val sortQuery = Query.optional("sort")
 
-fun Request.page(
-    defaultFrom: Int = 0,
-    defaultSize: Int = 10,
-    maxSize: Int = defaultSize
-): Page {
+fun Request.page(defaultFrom: Int = 0, defaultSize: Int = 10, maxSize: Int = defaultSize): Page {
     val from = fromQuery(this)
     val size = sizeQuery(this)
     return Page(
@@ -31,4 +28,16 @@ fun Request.sort(): Sort? {
         return Sort(elements.first(), SortOrder.ASC)
     }
     return Sort(elements[0], SortOrder.valueOf(elements[1].uppercase()))
+}
+
+fun Request.filters(vararg fields: String): List<Filter<String>> {
+    return filters(fields.toSet())
+}
+
+fun Request.filters(fields: Set<String>): List<Filter<String>> {
+    return fields.flatMap { field ->
+        queries(field).mapNotNull { operationAndValue ->
+            operationAndValue?.let { Filter.of(field, operationAndValue) }
+        }
+    }
 }
