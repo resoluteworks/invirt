@@ -2,7 +2,6 @@ package invirt.mongodb
 
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Indexes
-import invirt.data.Filter
 import invirt.test.randomCollection
 import invirt.test.testMongo
 import invirt.utils.uuid7
@@ -171,25 +170,18 @@ class FiltersTest : StringSpec() {
             collection.find(textSearch("cat")).toList() shouldBe listOf(doc2)
         }
 
-        "Filter.mongoFilter()" {
-            Filter.eq("type", "person").mongoFilter() shouldBe Filters.eq("type", "person")
-            Filter.gt("age", 34).mongoFilter() shouldBe Filters.gt("age", 34)
-            Filter.gte("age", 56).mongoFilter() shouldBe Filters.gte("age", 56)
-            Filter.lt("length", 12).mongoFilter() shouldBe Filters.lt("length", 12)
-            Filter.lte("length", 56).mongoFilter() shouldBe Filters.lte("length", 56)
-            Filter.ne("status", "open").mongoFilter() shouldBe Filters.ne("status", "open")
-        }
-
-        "Collection<Bson>.or()" {
-            emptySet<Bson>().or() shouldBe null
-            listOf(Filters.eq("type", "person"), Filters.gte("size", 20)).or() shouldBe
+        "Collection<Bson>.orFilter()" {
+            emptySet<Bson>().orFilter() shouldBe null
+            listOf(Filters.eq("type", "person"), Filters.gte("size", 20)).orFilter() shouldBe
                 Filters.or(Filters.eq("type", "person"), Filters.gte("size", 20))
+            listOf(Filters.eq("type", "person")).orFilter() shouldBe Filters.eq("type", "person")
         }
 
-        "Collection<Bson>.and()" {
-            emptySet<Bson>().and() shouldBe null
-            listOf(Filters.eq("type", "person"), Filters.gte("size", 20)).and() shouldBe
+        "Collection<Bson>.andFilter()" {
+            emptySet<Bson>().andFilter() shouldBe null
+            listOf(Filters.eq("type", "person"), Filters.gte("size", 20)).andFilter() shouldBe
                 Filters.and(Filters.eq("type", "person"), Filters.gte("size", 20))
+            listOf(Filters.eq("type", "person")).andFilter() shouldBe Filters.eq("type", "person")
         }
     }
 }

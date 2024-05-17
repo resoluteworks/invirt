@@ -1,10 +1,9 @@
 package invirt.mongodb
 
+import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Sorts
 import com.mongodb.kotlin.client.FindIterable
-import invirt.data.Page
-import invirt.data.Sort
-import invirt.data.SortOrder
+import invirt.data.*
 import org.bson.conversions.Bson
 
 fun <T : Any> FindIterable<T>.page(page: Page): FindIterable<T> {
@@ -40,5 +39,30 @@ fun <T : Any> FindIterable<T>.sort(vararg sort: Sort = emptyArray()): FindIterab
         this.sort(sort.toList().mongoSort())
     } else {
         this
+    }
+}
+
+private fun <Value : Any> FieldCriteria<Value>.mongoFilter(): Bson {
+    return when (operation) {
+        FieldCriteria.Operation.EQ -> Filters.eq(field, value)
+        FieldCriteria.Operation.GT -> Filters.gt(field, value)
+        FieldCriteria.Operation.GTE -> Filters.gte(field, value)
+        FieldCriteria.Operation.LTE -> Filters.lte(field, value)
+        FieldCriteria.Operation.LT -> Filters.lt(field, value)
+        FieldCriteria.Operation.NE -> Filters.ne(field, value)
+    }
+}
+
+fun FilterCriteria.mongoFilter(): Bson {
+    return when (this) {
+        is FieldCriteria<*> -> this.mongoFilter()
+        is CompoundCriteria -> {
+            when (this.operator) {
+                CompoundCriteria.Operator.OR -> Filters.or(this.children.map { it.mongoFilter() })
+                CompoundCriteria.Operator.AND -> Filters.and(this.children.map { it.mongoFilter() })
+            }
+        }
+
+        else -> throw IllegalArgumentException("Unknown filter criteria ${this::class}")
     }
 }

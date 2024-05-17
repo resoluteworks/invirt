@@ -1,7 +1,6 @@
 package invirt.mongodb
 
 import com.mongodb.client.model.Filters
-import invirt.data.Filter
 import org.bson.conversions.Bson
 import java.time.LocalDate
 import kotlin.reflect.KProperty
@@ -25,29 +24,22 @@ fun KProperty<LocalDate>.inYear(year: Int): Bson {
     return Filters.and(gte(LocalDate.of(year, 1, 1)), lte(LocalDate.of(year, 12, 31)))
 }
 
-fun Collection<Bson>.or(): Bson? {
+fun Collection<Bson>.orFilter(): Bson? {
     return if (isEmpty()) {
         null
+    } else if (size == 1) {
+        first()
     } else {
         Filters.or(this)
     }
 }
 
-fun Collection<Bson>.and(): Bson? {
+fun Collection<Bson>.andFilter(): Bson? {
     return if (isEmpty()) {
         null
+    } else if (size == 1) {
+        first()
     } else {
         Filters.and(this)
-    }
-}
-
-fun <Value : Any> Filter<Value>.mongoFilter(): Bson {
-    return when (operation) {
-        Filter.Operation.EQ -> Filters.eq(field, value)
-        Filter.Operation.GT -> Filters.gt(field, value)
-        Filter.Operation.GTE -> Filters.gte(field, value)
-        Filter.Operation.LTE -> Filters.lte(field, value)
-        Filter.Operation.LT -> Filters.lt(field, value)
-        Filter.Operation.NE -> Filters.ne(field, value)
     }
 }

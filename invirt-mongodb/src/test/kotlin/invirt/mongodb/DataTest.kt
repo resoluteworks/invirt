@@ -1,8 +1,8 @@
 package invirt.mongodb
 
+import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Sorts
-import invirt.data.Page
-import invirt.data.Sort
+import invirt.data.*
 import invirt.test.randomCollection
 import invirt.test.testMongo
 import invirt.utils.uuid7
@@ -60,6 +60,25 @@ class DataTest : StringSpec() {
             collection.find().sort(Sort.asc("index")).toList().map { it.index } shouldBe (0..99).toList()
             collection.find().sort(Sort.desc("index")).toList().map { it.index } shouldBe (99 downTo 0).toList()
             collection.find().sort().toList().map { it.index } shouldContainExactlyInAnyOrder (0..99).toList()
+        }
+
+        "FilterCriteria.mongoFilter()" {
+            FieldCriteria.eq("type", "person").mongoFilter() shouldBe Filters.eq("type", "person")
+            FieldCriteria.ne("status", "open").mongoFilter() shouldBe Filters.ne("status", "open")
+            FieldCriteria.gt("age", 37).mongoFilter() shouldBe Filters.gt("age", 37)
+            FieldCriteria.gte("age", 18).mongoFilter() shouldBe Filters.gte("age", 18)
+            FieldCriteria.lt("age", 55).mongoFilter() shouldBe Filters.lt("age", 55)
+            FieldCriteria.lte("age", 98).mongoFilter() shouldBe Filters.lte("age", 98)
+
+            CompoundCriteria.and(
+                CompoundCriteria.or(FieldCriteria.eq("status", "married"), FieldCriteria.eq("status", "single")),
+                CompoundCriteria.and(FieldCriteria.gte("age", 18), FieldCriteria.lt("age", 100)),
+                FieldCriteria.eq("type", "person")
+            ).mongoFilter() shouldBe Filters.and(
+                Filters.or(Filters.eq("status", "married"), Filters.eq("status", "single")),
+                Filters.and(Filters.gte("age", 18), Filters.lt("age", 100)),
+                Filters.eq("type", "person")
+            )
         }
     }
 }
