@@ -27,39 +27,34 @@ fun Request.sort(): Sort? {
     return Sort(elements[0], SortOrder.valueOf(elements[1].uppercase()))
 }
 
-fun Request.selectedFilters(filterOptions: List<QueryFilterOption<*>>): List<FieldCriteria<*>> {
+fun Request.queryFieldFilters(filterOptions: List<QueryFilterOption<*>>): List<FieldFilter<*>> {
     return filterOptions.flatMap { option ->
         queries(option.field).mapNotNull { operationAndValue ->
             operationAndValue?.let {
-                FieldCriteria.of(option.field, operationAndValue).map { valueStr -> option.fromQueryValue(valueStr) }
+                FieldFilter.of(option.field, operationAndValue).map { valueStr -> option.fromQueryValue(valueStr) }
             }
         }
     }
 }
 
-fun Request.filterCriteria(
+fun Request.queryParamsAsFilter(
     filterOptions: List<QueryFilterOption<*>>,
-    operator: CompoundCriteria.Operator = CompoundCriteria.Operator.AND
-): FilterCriteria? {
-    val filtersCriteria = filterOptions.mapNotNull { option ->
-        val optionCriteria = queries(option.field).mapNotNull { operationAndValue ->
+    operator: CompoundFilter.Operator = CompoundFilter.Operator.AND
+): Filter? {
+    val filters = (filterOptions as List<QueryFilterOption<Any>>).mapNotNull { option ->
+        val optionFilters = queries(option.field).mapNotNull { operationAndValue ->
             operationAndValue?.let {
-                FieldCriteria.of(option.field, operationAndValue).map { valueStr -> option.fromQueryValue(valueStr) }
+                FieldFilter.of(option.field, operationAndValue).map { valueStr -> option.fromQueryValue(valueStr) }
             }
         }
-        if (optionCriteria.isEmpty()) {
-            null
-        } else if (optionCriteria.size == 1) {
-            optionCriteria.first()
-        } else {
-            CompoundCriteria(option.operator, optionCriteria)
-        }
+
+        option.getFilter(optionFilters)
     }
-    if (filtersCriteria.isEmpty()) {
+    if (filters.isEmpty()) {
         return null
     }
-    if (filtersCriteria.size == 1) {
-        return filtersCriteria.first()
+    if (filters.size == 1) {
+        return filters.first()
     }
-    return CompoundCriteria(operator, filtersCriteria)
+    return CompoundFilter(operator, filters)
 }

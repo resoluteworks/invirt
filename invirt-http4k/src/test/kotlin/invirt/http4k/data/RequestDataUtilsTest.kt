@@ -24,88 +24,88 @@ class RequestDataUtilsTest : StringSpec({
         Request(Method.GET, "/test?sort=field:DESC").sort() shouldBe Sort("field", SortOrder.DESC)
     }
 
-    "Request.selectedFilters()" {
+    "Request.queryFieldFilters()" {
         val options = listOf(
-            stringFilterOption("status", listOf("enabled", "disabled"), CompoundCriteria.Operator.OR),
-            intFilterOption("age", CompoundCriteria.Operator.AND),
-            stringFilterOption("type", listOf("person", "company"), CompoundCriteria.Operator.OR),
-            enumFilterOption<MaritalStatus>("marital-status", CompoundCriteria.Operator.OR)
+            stringFilterOption("status", listOf("enabled", "disabled")),
+            intFilterOption("age"),
+            stringFilterOption("type", listOf("person", "company")),
+            enumFilterOption<MaritalStatus>("marital-status")
         )
 
-        Request(Method.GET, "/test").selectedFilters(options) shouldBe emptyList()
+        Request(Method.GET, "/test").queryFieldFilters(options) shouldBe emptyList()
 
-        Request(Method.GET, "/test?type=person&age=gte:18").selectedFilters(options) shouldContainExactlyInAnyOrder
+        Request(Method.GET, "/test?type=person&age=gte:18").queryFieldFilters(options) shouldContainExactlyInAnyOrder
             listOf(
-                FieldCriteria.gte("age", 18),
-                FieldCriteria.eq("type", "person")
+                FieldFilter.gte("age", 18),
+                FieldFilter.eq("type", "person")
             )
 
-        Request(Method.GET, "/test?type=person&age=gt:18&age=lt:100").selectedFilters(options) shouldContainExactlyInAnyOrder
+        Request(Method.GET, "/test?type=person&age=gt:18&age=lt:100").queryFieldFilters(options) shouldContainExactlyInAnyOrder
             listOf(
-                FieldCriteria.gt("age", 18),
-                FieldCriteria.lt("age", 100),
-                FieldCriteria.eq("type", "person")
+                FieldFilter.gt("age", 18),
+                FieldFilter.lt("age", 100),
+                FieldFilter.eq("type", "person")
             )
 
         Request(Method.GET, "/test?type=person&age=gt:18&age=lt:100&marital-status=married&marital-status=single")
-            .selectedFilters(options) shouldContainExactlyInAnyOrder listOf(
-            FieldCriteria.gt("age", 18),
-            FieldCriteria.lt("age", 100),
-            FieldCriteria.eq("type", "person"),
-            FieldCriteria.eq("marital-status", MaritalStatus.MARRIED),
-            FieldCriteria.eq("marital-status", MaritalStatus.SINGLE)
+            .queryFieldFilters(options) shouldContainExactlyInAnyOrder listOf(
+            FieldFilter.gt("age", 18),
+            FieldFilter.lt("age", 100),
+            FieldFilter.eq("type", "person"),
+            FieldFilter.eq("marital-status", MaritalStatus.MARRIED),
+            FieldFilter.eq("marital-status", MaritalStatus.SINGLE)
         )
 
         Request(
             Method.GET,
             "/test?type=person&age=gt:18&age=lt:100&marital-status=mArried&size=100&marital-status=currently-separated&from=0"
-        ).selectedFilters(options) shouldContainExactlyInAnyOrder listOf(
-            FieldCriteria.gt("age", 18),
-            FieldCriteria.lt("age", 100),
-            FieldCriteria.eq("type", "person"),
-            FieldCriteria.eq("marital-status", MaritalStatus.MARRIED),
-            FieldCriteria.eq("marital-status", MaritalStatus.CURRENTLY_SEPARATED)
+        ).queryFieldFilters(options) shouldContainExactlyInAnyOrder listOf(
+            FieldFilter.gt("age", 18),
+            FieldFilter.lt("age", 100),
+            FieldFilter.eq("type", "person"),
+            FieldFilter.eq("marital-status", MaritalStatus.MARRIED),
+            FieldFilter.eq("marital-status", MaritalStatus.CURRENTLY_SEPARATED)
         )
 
-        Request(Method.GET, "/test?type=person&type=company&status=enabled").selectedFilters(options) shouldContainExactlyInAnyOrder listOf(
-            FieldCriteria.eq("status", "enabled"),
-            FieldCriteria.eq("type", "person"),
-            FieldCriteria.eq("type", "company")
+        Request(Method.GET, "/test?type=person&type=company&status=enabled").queryFieldFilters(options) shouldContainExactlyInAnyOrder listOf(
+            FieldFilter.eq("status", "enabled"),
+            FieldFilter.eq("type", "person"),
+            FieldFilter.eq("type", "company")
         )
     }
 
-    "Request.filterCriteria()" {
+    "Request.queryParamsAsFilter()" {
         val options = listOf(
-            stringFilterOption("status", listOf("enabled", "disabled"), CompoundCriteria.Operator.OR),
-            intFilterOption("age", CompoundCriteria.Operator.AND),
-            stringFilterOption("type", listOf("person", "company"), CompoundCriteria.Operator.OR),
-            enumFilterOption<MaritalStatus>("marital-status", CompoundCriteria.Operator.OR)
+            stringFilterOption("status", listOf("enabled", "disabled")),
+            intFilterOption("age"),
+            stringFilterOption("type", listOf("person", "company")),
+            enumFilterOption<MaritalStatus>("marital-status")
         )
 
-        Request(Method.GET, "/test").filterCriteria(options) shouldBe null
+        Request(Method.GET, "/test").queryParamsAsFilter(options) shouldBe null
 
-        Request(Method.GET, "/test?type=person&age=gte:18").filterCriteria(options) shouldBe CompoundCriteria(
-            CompoundCriteria.Operator.AND,
-            listOf(FieldCriteria.gte("age", 18), FieldCriteria.eq("type", "person"))
+        Request(Method.GET, "/test?type=person&age=gte:18").queryParamsAsFilter(options) shouldBe CompoundFilter(
+            CompoundFilter.Operator.AND,
+            listOf(FieldFilter.gte("age", 18), FieldFilter.eq("type", "person"))
         )
 
-        Request(Method.GET, "/test?type=person&age=gt:18&age=lt:100").filterCriteria(options) shouldBe CompoundCriteria(
-            CompoundCriteria.Operator.AND,
+        Request(Method.GET, "/test?type=person&age=gt:18&age=lt:100").queryParamsAsFilter(options) shouldBe CompoundFilter(
+            CompoundFilter.Operator.AND,
             listOf(
-                CompoundCriteria.and(FieldCriteria.gt("age", 18), FieldCriteria.lt("age", 100)),
-                FieldCriteria.eq("type", "person")
+                CompoundFilter.and(FieldFilter.gt("age", 18), FieldFilter.lt("age", 100)),
+                FieldFilter.eq("type", "person")
             )
         )
 
         Request(Method.GET, "/test?type=person&age=gt:18&age=lt:100&marital-status=married&marital-status=single")
-            .filterCriteria(options) shouldBe CompoundCriteria(
-            CompoundCriteria.Operator.AND,
+            .queryParamsAsFilter(options) shouldBe CompoundFilter(
+            CompoundFilter.Operator.AND,
             listOf(
-                CompoundCriteria.and(FieldCriteria.gt("age", 18), FieldCriteria.lt("age", 100)),
-                FieldCriteria.eq("type", "person"),
-                CompoundCriteria.or(
-                    FieldCriteria.eq("marital-status", MaritalStatus.MARRIED),
-                    FieldCriteria.eq("marital-status", MaritalStatus.SINGLE)
+                CompoundFilter.and(FieldFilter.gt("age", 18), FieldFilter.lt("age", 100)),
+                FieldFilter.eq("type", "person"),
+                CompoundFilter.or(
+                    FieldFilter.eq("marital-status", MaritalStatus.MARRIED),
+                    FieldFilter.eq("marital-status", MaritalStatus.SINGLE)
                 )
             )
         )
@@ -114,24 +114,24 @@ class RequestDataUtilsTest : StringSpec({
             Method.GET,
             "/test?type=person&age=gt:18&age=lt:100&marital-status=mArried&size=100&marital-status=currently-separated&from=0"
         )
-            .filterCriteria(options) shouldBe CompoundCriteria(
-            CompoundCriteria.Operator.AND,
+            .queryParamsAsFilter(options) shouldBe CompoundFilter(
+            CompoundFilter.Operator.AND,
             listOf(
-                CompoundCriteria.and(FieldCriteria.gt("age", 18), FieldCriteria.lt("age", 100)),
-                FieldCriteria.eq("type", "person"),
-                CompoundCriteria.or(
-                    FieldCriteria.eq("marital-status", MaritalStatus.MARRIED),
-                    FieldCriteria.eq("marital-status", MaritalStatus.CURRENTLY_SEPARATED)
+                CompoundFilter.and(FieldFilter.gt("age", 18), FieldFilter.lt("age", 100)),
+                FieldFilter.eq("type", "person"),
+                CompoundFilter.or(
+                    FieldFilter.eq("marital-status", MaritalStatus.MARRIED),
+                    FieldFilter.eq("marital-status", MaritalStatus.CURRENTLY_SEPARATED)
                 )
             )
         )
 
         Request(Method.GET, "/test?type=person&type=company&status=enabled")
-            .filterCriteria(options) shouldBe CompoundCriteria(
-            CompoundCriteria.Operator.AND,
+            .queryParamsAsFilter(options) shouldBe CompoundFilter(
+            CompoundFilter.Operator.AND,
             listOf(
-                FieldCriteria.eq("status", "enabled"),
-                CompoundCriteria.or(FieldCriteria.eq("type", "person"), FieldCriteria.eq("type", "company"))
+                FieldFilter.eq("status", "enabled"),
+                CompoundFilter.or(FieldFilter.eq("type", "person"), FieldFilter.eq("type", "company"))
             )
         )
     }

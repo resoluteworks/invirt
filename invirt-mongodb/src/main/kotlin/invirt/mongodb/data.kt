@@ -42,27 +42,27 @@ fun <T : Any> FindIterable<T>.sort(vararg sort: Sort = emptyArray()): FindIterab
     }
 }
 
-private fun <Value : Any> FieldCriteria<Value>.mongoFilter(): Bson {
+private fun <Value : Any> FieldFilter<Value>.mongoFilter(): Bson {
     return when (operation) {
-        FieldCriteria.Operation.EQ -> Filters.eq(field, value)
-        FieldCriteria.Operation.GT -> Filters.gt(field, value)
-        FieldCriteria.Operation.GTE -> Filters.gte(field, value)
-        FieldCriteria.Operation.LTE -> Filters.lte(field, value)
-        FieldCriteria.Operation.LT -> Filters.lt(field, value)
-        FieldCriteria.Operation.NE -> Filters.ne(field, value)
+        FieldFilter.Operation.EQ -> Filters.eq(field, value)
+        FieldFilter.Operation.GT -> Filters.gt(field, value)
+        FieldFilter.Operation.GTE -> Filters.gte(field, value)
+        FieldFilter.Operation.LTE -> Filters.lte(field, value)
+        FieldFilter.Operation.LT -> Filters.lt(field, value)
+        FieldFilter.Operation.NE -> Filters.ne(field, value)
     }
 }
 
-fun FilterCriteria.mongoFilter(): Bson {
+fun Filter.mongoFilter(): Bson {
     return when (this) {
-        is FieldCriteria<*> -> this.mongoFilter()
-        is CompoundCriteria -> {
+        is FieldFilter<*> -> this.mongoFilter()
+        is CompoundFilter -> {
             when (this.operator) {
-                CompoundCriteria.Operator.OR -> Filters.or(this.children.map { it.mongoFilter() })
-                CompoundCriteria.Operator.AND -> Filters.and(this.children.map { it.mongoFilter() })
+                CompoundFilter.Operator.OR -> Filters.or(this.children.map { it.mongoFilter() })
+                CompoundFilter.Operator.AND -> Filters.and(this.children.map { it.mongoFilter() })
             }
         }
 
-        else -> throw IllegalArgumentException("Unknown filter criteria ${this::class}")
+        else -> throw IllegalArgumentException("Unknown filter type ${this::class}")
     }
 }

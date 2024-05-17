@@ -1,6 +1,5 @@
 package invirt.http4k.data
 
-import invirt.data.CompoundCriteria
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.http4k.core.Method
@@ -10,9 +9,9 @@ class RequestQueryFiltersTest : StringSpec({
 
     "selected values" {
         val options = listOf(
-            stringFilterOption("status", listOf("enabled", "disabled"), CompoundCriteria.Operator.OR),
-            stringFilterOption("type", listOf("person", "company"), CompoundCriteria.Operator.OR),
-            enumFilterOption<MaritalStatus>("marital-status", CompoundCriteria.Operator.OR)
+            stringFilterOption("status", listOf("enabled", "disabled")),
+            stringFilterOption("type", listOf("person", "company")),
+            enumFilterOption<MaritalStatus>("marital-status")
         )
 
         val request = Request(

@@ -62,18 +62,18 @@ class DataTest : StringSpec() {
             collection.find().sort().toList().map { it.index } shouldContainExactlyInAnyOrder (0..99).toList()
         }
 
-        "FilterCriteria.mongoFilter()" {
-            FieldCriteria.eq("type", "person").mongoFilter() shouldBe Filters.eq("type", "person")
-            FieldCriteria.ne("status", "open").mongoFilter() shouldBe Filters.ne("status", "open")
-            FieldCriteria.gt("age", 37).mongoFilter() shouldBe Filters.gt("age", 37)
-            FieldCriteria.gte("age", 18).mongoFilter() shouldBe Filters.gte("age", 18)
-            FieldCriteria.lt("age", 55).mongoFilter() shouldBe Filters.lt("age", 55)
-            FieldCriteria.lte("age", 98).mongoFilter() shouldBe Filters.lte("age", 98)
+        "Filter.mongoFilter()" {
+            FieldFilter.eq("type", "person").mongoFilter() shouldBe Filters.eq("type", "person")
+            FieldFilter.ne("status", "open").mongoFilter() shouldBe Filters.ne("status", "open")
+            FieldFilter.gt("age", 37).mongoFilter() shouldBe Filters.gt("age", 37)
+            FieldFilter.gte("age", 18).mongoFilter() shouldBe Filters.gte("age", 18)
+            FieldFilter.lt("age", 55).mongoFilter() shouldBe Filters.lt("age", 55)
+            FieldFilter.lte("age", 98).mongoFilter() shouldBe Filters.lte("age", 98)
 
-            CompoundCriteria.and(
-                CompoundCriteria.or(FieldCriteria.eq("status", "married"), FieldCriteria.eq("status", "single")),
-                CompoundCriteria.and(FieldCriteria.gte("age", 18), FieldCriteria.lt("age", 100)),
-                FieldCriteria.eq("type", "person")
+            CompoundFilter.and(
+                CompoundFilter.or(FieldFilter.eq("status", "married"), FieldFilter.eq("status", "single")),
+                CompoundFilter.and(FieldFilter.gte("age", 18), FieldFilter.lt("age", 100)),
+                FieldFilter.eq("type", "person")
             ).mongoFilter() shouldBe Filters.and(
                 Filters.or(Filters.eq("status", "married"), Filters.eq("status", "single")),
                 Filters.and(Filters.gte("age", 18), Filters.lt("age", 100)),
