@@ -28,10 +28,10 @@ class CollectionTest : StringSpec() {
             collection.insertOne(Entity(3))
             collection.insertOne(Entity(4))
 
-            collection.findOne(Entity::index.eq(2))!!.index shouldBe 2
-            collection.findOne(Entity::index.eq(5)) shouldBe null
-            shouldThrowWithMessage<IllegalStateException>("More than one document found for filter ${Entity::index.gt(2)}") {
-                collection.findOne(Entity::index.gt(2))
+            collection.findOne(Entity::index.mongoEq(2))!!.index shouldBe 2
+            collection.findOne(Entity::index.mongoEq(5)) shouldBe null
+            shouldThrowWithMessage<IllegalStateException>("More than one document found for filter ${Entity::index.mongoGt(2)}") {
+                collection.findOne(Entity::index.mongoGt(2))
             }
         }
 

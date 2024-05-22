@@ -5,41 +5,21 @@ import org.bson.conversions.Bson
 import java.time.LocalDate
 import kotlin.reflect.KProperty
 
-fun byId(id: String) = Filters.eq("_id", id)
-fun byIds(vararg ids: String) = Filters.`in`("_id", *ids)
-fun byIds(ids: Collection<String>) = byIds(*ids.toTypedArray())
+fun mongoById(id: String) = Filters.eq("_id", id)
+fun mongoByIds(vararg ids: String) = Filters.`in`("_id", *ids)
+fun mongoByIds(ids: Collection<String>) = mongoByIds(*ids.toTypedArray())
 
-fun KProperty<*>.eq(value: Any): Bson = Filters.eq(this.name, value)
-fun KProperty<*>.gt(value: Any): Bson = Filters.gt(this.name, value)
-fun KProperty<*>.gte(value: Any): Bson = Filters.gte(this.name, value)
-fun KProperty<*>.lt(value: Any): Bson = Filters.lt(this.name, value)
-fun KProperty<*>.lte(value: Any): Bson = Filters.lte(this.name, value)
-fun KProperty<*>.`in`(vararg values: Any): Bson? = this.name.`in`(values.toList())
-fun KProperty<*>.`in`(values: Collection<Any>): Bson? = this.name.`in`(values)
-fun String.`in`(values: Collection<Any>): Bson? = if (values.isNotEmpty()) Filters.`in`(this, *values.toTypedArray()) else null
-fun String.`in`(vararg values: Any): Bson? = if (values.isNotEmpty()) Filters.`in`(this, *values) else null
-fun textSearch(text: String): Bson = Filters.text(text)
+fun <Value : Any> KProperty<Value?>.mongoEq(value: Value): Bson = Filters.eq(this.name, value)
+fun <Value : Any> KProperty<Value?>.mongoGt(value: Value): Bson = Filters.gt(this.name, value)
+fun <Value : Any> KProperty<Value?>.mongoGte(value: Value): Bson = Filters.gte(this.name, value)
+fun <Value : Any> KProperty<Value?>.mongoLt(value: Value): Bson = Filters.lt(this.name, value)
+fun <Value : Any> KProperty<Value?>.mongoLte(value: Value): Bson = Filters.lte(this.name, value)
+fun <Value : Any> KProperty<Value?>.mongoIn(vararg values: Value): Bson? = this.name.mongoIn(values.toList())
+fun <Value : Any> KProperty<Value?>.mongoIn(values: Collection<Value>): Bson? = this.name.mongoIn(values)
+fun String.mongoIn(values: Collection<Any>): Bson? = if (values.isNotEmpty()) Filters.`in`(this, *values.toTypedArray()) else null
+fun String.mongoIn(vararg values: Any): Bson? = if (values.isNotEmpty()) Filters.`in`(this, *values) else null
+fun mongoTextSearch(text: String): Bson = Filters.text(text)
 
 fun KProperty<LocalDate>.inYear(year: Int): Bson {
-    return Filters.and(gte(LocalDate.of(year, 1, 1)), lte(LocalDate.of(year, 12, 31)))
-}
-
-fun Collection<Bson>.orFilter(): Bson? {
-    return if (isEmpty()) {
-        null
-    } else if (size == 1) {
-        first()
-    } else {
-        Filters.or(this)
-    }
-}
-
-fun Collection<Bson>.andFilter(): Bson? {
-    return if (isEmpty()) {
-        null
-    } else if (size == 1) {
-        first()
-    } else {
-        Filters.and(this)
-    }
+    return Filters.and(mongoGte(LocalDate.of(year, 1, 1)), mongoLte(LocalDate.of(year, 12, 31)))
 }

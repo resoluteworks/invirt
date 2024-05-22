@@ -1,114 +1,59 @@
 package invirt.http4k.data
 
 import invirt.data.CompoundFilter
-import invirt.data.FieldFilter
 import invirt.data.Filter
+import invirt.data.andFilter
+import invirt.data.orFilter
 import org.http4k.core.Request
+import org.http4k.lens.BiDiLens
 
-@Suppress("UNCHECKED_CAST")
-class RequestQueryFilters(
-    val options: List<QueryFilterOption<*>>,
-    val selected: List<FieldFilter<*>>,
-    val filter: Filter?
-) {
+class QueryValuesFilter(private val operator: CompoundFilter.Operator) {
 
-    private val selectedValues: Map<String, Set<Any>> = selected
-        .groupBy { it.field }
-        .map { group -> group.key to group.value.map { it.value }.toSet() }
-        .toMap()
+    private val paramFilters = mutableListOf<QueryParamFilter<*>>()
 
-    fun selected(field: String, value: Any): Boolean {
-        return selectedValues[field]?.contains(value) ?: false
+    operator fun invoke(request: Request): Filter? {
+        val filters = paramFilters.mapNotNull { it.getFilter(request) }
+        if (filters.isEmpty()) {
+            return null
+        }
+        return CompoundFilter(operator, filters)
     }
 
-    constructor(request: Request, options: List<QueryFilterOption<*>>) : this(
-        options = options,
-        selected = request.queryFieldFilters(options),
-        filter = request.queryParamsAsFilter(options as List<QueryFilterOption<Any>>)
-    )
-}
+    infix fun <Value : Any> BiDiLens<Request, Value?>.filter(filter: (Value) -> Filter?) {
+        paramFilters.add(QueryParamFilter(this, filter))
+    }
 
-class RequestFilter(
-    val fields: String,
-    val values: (Request) -> Map<String, Set<String>>
-)
-
-// interface RequestFilter {
-//
-//    val fields: Set<String>
-//    fun getSelectedValues(request: Request): Filter?
-//
-//    fun invoke(request: Request): Filter? {
-//        val values: Map<String, Set<String>> = fields.associateWith { field ->
-//            request.queries(field).filterNotNull().toSet()
-//        }
-//        return getFilter(values)
-//    }
-// }
-
-class QueryFilterOption<Value : Any>(
-    val field: String,
-    val values: List<Value>,
-    val toQueryValue: (Value) -> String,
-    val fromQueryValue: (String) -> Value,
-    val getFilter: (Collection<FieldFilter<Value>>) -> Filter?
-) {
-
-    companion object {
-        val OR: (Collection<FieldFilter<*>>) -> Filter? = {
-            when {
-                it.isEmpty() -> null
-                it.size == 1 -> it.first()
-                else -> CompoundFilter(CompoundFilter.Operator.OR, it)
+    infix fun <Value : Any> BiDiLens<Request, List<Value>?>.or(filter: (Value) -> Filter) {
+        paramFilters.add(
+            QueryParamFilter(this) { values ->
+                values.map { value -> filter(value) }.orFilter()
             }
-        }
+        )
+    }
 
-        val AND: (Collection<FieldFilter<*>>) -> Filter? = {
-            when {
-                it.isEmpty() -> null
-                it.size == 1 -> it.first()
-                else -> CompoundFilter(CompoundFilter.Operator.AND, it)
+    infix fun <Value : Any> BiDiLens<Request, List<Value>?>.and(filter: (Value) -> Filter) {
+        paramFilters.add(
+            QueryParamFilter(this) { values ->
+                values.map { value -> filter(value) }.andFilter()
             }
+        )
+    }
+
+    private class QueryParamFilter<Value>(
+        val lens: BiDiLens<Request, Value?>,
+        val filter: (Value) -> Filter?
+    ) {
+        fun getFilter(request: Request): Filter? {
+            return lens(request)?.let { filter(it) }
         }
     }
 }
 
-fun stringFilterOption(
-    field: String,
-    values: List<String>,
-    getFilter: (Collection<FieldFilter<String>>) -> Filter? = QueryFilterOption.OR
-): QueryFilterOption<String> {
-    return QueryFilterOption(
-        field = field,
-        values = values,
-        toQueryValue = { it },
-        fromQueryValue = { it },
-        getFilter = getFilter
-    )
-}
-
-inline fun <reified E : Enum<E>> enumFilterOption(
-    field: String,
-    noinline getFilter: (Collection<FieldFilter<E>>) -> Filter? = QueryFilterOption.OR
-): QueryFilterOption<E> {
-    return QueryFilterOption(
-        field = field,
-        values = enumValues<E>().toList(),
-        toQueryValue = { it.name.lowercase().replace("_", "-") },
-        fromQueryValue = { enumValueOf<E>(it.uppercase().replace("-", "_")) },
-        getFilter = getFilter
-    )
-}
-
-fun intFilterOption(
-    field: String,
-    getFilter: (Collection<FieldFilter<*>>) -> Filter? = QueryFilterOption.AND
-): QueryFilterOption<Int> {
-    return QueryFilterOption(
-        field = field,
-        values = emptyList(),
-        toQueryValue = { it.toString() },
-        fromQueryValue = { it.toInt() },
-        getFilter = getFilter
-    )
+fun queryValuesFilter(
+    operator: CompoundFilter.Operator = CompoundFilter.Operator.AND,
+    build: QueryValuesFilter.() -> Unit
+): QueryValuesFilter {
+    val filter = QueryValuesFilter(operator)
+    build(filter)
+    return filter
 }

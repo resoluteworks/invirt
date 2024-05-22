@@ -1,5 +1,7 @@
 package invirt.data
 
+import kotlin.reflect.KProperty
+
 interface Filter
 
 data class FieldFilter<Value : Any>(
@@ -32,16 +34,6 @@ data class FieldFilter<Value : Any>(
         fun <Value : Any> gte(field: String, value: Value): FieldFilter<Value> = FieldFilter(field, Operation.GTE, value)
         fun <Value : Any> lt(field: String, value: Value): FieldFilter<Value> = FieldFilter(field, Operation.LT, value)
         fun <Value : Any> lte(field: String, value: Value): FieldFilter<Value> = FieldFilter(field, Operation.LTE, value)
-
-        fun of(field: String, operationAndValue: String): FieldFilter<String> {
-            return if (operationAndValue.contains(":")) {
-                val operation = operationAndValue.substringBefore(":")
-                val valueString = operationAndValue.substringAfter(":")
-                FieldFilter(field, Operation.valueOf(operation.uppercase()), valueString)
-            } else {
-                FieldFilter(field, Operation.EQ, operationAndValue)
-            }
-        }
     }
 }
 
@@ -49,6 +41,12 @@ data class CompoundFilter(
     val operator: Operator,
     val children: Collection<Filter>
 ) : Filter {
+
+    init {
+        if (children.isEmpty()) {
+            throw IllegalArgumentException("children argument cannot be an empty collection")
+        }
+    }
 
     enum class Operator {
         OR,
@@ -58,14 +56,59 @@ data class CompoundFilter(
     companion object {
         fun or(vararg filters: Filter): CompoundFilter = or(filters.toList())
 
-        fun or(filters: List<Filter>): CompoundFilter {
+        fun or(filters: Collection<Filter>): CompoundFilter {
             return CompoundFilter(Operator.OR, filters)
         }
 
         fun and(vararg filters: Filter): CompoundFilter = and(filters.toList())
 
-        fun and(filters: List<Filter>): CompoundFilter {
+        fun and(filters: Collection<Filter>): CompoundFilter {
             return CompoundFilter(Operator.AND, filters)
         }
+    }
+}
+
+fun Collection<Filter>.orFilter(): Filter? {
+    return if (isEmpty()) {
+        null
+    } else {
+        CompoundFilter.or(this)
+    }
+}
+
+fun Collection<Filter>.andFilter(): Filter? {
+    return if (isEmpty()) {
+        null
+    } else {
+        CompoundFilter.and(this)
+    }
+}
+
+infix fun <Value : Any> String.eq(value: Value): FieldFilter<Value> = FieldFilter.eq(this, value)
+infix fun <Value : Any> String.ne(value: Value): FieldFilter<Value> = FieldFilter.ne(this, value)
+infix fun <Value : Any> String.gt(value: Value): FieldFilter<Value> = FieldFilter.gt(this, value)
+infix fun <Value : Any> String.gte(value: Value): FieldFilter<Value> = FieldFilter.gte(this, value)
+infix fun <Value : Any> String.lt(value: Value): FieldFilter<Value> = FieldFilter.lt(this, value)
+infix fun <Value : Any> String.lte(value: Value): FieldFilter<Value> = FieldFilter.lte(this, value)
+
+infix fun <Value : Any> KProperty<Value?>.eq(value: Value): FieldFilter<Value> = FieldFilter.eq(this.name, value)
+infix fun <Value : Any> KProperty<Value?>.ne(value: Value): FieldFilter<Value> = FieldFilter.ne(this.name, value)
+infix fun <Value : Any> KProperty<Value?>.gt(value: Value): FieldFilter<Value> = FieldFilter.gt(this.name, value)
+infix fun <Value : Any> KProperty<Value?>.gte(value: Value): FieldFilter<Value> = FieldFilter.gte(this.name, value)
+infix fun <Value : Any> KProperty<Value?>.lt(value: Value): FieldFilter<Value> = FieldFilter.lt(this.name, value)
+infix fun <Value : Any> KProperty<Value?>.lte(value: Value): FieldFilter<Value> = FieldFilter.lte(this.name, value)
+
+/**
+ * Returns the underlying filter when the or/and clause contains a single filter
+ */
+fun Filter.flatten(): Filter {
+    return if (this is CompoundFilter) {
+        if (children.size == 1) {
+            children.first().flatten()
+        } else {
+            CompoundFilter(this.operator, children.map { it.flatten() })
+        }
+    } else {
+        this
     }
 }

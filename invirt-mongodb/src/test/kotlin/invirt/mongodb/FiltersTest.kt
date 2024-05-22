@@ -1,6 +1,5 @@
 package invirt.mongodb
 
-import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Indexes
 import invirt.test.randomCollection
 import invirt.test.testMongo
@@ -9,7 +8,6 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import org.bson.codecs.pojo.annotations.BsonId
-import org.bson.conversions.Bson
 import java.time.Instant
 import java.time.LocalDate
 
@@ -31,11 +29,11 @@ class FiltersTest : StringSpec() {
             repeat(100) {
                 collection.insertOne(Entity(it + 1))
             }
-            collection.find(Entity::index.gt(10)).toList().map { it.index } shouldContainExactlyInAnyOrder (11..100).toList()
-            collection.find(Entity::index.gte(10)).toList().map { it.index } shouldContainExactlyInAnyOrder (10..100).toList()
-            collection.find(Entity::index.gte(0)).toList().map { it.index } shouldContainExactlyInAnyOrder (1..100).toList()
-            collection.find(Entity::index.lt(54)).toList().map { it.index } shouldContainExactlyInAnyOrder (1..53).toList()
-            collection.find(Entity::index.lte(54)).toList().map { it.index } shouldContainExactlyInAnyOrder (1..54).toList()
+            collection.find(Entity::index.mongoGt(10)).toList().map { it.index } shouldContainExactlyInAnyOrder (11..100).toList()
+            collection.find(Entity::index.mongoGte(10)).toList().map { it.index } shouldContainExactlyInAnyOrder (10..100).toList()
+            collection.find(Entity::index.mongoGte(0)).toList().map { it.index } shouldContainExactlyInAnyOrder (1..100).toList()
+            collection.find(Entity::index.mongoLt(54)).toList().map { it.index } shouldContainExactlyInAnyOrder (1..53).toList()
+            collection.find(Entity::index.mongoLte(54)).toList().map { it.index } shouldContainExactlyInAnyOrder (1..54).toList()
         }
 
         "in" {
@@ -55,27 +53,27 @@ class FiltersTest : StringSpec() {
                 ids.add(document.id)
             }
 
-            collection.find(Entity::index.`in`(0, 1)!!).toList().map { it.id } shouldContainExactlyInAnyOrder ids
-            collection.find(Entity::index.`in`(setOf(0, 1))!!).toList().map { it.id } shouldContainExactlyInAnyOrder ids
-            collection.find(Entity::index.`in`(listOf(0, 1))!!).toList().map { it.id } shouldContainExactlyInAnyOrder ids
+            collection.find(Entity::index.`mongoIn`(0, 1)!!).toList().map { it.id } shouldContainExactlyInAnyOrder ids
+            collection.find(Entity::index.`mongoIn`(setOf(0, 1))!!).toList().map { it.id } shouldContainExactlyInAnyOrder ids
+            collection.find(Entity::index.`mongoIn`(listOf(0, 1))!!).toList().map { it.id } shouldContainExactlyInAnyOrder ids
 
-            collection.find("index".`in`(0, 1)!!).toList().map { it.id } shouldContainExactlyInAnyOrder ids
-            collection.find("index".`in`(setOf(0, 1))!!).toList().map { it.id } shouldContainExactlyInAnyOrder ids
-            collection.find("index".`in`(listOf(0, 1))!!).toList().map { it.id } shouldContainExactlyInAnyOrder ids
+            collection.find("index".`mongoIn`(0, 1)!!).toList().map { it.id } shouldContainExactlyInAnyOrder ids
+            collection.find("index".`mongoIn`(setOf(0, 1))!!).toList().map { it.id } shouldContainExactlyInAnyOrder ids
+            collection.find("index".`mongoIn`(listOf(0, 1))!!).toList().map { it.id } shouldContainExactlyInAnyOrder ids
 
-            collection.find(Entity::index.`in`(0)!!).toList().map { it.id } shouldContainExactlyInAnyOrder listOf(ids[0], ids[2])
-            collection.find("index".`in`(0)!!).toList().map { it.id } shouldContainExactlyInAnyOrder listOf(ids[0], ids[2])
+            collection.find(Entity::index.`mongoIn`(0)!!).toList().map { it.id } shouldContainExactlyInAnyOrder listOf(ids[0], ids[2])
+            collection.find("index".`mongoIn`(0)!!).toList().map { it.id } shouldContainExactlyInAnyOrder listOf(ids[0], ids[2])
 
-            collection.find(Entity::index.`in`(1)!!).toList().map { it.id } shouldContainExactlyInAnyOrder listOf(ids[1], ids[3])
-            collection.find("index".`in`(1)!!).toList().map { it.id } shouldContainExactlyInAnyOrder listOf(ids[1], ids[3])
+            collection.find(Entity::index.`mongoIn`(1)!!).toList().map { it.id } shouldContainExactlyInAnyOrder listOf(ids[1], ids[3])
+            collection.find("index".`mongoIn`(1)!!).toList().map { it.id } shouldContainExactlyInAnyOrder listOf(ids[1], ids[3])
 
             // Null values
-            Entity::index.`in`(emptySet()) shouldBe null
-            Entity::index.`in`(emptyList()) shouldBe null
-            Entity::index.`in`() shouldBe null
-            "index".`in`(emptySet()) shouldBe null
-            "index".`in`(emptyList()) shouldBe null
-            "index".`in`() shouldBe null
+            Entity::index.`mongoIn`(emptySet()) shouldBe null
+            Entity::index.`mongoIn`(emptyList()) shouldBe null
+            Entity::index.`mongoIn`() shouldBe null
+            "index".`mongoIn`(emptySet()) shouldBe null
+            "index".`mongoIn`(emptyList()) shouldBe null
+            "index".`mongoIn`() shouldBe null
         }
 
         "inYear" {
@@ -121,8 +119,8 @@ class FiltersTest : StringSpec() {
                 ids.add(document.id)
             }
 
-            collection.find(byId(ids[0])).toList().map { it.id } shouldBe listOf(ids[0])
-            collection.find(byId(ids[3])).toList().map { it.id } shouldBe listOf(ids[3])
+            collection.find(mongoById(ids[0])).toList().map { it.id } shouldBe listOf(ids[0])
+            collection.find(mongoById(ids[3])).toList().map { it.id } shouldBe listOf(ids[3])
         }
 
         "byIds" {
@@ -141,8 +139,8 @@ class FiltersTest : StringSpec() {
                 ids.add(document.id)
             }
 
-            collection.find(byIds(ids)).toList().map { it.id } shouldContainExactlyInAnyOrder ids
-            collection.find(byIds(ids.sorted().subList(0, 2))).toList().map { it.id } shouldContainExactlyInAnyOrder ids.sorted()
+            collection.find(mongoByIds(ids)).toList().map { it.id } shouldContainExactlyInAnyOrder ids
+            collection.find(mongoByIds(ids.sorted().subList(0, 2))).toList().map { it.id } shouldContainExactlyInAnyOrder ids.sorted()
                 .subList(0, 2)
         }
 
@@ -164,24 +162,10 @@ class FiltersTest : StringSpec() {
             collection.insertOne(doc1)
             collection.insertOne(doc2)
 
-            collection.find(textSearch("dogs")).toList().sortedBy { it.id } shouldBe listOf(doc1, doc2).sortedBy { it.id }
-            collection.find(textSearch("dog")).toList().sortedBy { it.id } shouldBe listOf(doc1, doc2).sortedBy { it.id }
-            collection.find(textSearch("barking")).toList() shouldBe listOf(doc1)
-            collection.find(textSearch("cat")).toList() shouldBe listOf(doc2)
-        }
-
-        "Collection<Bson>.orFilter()" {
-            emptySet<Bson>().orFilter() shouldBe null
-            listOf(Filters.eq("type", "person"), Filters.gte("size", 20)).orFilter() shouldBe
-                Filters.or(Filters.eq("type", "person"), Filters.gte("size", 20))
-            listOf(Filters.eq("type", "person")).orFilter() shouldBe Filters.eq("type", "person")
-        }
-
-        "Collection<Bson>.andFilter()" {
-            emptySet<Bson>().andFilter() shouldBe null
-            listOf(Filters.eq("type", "person"), Filters.gte("size", 20)).andFilter() shouldBe
-                Filters.and(Filters.eq("type", "person"), Filters.gte("size", 20))
-            listOf(Filters.eq("type", "person")).andFilter() shouldBe Filters.eq("type", "person")
+            collection.find(mongoTextSearch("dogs")).toList().sortedBy { it.id } shouldBe listOf(doc1, doc2).sortedBy { it.id }
+            collection.find(mongoTextSearch("dog")).toList().sortedBy { it.id } shouldBe listOf(doc1, doc2).sortedBy { it.id }
+            collection.find(mongoTextSearch("barking")).toList() shouldBe listOf(doc1)
+            collection.find(mongoTextSearch("cat")).toList() shouldBe listOf(doc2)
         }
     }
 }

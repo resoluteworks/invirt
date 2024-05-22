@@ -27,6 +27,7 @@ class IndexTest : StringSpec() {
                 val age: Int,
                 val gender: Gender,
                 val firstName: String,
+                val lastName: String,
                 val address: Address,
                 val indexedAndTextIndexed: String,
                 val sent: Instant,
@@ -45,12 +46,14 @@ class IndexTest : StringSpec() {
             collection.createIndexes {
                 asc(Entity::age)
                 asc("gender.name")
+                desc(Entity::lastName)
                 asc(Entity::indexedAndTextIndexed)
                 text("address.city", "firstName", "indexedAndTextIndexed")
             }
 
             collection shouldHaveAscIndex "age"
             collection shouldHaveAscIndex "gender.name"
+            collection shouldHaveDescIndex "lastName"
             collection shouldHaveAscIndex "version"
             collection shouldHaveDescIndex "createdAt"
             collection shouldHaveDescIndex "updatedAt"
@@ -104,6 +107,7 @@ class IndexTest : StringSpec() {
                 val age: Int,
                 val name: String,
                 val lastName: String,
+                val firstName: String,
                 val address: String,
                 val city: String,
                 @BsonId override val id: String = uuid7(),
@@ -120,6 +124,7 @@ class IndexTest : StringSpec() {
                 asc(Entity::age)
                 asc(Entity::name)
                 asc(Entity::lastName, caseInsensitive = true)
+                desc("firstName")
                 desc(Entity::address, caseInsensitive = true)
                 desc("city", caseInsensitive = true)
             }
@@ -127,6 +132,7 @@ class IndexTest : StringSpec() {
             indexes.indexForField("age")["collation"] shouldBe null
             indexes.indexForField("name")["collation"] shouldBe null
             indexes.indexForField("lastName")["collation"] shouldNotBe null
+            indexes.indexForField("firstName")["collation"] shouldBe null
             indexes.indexForField("address")["collation"] shouldNotBe null
             indexes.indexForField("city")["collation"] shouldNotBe null
         }
