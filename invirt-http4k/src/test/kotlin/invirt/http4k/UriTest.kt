@@ -55,5 +55,10 @@ class UriTest : StringSpec({
         Uri.of("/test?test=nothing&test=something&from=0&size=1").hasQueryValue("test", "something") shouldBe true
         Uri.of("/test?test=nothing&test=something&from=0&size=1").hasQueryValue("from", "0") shouldBe true
         Uri.of("/test?test=nothing&test=something&from=0&size=1").hasQueryValue("size", "1") shouldBe true
+
+        Uri.of("/test?test=nothing&test=something&from=0&size=1").hasQueryValue("size", "11") shouldBe false
+        Uri.of("/test?test=nothing&test=something&from=0&size=1").hasQueryValue("test", "something,nothing") shouldBe false
+        Uri.of("/test?test=nothing&test=something&from=0&size=1").hasQueryValue("page", "1") shouldBe false
+        Uri.of("/test?test=nothing&test=something&from=0&size=1").hasQueryValue("from", "01") shouldBe false
     }
 })
