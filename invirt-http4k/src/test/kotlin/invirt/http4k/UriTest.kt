@@ -45,10 +45,15 @@ class UriTest : StringSpec({
         Uri.of("/test?q=nothing&size=5").replaceQuery("q" to "John", "size" to "10").toString() shouldBe "/test?q=John&size=10"
         Uri.of("/test?q=nothing&size=5").replaceQuery("size" to "10", "q" to "John").toString() shouldBe "/test?size=10&q=John"
         Uri.of("/test?q=nothing&from=0&size=1").replaceQuery("size" to "5", "q" to "John").toString() shouldBe "/test?from=0&size=5&q=John"
-        Uri.of("/test?q=nothing&from=0&size=1").replaceQuery("size" to "5", "from" to "100").toString() shouldBe "/test?q=nothing&size=5&from=100"
+        Uri.of("/test?q=nothing&from=0&size=1").replaceQuery("size" to "5", "from" to "100")
+            .toString() shouldBe "/test?q=nothing&size=5&from=100"
     }
 
     "hasQueryValue" {
-        Uri.of("/test?q=nothing&from=0&size=1").replaceQuery("size" to "5", "from" to "100").toString() shouldBe "/test?q=nothing&size=5&from=100"
+        Uri.of("/test?q=nothing&from=0&size=1").hasQueryValue("q", "nothing") shouldBe true
+        Uri.of("/test?test=nothing&test=something&from=0&size=1").hasQueryValue("test", "nothing") shouldBe true
+        Uri.of("/test?test=nothing&test=something&from=0&size=1").hasQueryValue("test", "something") shouldBe true
+        Uri.of("/test?test=nothing&test=something&from=0&size=1").hasQueryValue("from", "0") shouldBe true
+        Uri.of("/test?test=nothing&test=something&from=0&size=1").hasQueryValue("size", "1") shouldBe true
     }
 })
