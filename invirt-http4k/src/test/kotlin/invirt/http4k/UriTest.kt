@@ -47,4 +47,8 @@ class UriTest : StringSpec({
         Uri.of("/test?q=nothing&from=0&size=1").replaceQuery("size" to "5", "q" to "John").toString() shouldBe "/test?from=0&size=5&q=John"
         Uri.of("/test?q=nothing&from=0&size=1").replaceQuery("size" to "5", "from" to "100").toString() shouldBe "/test?q=nothing&size=5&from=100"
     }
+
+    "hasQueryValue" {
+        Uri.of("/test?q=nothing&from=0&size=1").replaceQuery("size" to "5", "from" to "100").toString() shouldBe "/test?q=nothing&size=5&from=100"
+    }
 })

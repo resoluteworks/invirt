@@ -4,6 +4,7 @@ import com.mongodb.client.model.Indexes
 import invirt.test.randomCollection
 import invirt.test.testMongo
 import invirt.utils.uuid7
+import io.kotest.assertions.throwables.shouldThrowWithMessage
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
@@ -53,27 +54,40 @@ class FiltersTest : StringSpec() {
                 ids.add(document.id)
             }
 
-            collection.find(Entity::index.`mongoIn`(0, 1)!!).toList().map { it.id } shouldContainExactlyInAnyOrder ids
-            collection.find(Entity::index.`mongoIn`(setOf(0, 1))!!).toList().map { it.id } shouldContainExactlyInAnyOrder ids
-            collection.find(Entity::index.`mongoIn`(listOf(0, 1))!!).toList().map { it.id } shouldContainExactlyInAnyOrder ids
+            collection.find(Entity::index.mongoIn(0, 1)).toList().map { it.id } shouldContainExactlyInAnyOrder ids
+            collection.find(Entity::index.mongoIn(setOf(0, 1))).toList().map { it.id } shouldContainExactlyInAnyOrder ids
+            collection.find(Entity::index.mongoIn(listOf(0, 1))).toList().map { it.id } shouldContainExactlyInAnyOrder ids
 
-            collection.find("index".`mongoIn`(0, 1)!!).toList().map { it.id } shouldContainExactlyInAnyOrder ids
-            collection.find("index".`mongoIn`(setOf(0, 1))!!).toList().map { it.id } shouldContainExactlyInAnyOrder ids
-            collection.find("index".`mongoIn`(listOf(0, 1))!!).toList().map { it.id } shouldContainExactlyInAnyOrder ids
+            collection.find("index".mongoIn(0, 1)).toList().map { it.id } shouldContainExactlyInAnyOrder ids
+            collection.find("index".mongoIn(setOf(0, 1))).toList().map { it.id } shouldContainExactlyInAnyOrder ids
+            collection.find("index".mongoIn(listOf(0, 1))).toList().map { it.id } shouldContainExactlyInAnyOrder ids
 
-            collection.find(Entity::index.`mongoIn`(0)!!).toList().map { it.id } shouldContainExactlyInAnyOrder listOf(ids[0], ids[2])
-            collection.find("index".`mongoIn`(0)!!).toList().map { it.id } shouldContainExactlyInAnyOrder listOf(ids[0], ids[2])
+            collection.find(Entity::index.mongoIn(0)).toList().map { it.id } shouldContainExactlyInAnyOrder listOf(ids[0], ids[2])
+            collection.find("index".mongoIn(0)).toList().map { it.id } shouldContainExactlyInAnyOrder listOf(ids[0], ids[2])
 
-            collection.find(Entity::index.`mongoIn`(1)!!).toList().map { it.id } shouldContainExactlyInAnyOrder listOf(ids[1], ids[3])
-            collection.find("index".`mongoIn`(1)!!).toList().map { it.id } shouldContainExactlyInAnyOrder listOf(ids[1], ids[3])
+            collection.find(Entity::index.mongoIn(1)).toList().map { it.id } shouldContainExactlyInAnyOrder listOf(ids[1], ids[3])
+            collection.find("index".mongoIn(1)).toList().map { it.id } shouldContainExactlyInAnyOrder listOf(ids[1], ids[3])
 
-            // Null values
-            Entity::index.`mongoIn`(emptySet()) shouldBe null
-            Entity::index.`mongoIn`(emptyList()) shouldBe null
-            Entity::index.`mongoIn`() shouldBe null
-            "index".`mongoIn`(emptySet()) shouldBe null
-            "index".`mongoIn`(emptyList()) shouldBe null
-            "index".`mongoIn`() shouldBe null
+            // Error states
+            val message = "Values for mongoIn cannot be empty"
+            shouldThrowWithMessage<IllegalArgumentException>(message) {
+                Entity::index.mongoIn(emptySet())
+            }
+            shouldThrowWithMessage<IllegalArgumentException>(message) {
+                Entity::index.mongoIn(emptyList())
+            }
+            shouldThrowWithMessage<IllegalArgumentException>(message) {
+                Entity::index.mongoIn()
+            }
+            shouldThrowWithMessage<IllegalArgumentException>(message) {
+                "index".mongoIn(emptySet())
+            }
+            shouldThrowWithMessage<IllegalArgumentException>(message) {
+                "index".mongoIn(emptyList())
+            }
+            shouldThrowWithMessage<IllegalArgumentException>(message) {
+                "index".mongoIn()
+            }
         }
 
         "inYear" {

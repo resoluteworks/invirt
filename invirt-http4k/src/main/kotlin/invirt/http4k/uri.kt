@@ -3,6 +3,10 @@ package invirt.http4k
 import invirt.data.Page
 import org.http4k.core.*
 
+fun Uri.hasQueryValue(name: String, value: String): Boolean {
+    return this.queries().any { it.first == name && it.second == value }
+}
+
 fun Uri.removeQueryValue(name: String, value: Any): Uri {
     return copy(query = query.toParameters().filterNot { it.first == name && it.second.toString() == value }.toUrlFormEncoded())
 }
