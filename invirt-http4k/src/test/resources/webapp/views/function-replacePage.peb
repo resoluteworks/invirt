@@ -1,1 +1,0 @@
-{{ replacePage(model.page) | raw }}

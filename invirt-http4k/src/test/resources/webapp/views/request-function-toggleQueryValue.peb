@@ -1,0 +1,1 @@
+{{ request.toggleQueryValue("filter", "individual") | raw }}

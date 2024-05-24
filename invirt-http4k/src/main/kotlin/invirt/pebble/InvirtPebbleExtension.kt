@@ -24,12 +24,7 @@ class InvirtPebbleExtension : AbstractExtension() {
             jsonArrayFunction,
 
             // Request
-            requestFunction,
-            replaceQueryFunction,
-            replacePageFunction,
-            removeQueryValueFunction,
-            removeQueriesFunction,
-            toggleQueryValueFunction
+            requestFunction
         ).associateBy { it.name }
     }
 

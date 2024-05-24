@@ -1,6 +1,7 @@
 package invirt.http4k.views
 
 import invirt.http4k.currentHttp4kRequest
+import invirt.pebble.InvirtPebbleRequest
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.pebbletemplates.pebble.PebbleEngine
 import io.pebbletemplates.pebble.error.LoaderException
@@ -38,7 +39,7 @@ class InvirtPebbleTemplates(
 
                 engine.getTemplate(template).evaluate(
                     writer,
-                    context.plus("request" to currentHttp4kRequest)
+                    context.plus("request" to currentHttp4kRequest?.let { InvirtPebbleRequest(it) })
                 )
                 writer.toString()
             } catch (e: LoaderException) {

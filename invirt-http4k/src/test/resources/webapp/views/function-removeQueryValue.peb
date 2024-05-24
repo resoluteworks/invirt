@@ -1,1 +1,0 @@
-{{ removeQueryValue("filter", "individual") | raw }}
