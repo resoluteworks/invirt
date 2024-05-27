@@ -1,5 +1,6 @@
 package invirt.utils
 
+import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -32,4 +33,17 @@ fun LocalDate.patternWithDaySuffix(pattern: String): String {
 
 fun LocalDate.formatWithDaySuffix(pattern: String): String {
     return format(DateTimeFormatter.ofPattern(patternWithDaySuffix(pattern)))
+}
+
+fun Duration.toHumanReadableString(): String {
+    val elements = listOf(
+        "${toDaysPart()}d",
+        "${toHoursPart()}h",
+        "${toMinutesPart()}m",
+        "${toSecondsPart()}s",
+        "${toMillisPart()}ms"
+    )
+    val start = elements.indexOfFirst { it[0] != '0' }
+    val end = elements.indexOfLast { it[0] != '0' }
+    return elements.subList(start, end + 1).joinToString(" ")
 }
