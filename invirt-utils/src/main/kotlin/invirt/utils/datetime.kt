@@ -36,16 +36,18 @@ fun LocalDate.formatWithDaySuffix(pattern: String): String {
 }
 
 fun Duration.toHumanReadableString(): String {
-    if (this.nano < 1_000_000) {
+    val duration = this.truncatedTo(ChronoUnit.MILLIS)
+
+    if (duration == Duration.ZERO) {
         return "0ms"
     }
 
     val elements = listOf(
-        "${toDaysPart()}d",
-        "${toHoursPart()}h",
-        "${toMinutesPart()}m",
-        "${toSecondsPart()}s",
-        "${toMillisPart()}ms"
+        "${duration.toDaysPart()}d",
+        "${duration.toHoursPart()}h",
+        "${duration.toMinutesPart()}m",
+        "${duration.toSecondsPart()}s",
+        "${duration.toMillisPart()}ms"
     )
     val start = elements.indexOfFirst { it[0] != '0' }
     val end = elements.indexOfLast { it[0] != '0' }
