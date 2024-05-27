@@ -27,6 +27,18 @@ fun <E : StoredEntity> MongoCollection<E>.findOne(filter: Bson): E? {
     return list.firstOrNull()
 }
 
+fun <E : StoredEntity> MongoCollection<E>.findFirst(filter: Bson, sort: Bson): E? {
+    val list = find(filter)
+        .sort(sort)
+        .limit(1)
+        .toList()
+    return if (list.isNotEmpty()) {
+        list.first()
+    } else {
+        null
+    }
+}
+
 fun <E : StoredEntity> MongoCollection<E>.delete(id: String): Boolean {
     return deleteOne(mongoById(id)).deletedCount == 1L
 }

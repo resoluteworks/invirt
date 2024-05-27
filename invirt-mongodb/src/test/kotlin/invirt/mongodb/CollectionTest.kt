@@ -1,6 +1,11 @@
 package invirt.mongodb
 
-import invirt.test.*
+import invirt.data.sortAsc
+import invirt.data.sortDesc
+import invirt.test.randomCollection
+import invirt.test.shouldBeNextUpdateOf
+import invirt.test.shouldBeSameEntity
+import invirt.test.testMongo
 import invirt.utils.uuid7
 import io.kotest.assertions.throwables.shouldThrowWithMessage
 import io.kotest.core.spec.style.StringSpec
@@ -33,6 +38,34 @@ class CollectionTest : StringSpec() {
             shouldThrowWithMessage<IllegalStateException>("More than one document found for filter ${Entity::index.mongoGt(2)}") {
                 collection.findOne(Entity::index.mongoGt(2))
             }
+        }
+
+        "findFirst" {
+            data class Entity(
+                val index: Int,
+                val type: String,
+                @BsonId override val id: String = index.toString(),
+                override var version: Long = 0,
+                override val createdAt: Instant = mongoNow(),
+                override var updatedAt: Instant = mongoNow()
+            ) : StoredEntity
+
+            val collection = mongo.database.randomCollection<Entity>()
+            collection.insertOne(Entity(1, "person"))
+            collection.insertOne(Entity(2, "person"))
+            collection.insertOne(Entity(3, "company"))
+            collection.insertOne(Entity(4, "company"))
+
+            collection.findFirst(Entity::type.mongoEq("person"), Entity::index.sortAsc().mongoSort()) shouldBeSameEntity
+                Entity(1, "person")
+
+            collection.findFirst(Entity::type.mongoEq("person"), Entity::index.sortDesc().mongoSort()) shouldBeSameEntity
+                Entity(2, "person")
+
+            collection.findFirst(Entity::type.mongoEq("company"), Entity::index.sortDesc().mongoSort()) shouldBeSameEntity
+                Entity(4, "company")
+
+            collection.findFirst(Entity::type.mongoEq("nothing"), Entity::index.sortDesc().mongoSort()) shouldBe null
         }
 
         "get" {
