@@ -36,6 +36,10 @@ fun LocalDate.formatWithDaySuffix(pattern: String): String {
 }
 
 fun Duration.toHumanReadableString(): String {
+    if (this.nano < 1_000_000) {
+        return "0ms"
+    }
+
     val elements = listOf(
         "${toDaysPart()}d",
         "${toHoursPart()}h",

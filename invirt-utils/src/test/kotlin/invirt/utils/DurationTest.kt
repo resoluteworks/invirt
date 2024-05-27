@@ -6,6 +6,17 @@ import java.time.Duration
 
 class DurationTest : StringSpec({
 
+    "no duration" {
+        Duration.ofMillis(0).toHumanReadableString() shouldBe "0ms"
+    }
+
+    "sub-millis duration" {
+        Duration.ofNanos(56).toHumanReadableString() shouldBe "0ms"
+        Duration.ofNanos(213_210).toHumanReadableString() shouldBe "0ms"
+        Duration.ofNanos(999_999).toHumanReadableString() shouldBe "0ms"
+        Duration.ofNanos(1_000_000).toHumanReadableString() shouldBe "1ms"
+    }
+
     "human readable string - round number duration" {
         Duration.ofDays(16).toHumanReadableString() shouldBe "16d"
         Duration.ofHours(23).toHumanReadableString() shouldBe "23h"
