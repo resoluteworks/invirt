@@ -19,6 +19,7 @@ object HttpAccessLog {
                 log.atInfo {
                     message = "http-access"
                     payload = mapOf(
+                        "host" to tx.request.header("Host"),
                         "method" to tx.request.method,
                         "path" to tx.request.uri.path,
                         "uri" to tx.request.uri.toString(),
