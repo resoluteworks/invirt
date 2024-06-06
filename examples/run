@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -e
+
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 <examples-project-name>"
+    echo "Example: $0 hotwire"
+    exit 1
+fi
+
+PROJECT_NAME=$1
+export DEVELOPMENT_MODE=true
+./gradlew $PROJECT_NAME:run

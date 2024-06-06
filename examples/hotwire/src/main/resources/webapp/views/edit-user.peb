@@ -24,7 +24,7 @@
                         </div>
                     </div>
 
-                    <div class="flex flex-row w-full justify-end gap-4">
+                    <div class="flex flex-row w-full justify-end items-start gap-4">
                         <a href="/" class="btn btn-outline">Cancel</a>
                         <button class="btn btn-neutral">Save</button>
                     </div>
