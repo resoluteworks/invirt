@@ -85,9 +85,9 @@ class DataTest : StringSpec() {
                 Polygon(
                     listOf(
                         Position(-8.596867, 51.348611),
-                        Position(1.950008, 51.348611),
-                        Position(1.950008, 56.435911),
                         Position(-8.596867, 56.435911),
+                        Position(1.950008, 56.435911),
+                        Position(1.950008, 51.348611),
                         Position(-8.596867, 51.348611)
                     )
                 )

@@ -197,8 +197,8 @@ class FiltersTest : StringSpec() {
             val collection = mongo.database.randomCollection<Entity>()
             collection.createIndex(Indexes.geo2dsphere("location.lngLat"))
 
-            val e1 = collection.save(Entity(GeoLocation(lng = 10.5, lat = 23.0)))
-            val e2 = collection.save(Entity(GeoLocation(lng = -7.0, lat = 49.1)))
+            val e1 = collection.save(Entity(GeoLocation(lng = -7.0, lat = 49.1)))
+            val e2 = collection.save(Entity(GeoLocation(lng = 10.5, lat = 23.0)))
             val e3 = collection.save(Entity(GeoLocation(lng = 22.0, lat = -10.1)))
 
             collection.find(
@@ -222,8 +222,8 @@ class FiltersTest : StringSpec() {
             collection.find(
                 "location.lngLat".withinGeoBounds(
                     GeoBoundingBox(
-                        southWest = GeoLocation(lng = -10.0, lat = -30.0),
-                        northEast = GeoLocation(lng = 24.1, lat = 32.0)
+                        southWest = GeoLocation(lng = -1.0, lat = -30.0),
+                        northEast = GeoLocation(lng = 25.1, lat = 55.0)
                     )
                 ).mongoFilter()
             ).toList() shouldContainExactlyInAnyOrder listOf(e2, e3)
