@@ -27,6 +27,15 @@ data class GeoBoundingBox(
         }
 
         operator fun invoke(vararg bbox: Double): GeoBoundingBox = GeoBoundingBox(bbox.toList())
-        operator fun invoke(bbox: String): GeoBoundingBox = GeoBoundingBox(bbox.split(",").map { it.toDouble() })
+
+        fun fromLngLatString(bbox: String): GeoBoundingBox = GeoBoundingBox(bbox.split(",").map { it.toDouble() })
+
+        fun fromLatLngString(bbox: String): GeoBoundingBox {
+            val elements = bbox.split(",").map { it.toDouble() }
+            if (elements.size != 4) {
+                throw IllegalArgumentException("Bounding box coordinates array must be of size 4")
+            }
+            return GeoBoundingBox(elements[1], elements[0], elements[3], elements[2])
+        }
     }
 }

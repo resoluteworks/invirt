@@ -228,5 +228,26 @@ class FiltersTest : StringSpec() {
                 ).mongoFilter()
             ).toList() shouldContainExactlyInAnyOrder listOf(e2, e3)
         }
+
+        "withinGeoBounds - second" {
+            data class Entity(
+                val location: GeoLocation,
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0,
+                override val createdAt: Instant = mongoNow(),
+                override var updatedAt: Instant = mongoNow()
+            ) : StoredEntity
+
+            val collection = mongo.database.randomCollection<Entity>()
+            collection.createIndex(Indexes.geo2dsphere("location.lngLat"))
+
+            val e1 = collection.save(Entity(GeoLocation(lat = -2.464530599999999, lng = 52.6233589)))
+
+            collection.find(
+                "location.lngLat".withinGeoBounds(
+                    GeoBoundingBox("49.242065,-9.960131,59.279412,5.025221")
+                ).mongoFilter()
+            ).toList() shouldContainExactlyInAnyOrder listOf(e1)
+        }
     }
 }
