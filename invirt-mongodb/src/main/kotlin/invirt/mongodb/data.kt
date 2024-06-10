@@ -2,8 +2,12 @@ package invirt.mongodb
 
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Sorts
+import com.mongodb.client.model.geojson.Polygon
+import com.mongodb.client.model.geojson.Position
 import com.mongodb.kotlin.client.FindIterable
 import invirt.data.*
+import invirt.data.geo.GeoBoundingBox
+import invirt.data.geo.GeoLocation
 import org.bson.conversions.Bson
 
 fun <T : Any> FindIterable<T>.page(page: Page): FindIterable<T> {
@@ -42,6 +46,10 @@ fun <T : Any> FindIterable<T>.sort(vararg sort: Sort = emptyArray()): FindIterab
     }
 }
 
+private fun GeoLocation.toPosition(): Position {
+    return Position(lng, lat)
+}
+
 private fun <Value : Any> FieldFilter<Value>.mongoFilter(): Bson {
     return when (operation) {
         FieldFilter.Operation.EQ -> Filters.eq(field, value)
@@ -50,6 +58,11 @@ private fun <Value : Any> FieldFilter<Value>.mongoFilter(): Bson {
         FieldFilter.Operation.LTE -> Filters.lte(field, value)
         FieldFilter.Operation.LT -> Filters.lt(field, value)
         FieldFilter.Operation.NE -> Filters.ne(field, value)
+        FieldFilter.Operation.WITHIN_GEO_BOUNDS -> {
+            val geoBounds = value as GeoBoundingBox
+            val positions = geoBounds.points.plus(geoBounds.southWest).map { it.toPosition() }
+            Filters.geoWithin(field, Polygon(positions))
+        }
     }
 }
 

@@ -2,7 +2,14 @@ package invirt.mongodb
 
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Sorts
-import invirt.data.*
+import com.mongodb.client.model.geojson.Polygon
+import com.mongodb.client.model.geojson.Position
+import invirt.data.CompoundFilter
+import invirt.data.FieldFilter
+import invirt.data.Page
+import invirt.data.Sort
+import invirt.data.geo.GeoBoundingBox
+import invirt.data.geo.GeoLocation
 import invirt.test.randomCollection
 import invirt.test.testMongo
 import invirt.utils.uuid7
@@ -69,6 +76,22 @@ class DataTest : StringSpec() {
             FieldFilter.gte("age", 18).mongoFilter() shouldBe Filters.gte("age", 18)
             FieldFilter.lt("age", 55).mongoFilter() shouldBe Filters.lt("age", 55)
             FieldFilter.lte("age", 98).mongoFilter() shouldBe Filters.lte("age", 98)
+
+            FieldFilter.withingGeoBounds(
+                "location",
+                GeoBoundingBox(GeoLocation(lng = -8.596867, lat = 51.348611), GeoLocation(lng = 1.950008, lat = 56.435911))
+            ).mongoFilter() shouldBe Filters.geoWithin(
+                "location",
+                Polygon(
+                    listOf(
+                        Position(-8.596867, 51.348611),
+                        Position(1.950008, 51.348611),
+                        Position(1.950008, 56.435911),
+                        Position(-8.596867, 56.435911),
+                        Position(-8.596867, 51.348611)
+                    )
+                )
+            )
 
             CompoundFilter.and(
                 CompoundFilter.or(FieldFilter.eq("status", "married"), FieldFilter.eq("status", "single")),

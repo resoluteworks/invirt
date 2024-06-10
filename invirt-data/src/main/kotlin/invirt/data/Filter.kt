@@ -1,5 +1,6 @@
 package invirt.data
 
+import invirt.data.geo.GeoBoundingBox
 import kotlin.reflect.KProperty
 
 interface Filter
@@ -16,7 +17,8 @@ data class FieldFilter<Value : Any>(
         GT,
         GTE,
         LT,
-        LTE
+        LTE,
+        WITHIN_GEO_BOUNDS
     }
 
     fun <R : Any> map(convert: (Value) -> R): FieldFilter<R> {
@@ -34,6 +36,9 @@ data class FieldFilter<Value : Any>(
         fun <Value : Any> gte(field: String, value: Value): FieldFilter<Value> = FieldFilter(field, Operation.GTE, value)
         fun <Value : Any> lt(field: String, value: Value): FieldFilter<Value> = FieldFilter(field, Operation.LT, value)
         fun <Value : Any> lte(field: String, value: Value): FieldFilter<Value> = FieldFilter(field, Operation.LTE, value)
+
+        fun withingGeoBounds(field: String, value: GeoBoundingBox): FieldFilter<GeoBoundingBox> =
+            FieldFilter(field, Operation.WITHIN_GEO_BOUNDS, value)
     }
 }
 
@@ -90,6 +95,7 @@ infix fun <Value : Any> String.gt(value: Value): FieldFilter<Value> = FieldFilte
 infix fun <Value : Any> String.gte(value: Value): FieldFilter<Value> = FieldFilter.gte(this, value)
 infix fun <Value : Any> String.lt(value: Value): FieldFilter<Value> = FieldFilter.lt(this, value)
 infix fun <Value : Any> String.lte(value: Value): FieldFilter<Value> = FieldFilter.lte(this, value)
+infix fun String.withinGeoBounds(value: GeoBoundingBox): FieldFilter<GeoBoundingBox> = FieldFilter.withingGeoBounds(this, value)
 
 infix fun <Value : Any> KProperty<Value?>.eq(value: Value): FieldFilter<Value> = FieldFilter.eq(this.name, value)
 infix fun <Value : Any> KProperty<Value?>.ne(value: Value): FieldFilter<Value> = FieldFilter.ne(this.name, value)

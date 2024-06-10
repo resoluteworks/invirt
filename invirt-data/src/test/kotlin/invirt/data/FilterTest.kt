@@ -1,5 +1,7 @@
 package invirt.data
 
+import invirt.data.geo.GeoBoundingBox
+import invirt.data.geo.GeoLocation
 import io.kotest.assertions.throwables.shouldThrowWithMessage
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -112,6 +114,14 @@ class FilterTest : StringSpec({
         "size".gte(5) shouldBe FieldFilter.gte("size", 5)
         "size".lt(32) shouldBe FieldFilter.lt("size", 32)
         "size".lte(45) shouldBe FieldFilter.lte("size", 45)
+        "location".withinGeoBounds(
+            GeoBoundingBox(GeoLocation(lng = -8.596867, lat = 51.348611), GeoLocation(lng = 1.950008, lat = 56.435911))
+        ) shouldBe
+            FieldFilter(
+                "location",
+                FieldFilter.Operation.WITHIN_GEO_BOUNDS,
+                GeoBoundingBox(GeoLocation(lng = -8.596867, lat = 51.348611), GeoLocation(lng = 1.950008, lat = 56.435911))
+            )
     }
 }) {
     enum class Status {
