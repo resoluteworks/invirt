@@ -245,7 +245,7 @@ class FiltersTest : StringSpec() {
 
             collection.find(
                 "location.lngLat".withinGeoBounds(
-                    GeoBoundingBox("49.242065,-9.960131,59.279412,5.025221")
+                    GeoBoundingBox.fromLngLatString("49.242065,-9.960131,59.279412,5.025221")
                 ).mongoFilter()
             ).toList() shouldContainExactlyInAnyOrder listOf(e1)
         }
