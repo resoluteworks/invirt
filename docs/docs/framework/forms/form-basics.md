@@ -3,17 +3,18 @@ sidebar_position: 1
 ---
 
 # Form basics
-Invirt provides a simple `request.toForm<FormType>()` utility to convert complex HTML form bodies to application model objects,
-with support for arrays, maps and nested objects, similar to other MVC frameworks. For the complete sample app please see
-the [form-basics](https://github.com/resoluteworks/invirt/tree/main/examples/form-basics) example.
 
+[Example application](https://github.com/resoluteworks/invirt/tree/main/examples/form-basics)
+
+Invirt provides a simple `request.toForm<FormType>()` utility to convert complex HTML form bodies to application model objects,
+with support for arrays, maps and nested objects, similar to some other MVC frameworks.
 
 Below is a (crude) example of a form with a variety of controls and inputs for collecting details
 about an online order.
 
 ![Form screenshot](form-basics-screenshot1.png)
 
-A potential Kotlin data model for this form can be something like this:
+A potential Kotlin data model for this form can be something along these lines.
 ```kotlin
 data class OrderForm(
     val name: String,
