@@ -2,9 +2,7 @@ package examples.form.basics
 
 import invirt.http4k.*
 import invirt.http4k.filters.CatchAll
-import invirt.http4k.views.Views
-import invirt.http4k.views.renderTemplate
-import invirt.http4k.views.setDefaultViewLens
+import invirt.http4k.views.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.http4k.cloudnative.env.Environment
 import org.http4k.cloudnative.env.EnvironmentKey
@@ -25,11 +23,15 @@ data class OrderForm(
     val quantities: Map<String, Int>
 )
 
-enum class NotificationType {
-    DISPATCHED,
-    IN_TRANSIT,
-    DELIVERED
+enum class NotificationType(val label: String) {
+    DISPATCHED("Dispatched"),
+    IN_TRANSIT("In transit"),
+    DELIVERED("Delivered")
 }
+
+class OrderSaved(
+    val order: OrderForm
+) : ViewResponse("order-saved.peb")
 
 class Application {
 
@@ -47,7 +49,7 @@ class Application {
                     "/save-order" POST { request ->
                         val form = request.toForm<OrderForm>()
                         log.info { "Submitted form: $form" }
-                        renderTemplate("index")
+                        OrderSaved(form).ok()
                     }
                 )
             )

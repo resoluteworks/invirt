@@ -2,6 +2,7 @@
 .gradle
 .idea
 .env*
+.kotlin
 build
 out
 node_modules

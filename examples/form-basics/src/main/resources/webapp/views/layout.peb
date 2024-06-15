@@ -8,7 +8,7 @@
         <script src="https://cdn.tailwindcss.com"></script>
     </head>
 
-    <body class="flex flex-col p-12">
+    <body class="flex flex-col p-8">
         {% block pageContent %}{% endblock %}
     </body>
 
