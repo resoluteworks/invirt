@@ -4,7 +4,9 @@ sidebar_position: 1
 
 # Form basics
 Invirt provides a simple `request.toForm<FormType>()` utility to convert complex HTML form bodies to application model objects,
-with support for arrays, maps and nested objects, similar to other MVC frameworks.
+with support for arrays, maps and nested objects, similar to other MVC frameworks. For the complete sample app please see
+the [form-basics](https://github.com/resoluteworks/invirt/tree/main/examples/form-basics) example.
+
 
 Below is a (crude) example of a form with a variety of controls and inputs for collecting details
 about an online order.
@@ -42,15 +44,15 @@ or quotes required).
     <input type="text" name="email"/>
     <input type="date" name="deliveryDetails.deliveryDate"/>
 
-    <input type="radio" name="deliveryDetails.whenNotAtHome" value="Leave with neighbour" class="radio" checked/>
-    <input type="radio" name="deliveryDetails.whenNotAtHome" value="Leave in the back"  class="radio"/>
+    <input type="radio" name="deliveryDetails.whenNotAtHome" value="Leave with neighbour"/>
+    <input type="radio" name="deliveryDetails.whenNotAtHome" value="Leave in the back"/>
 
     <input type="checkbox" name="notifications" value="DISPATCHED"/>
     <input type="checkbox" name="notifications" value="IN_TRANSIT"/>
     <input type="checkbox" name="notifications" value="DELIVERED"/>
 
-    <input type="text" name="quantities[Apples]" value="10" class="input input-bordered input-sm w-full max-w-xs"/>
-    <input type="text" name="quantities[Oranges]" value="10" class="input input-bordered input-sm w-full max-w-xs"/>
+    <input type="text" name="quantities[Apples]"/>
+    <input type="text" name="quantities[Oranges]"/>
     ...
 </form>
 ```
