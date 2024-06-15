@@ -1,12 +1,14 @@
 package examples.form.basics
 
-import invirt.http4k.*
-import invirt.http4k.filters.CatchAll
-import invirt.http4k.views.*
+import invirt.http4k.POST
+import invirt.http4k.toForm
+import invirt.http4k.views.ViewResponse
+import invirt.http4k.views.Views
+import invirt.http4k.views.ok
+import invirt.http4k.views.setDefaultViewLens
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.http4k.cloudnative.env.Environment
 import org.http4k.cloudnative.env.EnvironmentKey
-import org.http4k.core.then
 import org.http4k.lens.boolean
 import org.http4k.routing.routes
 import org.http4k.server.Netty
@@ -27,6 +29,12 @@ data class DeliveryDetails(
     val deliveryDate: LocalDate
 )
 
+data class User(val name: String)
+
+data class ListUsersResponse(
+    val users: List<User>
+) : ViewResponse("users/list")
+
 enum class NotificationType(val label: String) {
     DISPATCHED("Dispatched"),
     IN_TRANSIT("In transit"),
@@ -43,18 +51,13 @@ class Application {
         val developmentMode = EnvironmentKey.boolean().defaulted("DEVELOPMENT_MODE", false)(Environment.ENV)
         setDefaultViewLens(Views(hotReload = developmentMode))
 
-        val appHandler = AppRequestContexts()
-            .then(CatchAll())
-            .then(StoreRequestOnThread())
-            .then(
-                routes(
-                    "/save-order" POST { request ->
-                        val form = request.toForm<OrderForm>()
-                        log.info { "Submitted form: $form" }
-                        OrderSaved(form).ok()
-                    }
-                )
-            )
+        val appHandler = routes(
+            "/save-order" POST { request ->
+                val form = request.toForm<OrderForm>()
+                log.info { "Submitted form: $form" }
+                OrderSaved(form).ok()
+            }
+        )
 
         val server = Netty(8080)
         server.toServer(appHandler).start()

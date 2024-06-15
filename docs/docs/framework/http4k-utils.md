@@ -13,18 +13,3 @@ aimed to make it easier to write handlers and views using Pebble templates in an
 "/test" PUT { ... },
 "/test" DELETE { ... },
 ```
-
-# ViewResponse rendering
-These utilities rely on a default view lens set using the `setDefaultViewLens()` function.
-
-```kotlin
-"/users/list" GET {
-    ...
-    ListUsersResponse(users).ok()
-}
-
-"/users/create" POST {
-    ...
-    CreateUserResponse(user).status(Status.ACCEPTED)
-}
-```
