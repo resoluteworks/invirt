@@ -1,0 +1,64 @@
+---
+sidebar_position: 1
+---
+
+# Form basics
+Invirt provides a simple `request.toForm<FormType>()` utility to convert complex HTML form bodies to application model objects,
+with support for arrays, maps and nested objects, similar to other MVC frameworks.
+
+Below is a (crude) example of a form with a variety of controls and inputs for collecting details
+about an online order.
+
+![Form screenshot](form-basics-screenshot1.png)
+
+A potential Kotlin data model for this form can be something like this:
+```kotlin
+data class OrderForm(
+    val name: String,
+    val email: String,
+    val deliveryDetails: DeliveryDetails,
+    val notifications: Set<NotificationType>,
+    val quantities: Map<String, Int>
+)
+
+data class DeliveryDetails(
+    val whenNotAtHome: String,
+    val deliveryDate: LocalDate
+)
+
+enum class NotificationType(val label: String) {
+    DISPATCHED("Dispatched"),
+    IN_TRANSIT("In transit"),
+    DELIVERED("Delivered")
+}
+```
+
+The HTML form inputs need to match the field names in our Kotlin data model, with nested fields using the dot notation
+`deliveryDetails.deliveryDate`, and maps or arrays using the square brackets notation `quantities[Apples]` (no apostrophes
+or quotes required).
+```html
+<form action="/save-order" method="POST">
+    <input type="text" name="name"/>
+    <input type="text" name="email"/>
+    <input type="date" name="deliveryDetails.deliveryDate"/>
+
+    <input type="radio" name="deliveryDetails.whenNotAtHome" value="Leave with neighbour" class="radio" checked/>
+    <input type="radio" name="deliveryDetails.whenNotAtHome" value="Leave in the back"  class="radio"/>
+
+    <input type="checkbox" name="notifications" value="DISPATCHED"/>
+    <input type="checkbox" name="notifications" value="IN_TRANSIT"/>
+    <input type="checkbox" name="notifications" value="DELIVERED"/>
+
+    <input type="text" name="quantities[Apples]" value="10" class="input input-bordered input-sm w-full max-w-xs"/>
+    <input type="text" name="quantities[Oranges]" value="10" class="input input-bordered input-sm w-full max-w-xs"/>
+    ...
+</form>
+```
+
+Reading this form into the `OrderForm` object in an http4k handler is then as simple as:
+```kotlin
+"/save-order" POST { request ->
+    val form = request.toForm<OrderForm>()
+    // Process the form
+}
+```

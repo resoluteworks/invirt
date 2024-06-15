@@ -13,9 +13,9 @@
             <div>Email</div>
             <div class="font-bold">{{ model.order.email }}</div>
             <div>Delivery date</div>
-            <div class="font-bold">{{ model.order.deliveryDate | dateWithDaySuffix("d MMM YYYY") }}</div>
+            <div class="font-bold">{{ model.order.deliveryDetails.deliveryDate | dateWithDaySuffix("d MMM YYYY") }}</div>
             <div>If you're not at home</div>
-            <div class="font-bold">{{ model.order.whenNotAtHome }}</div>
+            <div class="font-bold">{{ model.order.deliveryDetails.whenNotAtHome }}</div>
             <div>Notifications</div>
             <div class="flex flex-row gap-2">
                 {% for notificationType in model.order.notifications %}

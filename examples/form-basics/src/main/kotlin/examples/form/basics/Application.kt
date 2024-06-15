@@ -17,10 +17,14 @@ private val log = KotlinLogging.logger {}
 data class OrderForm(
     val name: String,
     val email: String,
-    val deliveryDate: LocalDate,
-    val whenNotAtHome: String,
+    val deliveryDetails: DeliveryDetails,
     val notifications: Set<NotificationType>,
     val quantities: Map<String, Int>
+)
+
+data class DeliveryDetails(
+    val whenNotAtHome: String,
+    val deliveryDate: LocalDate
 )
 
 enum class NotificationType(val label: String) {

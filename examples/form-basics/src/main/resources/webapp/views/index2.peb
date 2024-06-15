@@ -4,45 +4,19 @@
     <form action="/save-order" method="POST" class="flex flex-col items-start gap-4">
         <h1 class="font-bold text-4xl">Order</h1>
 
-        <div class="flex flex-row gap-2">
-            <div class="form-control">
-                <label class="label cursor-pointer gap-1 flex flex-col items-start">
-                    <span class="label-text">Name</span>
-                    <input type="text" name="name" value="John Smith" placeholder="Your full name" class="input input-bordered w-full max-w-xs"/>
-                </label>
-            </div>
-            <div class="form-control">
-                <label class="label cursor-pointer gap-1 flex flex-col items-start">
-                    <span class="label-text">Email</span>
-                    <input type="email" name="email" value="john@test.local" placeholder="Your email address" class="input input-bordered w-full max-w-xs"/>
-                </label>
-            </div>
+        <input type="text" name="name"/>
+        ...
+        <input type="radio" name="deliveryDetails.deliveryDate" value="Leave with neighbour" class="radio" checked/>
+        ...
+        <input type="radio" name="deliveryDetails.whenNotAtHome" value="Leave with neighbour" class="radio" checked/>
+        <input type="radio" name="deliveryDetails.whenNotAtHome" value="Leave in the back"  class="radio"/>
+        ...
+        <input type="checkbox" name="notifications" value="IN_TRANSIT" checked="checked" class="checkbox"/>
 
-            <div class="form-control">
-                <label class="label cursor-pointer gap-1 flex flex-col items-start">
-                    <span class="label-text">Delivery date</span>
-                    <input type="date" name="deliveryDetails.deliveryDate" value="2024-01-15" class="input input-bordered"/>
-                </label>
-            </div>
-        </div>
+        ...
+        <input type="text" name="quantities[Apples]" value="10" class="input input-bordered input-sm w-full max-w-xs"/>
+        <input type="text" name="quantities[Oranges]" value="10" class="input input-bordered input-sm w-full max-w-xs"/>
 
-        <div class="flex flex-col gap-2">
-            <div>If you're not at home</div>
-            <div class="flex flex-row items-center gap-4">
-                <div class="form-control">
-                    <label class="label cursor-pointer gap-2">
-                        <input type="radio" name="deliveryDetails.whenNotAtHome" value="Leave with neighbour" class="radio" checked/>
-                        <span class="label-text">Leave with neighbour</span>
-                    </label>
-                </div>
-                <div class="form-control">
-                    <label class="label cursor-pointer gap-2">
-                        <input type="radio" name="deliveryDetails.whenNotAtHome" value="Leave in the back"  class="radio"/>
-                        <span class="label-text">Leave in the back</span>
-                    </label>
-                </div>
-            </div>
-        </div>
 
         <div class="flex flex-col gap-2">
             <div>Notifications</div>

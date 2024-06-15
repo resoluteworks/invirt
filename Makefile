@@ -11,6 +11,9 @@ test:
 	./gradlew clean test jacocoRootReport
 	./gradlew coverallsJacoco
 
+docs:
+	cd docs; npm run build
+
 publish:
 	./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
 
