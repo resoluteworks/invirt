@@ -48,22 +48,6 @@ class Application {
             .then(StoreRequestOnThread())
             .then(
                 routes(
-                    "/test" GET {
-//                        ...
-                    },
-
-                    "/test" POST {
-//                        ...
-                    },
-
-                    "/test" PUT {
-//                        ...
-                    },
-
-                    "/test" DELETE {
-//                        ...
-                    },
-
                     "/save-order" POST { request ->
                         val form = request.toForm<OrderForm>()
                         log.info { "Submitted form: $form" }
