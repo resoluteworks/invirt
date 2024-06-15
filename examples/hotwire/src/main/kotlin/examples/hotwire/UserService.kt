@@ -1,4 +1,4 @@
-package invirt.examples.hotwire
+package examples.hotwire
 
 import invirt.utils.uuid7
 
@@ -18,9 +18,7 @@ class UserService {
         .associateBy { it.id }
         .toMutableMap()
 
-    fun allUsers(): List<User> {
-        return users.values.sortedBy { it.name }
-    }
+    fun allUsers(): List<User> = users.values.sortedBy { it.name }
 
     fun add(user: User) {
         users[user.id] = user
@@ -30,9 +28,7 @@ class UserService {
         users.remove(userId)
     }
 
-    fun getUser(id: String): User? {
-        return users[id]
-    }
+    fun getUser(id: String): User? = users[id]
 
     fun update(user: User): User {
         users[user.id] = user

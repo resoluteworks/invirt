@@ -1,4 +1,4 @@
-package invirt.examples.hotwire
+package examples.hotwire
 
 import invirt.http4k.*
 import invirt.http4k.filters.CatchAll

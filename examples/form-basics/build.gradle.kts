@@ -3,5 +3,5 @@ plugins {
 }
 
 application {
-    mainClass.set("examples.hotwire.ApplicationKt")
+    mainClass.set("examples.form.basics.ApplicationKt")
 }

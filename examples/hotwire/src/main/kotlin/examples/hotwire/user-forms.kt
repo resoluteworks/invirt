@@ -1,4 +1,4 @@
-package invirt.examples.hotwire
+package examples.hotwire
 
 import invirt.http4k.views.ViewResponse
 import io.validk.ValidObject
@@ -10,7 +10,8 @@ import kotlin.reflect.KProperty1
 class AddUserForm(
     val email: String?,
     val name: String?
-) : ValidObject<AddUserForm>, ViewResponse("add-user") {
+) : ViewResponse("add-user"),
+    ValidObject<AddUserForm> {
 
     fun createUser() = User(email = email!!, name = name!!)
 
@@ -24,7 +25,8 @@ data class EditUserForm(
     val email: String?,
     val name: String?,
     val userId: String? = null
-) : ValidObject<EditUserForm>, ViewResponse("edit-user") {
+) : ViewResponse("edit-user"),
+    ValidObject<EditUserForm> {
 
     constructor(user: User) : this(
         email = user.email,
@@ -34,9 +36,7 @@ data class EditUserForm(
 
     fun update(user: User) = user.copy(email = email!!, name = name!!)
 
-    fun withUserId(userId: String): EditUserForm {
-        return this.copy(userId = userId)
-    }
+    fun withUserId(userId: String): EditUserForm = this.copy(userId = userId)
 
     override val validation = Validation {
         EditUserForm::email.validEmail(this)
