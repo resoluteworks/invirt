@@ -8,7 +8,7 @@ import org.http4k.filter.ResponseFilters
 
 object HttpAccessLog {
 
-    internal val log = KotlinLogging.logger {}
+    private val log = KotlinLogging.logger {}
 
     operator fun invoke(
         allStatues: Boolean = false,
@@ -19,21 +19,29 @@ object HttpAccessLog {
         val lowerCaseExcludedHeaders = excludeHeaders.map { it.lowercase() }
         return ResponseFilters.ReportHttpTransaction(recordFn = { tx ->
             if ((allStatues || tx.response.status.code >= 400) && ignorePaths.none { tx.request.uri.path.startsWith(it) }) {
-                log.atInfo {
-                    message = "http-access"
-                    payload = mapOf(
-                        "host" to tx.request.header("Host"),
-                        "method" to tx.request.method,
-                        "path" to tx.request.uri.path,
-                        "uri" to tx.request.uri.toString(),
-                        "status" to tx.response.status.code,
-                        "durationMs" to tx.duration.toMillis(),
-                        "headers" to tx.request.headers
-                            .filter { it.first.lowercase() !in lowerCaseExcludedHeaders }
-                            .toParametersMap()
-                    ).plus(extraFields(tx))
-                }
+                logHttpTransaction(tx, lowerCaseExcludedHeaders, extraFields)
             }
         })
+    }
+
+    internal fun logHttpTransaction(
+        tx: HttpTransaction,
+        lowerCaseExcludedHeaders: List<String>,
+        extraFields: (HttpTransaction) -> Map<String, String>
+    ) {
+        log.atInfo {
+            message = "http-access"
+            payload = mapOf(
+                "host" to tx.request.header("Host"),
+                "method" to tx.request.method,
+                "path" to tx.request.uri.path,
+                "uri" to tx.request.uri.toString(),
+                "status" to tx.response.status.code,
+                "durationMs" to tx.duration.toMillis(),
+                "headers" to tx.request.headers
+                    .filter { it.first.lowercase() !in lowerCaseExcludedHeaders }
+                    .toParametersMap()
+            ).plus(extraFields(tx))
+        }
     }
 }

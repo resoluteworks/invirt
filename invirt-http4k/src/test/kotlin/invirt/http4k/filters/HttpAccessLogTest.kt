@@ -1,11 +1,8 @@
 package invirt.http4k.filters
 
 import invirt.http4k.GET
-import io.github.oshai.kotlinlogging.KLogger
-import io.github.oshai.kotlinlogging.KLoggingEventBuilder
 import io.kotest.core.spec.style.StringSpec
 import io.mockk.every
-import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
 import org.http4k.core.*
@@ -53,9 +50,7 @@ class HttpAccessLogTest : StringSpec() {
 
     private fun testLogFilter(filter: Filter, status: Status, expectCalled: Boolean) {
         mockkObject(HttpAccessLog) {
-            val log = mockk<KLogger>()
-            every { log.atInfo(any<(KLoggingEventBuilder) -> Unit>()) } returns Unit
-            every { HttpAccessLog.log } returns log
+            every { HttpAccessLog.logHttpTransaction(any(), any(), any()) } returns Unit
 
             val httpHandler = filter.then(
                 routes(
@@ -64,9 +59,9 @@ class HttpAccessLogTest : StringSpec() {
             )
             httpHandler(Request(Method.GET, "/status/${status.code}"))
             if (expectCalled) {
-                verify { log.atInfo(any<(KLoggingEventBuilder) -> Unit>()) }
+                verify { HttpAccessLog.logHttpTransaction(any(), any(), any()) }
             } else {
-                verify(exactly = 0) { log.atInfo(any<(KLoggingEventBuilder) -> Unit>()) }
+                verify(exactly = 0) { HttpAccessLog.logHttpTransaction(any(), any(), any()) }
             }
         }
     }

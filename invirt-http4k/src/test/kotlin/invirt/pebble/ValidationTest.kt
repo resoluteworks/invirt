@@ -2,7 +2,6 @@ package invirt.pebble
 
 import invirt.http4k.AppRequestContexts
 import invirt.http4k.StoreRequestOnThread
-import invirt.http4k.views.ViewResponse
 import invirt.http4k.views.Views
 import invirt.http4k.views.errorResponse
 import invirt.http4k.views.setDefaultViewLens
@@ -22,7 +21,7 @@ class ValidationTest : StringSpec() {
         beforeAny { setDefaultViewLens(Views.Classpath("webapp/views")) }
 
         "errors from context" {
-            class Form : ViewResponse("validation/errors-from-context")
+            class Form
 
             val errors = ValidationErrors(
                 ValidationError("name", "Name too short"),
@@ -30,7 +29,7 @@ class ValidationTest : StringSpec() {
                 ValidationError("details.age", "Age must be 18 or over")
             )
             val httpHandler = AppRequestContexts().then(StoreRequestOnThread())
-                .then(routes("/test" bind Method.GET to { Form().errorResponse(errors) }))
+                .then(routes("/test" bind Method.GET to { Form().errorResponse(errors, "validation/errors-from-context") }))
             val response = httpHandler(Request(Method.GET, "/test"))
             response.bodyString().trimIndent() shouldBe """
                 name - Name too short
@@ -40,11 +39,11 @@ class ValidationTest : StringSpec() {
         }
 
         "errors.hasErrors" {
-            class Form : ViewResponse("validation/has-errors")
+            class Form
 
             fun testErrors(errors: ValidationErrors, expect: Boolean) {
                 val httpHandler = AppRequestContexts().then(StoreRequestOnThread())
-                    .then(routes("/test" bind Method.GET to { Form().errorResponse(errors) }))
+                    .then(routes("/test" bind Method.GET to { Form().errorResponse(errors, "validation/has-errors") }))
                 val response = httpHandler(Request(Method.GET, "/test"))
                 response.bodyString().trim() shouldBe expect.toString()
             }
@@ -54,11 +53,11 @@ class ValidationTest : StringSpec() {
         }
 
         "errors function in macro" {
-            class Form : ViewResponse("validation/errors-function-in-macro.peb")
+            class Form
 
             fun testErrors(errors: ValidationErrors, expect: String) {
                 val httpHandler = AppRequestContexts().then(StoreRequestOnThread())
-                    .then(routes("/test" bind Method.GET to { Form().errorResponse(errors) }))
+                    .then(routes("/test" bind Method.GET to { Form().errorResponse(errors, "validation/errors-function-in-macro.peb") }))
                 val response = httpHandler(Request(Method.GET, "/test"))
                 response.bodyString().trim() shouldBe expect
             }
