@@ -12,7 +12,7 @@ with support for arrays, maps and nested objects, similar to some other MVC fram
 Below is a (crude) example of a form with a variety of controls and inputs for collecting details
 about an online order.
 
-![Form screenshot](form-basics-screenshot1.png)
+![Form screenshot](assets/form-basics.png)
 
 A potential Kotlin data model for this form can be something along these lines.
 ```kotlin
