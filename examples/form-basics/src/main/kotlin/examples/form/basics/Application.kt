@@ -48,7 +48,21 @@ class Application {
             .then(StoreRequestOnThread())
             .then(
                 routes(
-                    "/" GET { renderTemplate("index") },
+                    "/test" GET {
+//                        ...
+                    },
+
+                    "/test" POST {
+//                        ...
+                    },
+
+                    "/test" PUT {
+//                        ...
+                    },
+
+                    "/test" DELETE {
+//                        ...
+                    },
 
                     "/save-order" POST { request ->
                         val form = request.toForm<OrderForm>()
