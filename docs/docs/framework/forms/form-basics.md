@@ -6,7 +6,7 @@ sidebar_position: 1
 
 [Example application](https://github.com/resoluteworks/invirt/tree/main/examples/form-basics)
 
-Invirt provides a simple `request.toForm<FormType>()` utility to convert complex HTML form bodies to application model objects,
+Invirt provides a simple `Request.toForm<FormType>()` utility to convert complex HTML form bodies to application model objects,
 with support for arrays, maps and nested objects, similar to some other MVC frameworks.
 
 Below is a (crude) example of a form with a variety of controls and inputs for collecting details
@@ -65,3 +65,4 @@ Reading this form into the `OrderForm` object in an http4k handler is then as si
     // Process the form
 }
 ```
+

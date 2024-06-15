@@ -1,0 +1,36 @@
+{% extends "layout.peb" %}
+
+{% block pageContent %}
+    <div class="flex flex-col items-start gap-4">
+        <div class="flex flex-row items-center gap-12">
+            <h1 class="font-bold text-4xl">Order saved</h1>
+            <a href="/" class="btn btn-neutral btn-sm">Back</a>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+            <div>Name</div>
+            <div class="font-bold">{{ model.order.name }}</div>
+            <div>Email</div>
+            <div class="font-bold">{{ model.order.email }}</div>
+            <div>Delivery date</div>
+            <div class="font-bold">{{ model.order.deliveryDetails.deliveryDate | dateWithDaySuffix("d MMM YYYY") }}</div>
+            <div>If you're not at home</div>
+            <div class="font-bold">{{ model.order.deliveryDetails.whenNotAtHome }}</div>
+            <div>Notifications</div>
+            <div class="flex flex-row gap-2">
+                {% for notificationType in model.order.notifications %}
+                    <div class="badge badge-lg badge-outline">{{ notificationType.label }}</div>
+                {% endfor %}
+            </div>
+            <div>Quantities</div>
+            <div class="flex flex-col gap-2">
+                {% for quantity in model.order.quantities %}
+                    <div>
+                        <span>{{ quantity.key }}</span> <span class="font-bold">{{ quantity.value }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
