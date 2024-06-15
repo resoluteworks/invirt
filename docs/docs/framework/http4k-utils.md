@@ -14,17 +14,6 @@ aimed to make it easier to write handlers and views using Pebble templates in an
 "/test" DELETE { ... },
 ```
 
-# ViewResponse
-A default implementation for the [ViewModel](https://www.http4k.org/api/org.http4k.template/-view-model/) interface
-in http4k, to allow passing the template name as a constructor argument and avoid having to implement `fun template()`
-with each view model.
-
-```kotlin
-data class ListUsersResponse(
-    val users: List<User>
-): ViewResponse("users/list-users") // resources/webapp/views/users/list-users.peb
-```
-
 # ViewResponse rendering
 These utilities rely on a default view lens set using the `setDefaultViewLens()` function.
 
