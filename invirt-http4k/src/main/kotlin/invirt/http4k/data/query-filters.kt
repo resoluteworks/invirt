@@ -23,7 +23,7 @@ class QueryValuesFilter(private val operator: CompoundFilter.Operator) {
         paramFilters.add(QueryParamFilter(this, null, filter))
     }
 
-    fun <Value : Any> BiDiLens<Request, Value?>.whenMissing(missing: Filter? = null) {
+    fun <Value : Any> BiDiLens<Request, Value?>.whenMissing(missing: Filter) {
         paramFilters.add(QueryParamFilter(this, missing, null))
     }
 
