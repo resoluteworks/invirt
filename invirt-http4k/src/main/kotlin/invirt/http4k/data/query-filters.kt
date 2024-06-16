@@ -20,7 +20,11 @@ class QueryValuesFilter(private val operator: CompoundFilter.Operator) {
     }
 
     infix fun <Value : Any> BiDiLens<Request, Value?>.filter(filter: (Value) -> Filter?) {
-        paramFilters.add(QueryParamFilter(this, filter))
+        paramFilters.add(QueryParamFilter(this, null, filter))
+    }
+
+    fun <Value : Any> BiDiLens<Request, Value?>.whenMissing(missing: Filter? = null) {
+        paramFilters.add(QueryParamFilter(this, missing, null))
     }
 
     infix fun <Value : Any> BiDiLens<Request, List<Value>?>.or(filter: (Value) -> Filter) {
@@ -41,10 +45,27 @@ class QueryValuesFilter(private val operator: CompoundFilter.Operator) {
 
     private class QueryParamFilter<Value>(
         val lens: BiDiLens<Request, Value?>,
-        val filter: (Value) -> Filter?
+        val missing: Filter? = null,
+        val filter: ((Value) -> Filter?)? = null
     ) {
+        init {
+            if (missing == null && filter == null) {
+                throw IllegalArgumentException("Either missing filter or value filter required")
+            }
+        }
+
         fun getFilter(request: Request): Filter? {
-            return lens(request)?.let { filter(it) }
+            val values = lens(request)
+            // When there's a missing value filter and params have been provided return null
+            return if (missing != null) {
+                if (values == null) {
+                    missing
+                } else {
+                    null
+                }
+            } else {
+                values?.let { filter?.invoke(it) }
+            }
         }
     }
 }
