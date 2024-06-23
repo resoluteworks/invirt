@@ -58,6 +58,8 @@ private fun <Value : Any> FieldFilter<Value>.mongoFilter(): Bson {
         FieldFilter.Operation.LTE -> Filters.lte(field, value)
         FieldFilter.Operation.LT -> Filters.lt(field, value)
         FieldFilter.Operation.NE -> Filters.ne(field, value)
+        FieldFilter.Operation.EXISTS -> Filters.exists(field)
+        FieldFilter.Operation.DOESNT_EXIST -> Filters.exists(field, false)
         FieldFilter.Operation.WITHIN_GEO_BOUNDS -> {
             val geoBounds = value as GeoBoundingBox
             val positions = geoBounds.points.plus(geoBounds.southWest).map { it.toPosition() }

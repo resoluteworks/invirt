@@ -1,6 +1,8 @@
 package invirt.mongodb
 
 import com.mongodb.client.model.Indexes
+import invirt.data.doesntExist
+import invirt.data.exists
 import invirt.data.geo.GeoBoundingBox
 import invirt.data.geo.GeoLocation
 import invirt.data.withinGeoBounds
@@ -38,6 +40,36 @@ class FiltersTest : StringSpec() {
             collection.find(Entity::index.mongoGte(0)).toList().map { it.index } shouldContainExactlyInAnyOrder (1..100).toList()
             collection.find(Entity::index.mongoLt(54)).toList().map { it.index } shouldContainExactlyInAnyOrder (1..53).toList()
             collection.find(Entity::index.mongoLte(54)).toList().map { it.index } shouldContainExactlyInAnyOrder (1..54).toList()
+        }
+
+        "exists and doesntExist" {
+            data class Name(val firstName: String?, val lastName: String?)
+            data class Entity(
+                val name: Name?,
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0,
+                override val createdAt: Instant = mongoNow(),
+                override var updatedAt: Instant = mongoNow()
+            ) : StoredEntity
+
+            val collection = mongo.database.randomCollection<Entity>()
+            val e1 = collection.save(Entity(null)).id
+            val e2 = collection.save(Entity(Name(firstName = "John", lastName = null))).id
+            val e3 = collection.save(Entity(Name(firstName = "John", lastName = "Smith"))).id
+            val e4 = collection.save(Entity(Name(firstName = null, lastName = "Smith"))).id
+
+            collection.find("name".exists().mongoFilter()).toList().map { it.id } shouldContainExactlyInAnyOrder listOf(e2, e3, e4)
+            collection.find("name".doesntExist().mongoFilter()).toList().map { it.id } shouldContainExactlyInAnyOrder listOf(e1)
+            collection.find("name.lastName".exists().mongoFilter()).toList().map { it.id } shouldContainExactlyInAnyOrder listOf(e3, e4)
+
+            collection.find("name.lastName".doesntExist().mongoFilter()).toList().map { it.id } shouldContainExactlyInAnyOrder
+                listOf(e1, e2)
+
+            collection.find("name.firstName".exists().mongoFilter()).toList().map { it.id } shouldContainExactlyInAnyOrder
+                listOf(e2, e3)
+
+            collection.find("name.firstName".doesntExist().mongoFilter()).toList().map { it.id } shouldContainExactlyInAnyOrder
+                listOf(e1, e4)
         }
 
         "in" {
