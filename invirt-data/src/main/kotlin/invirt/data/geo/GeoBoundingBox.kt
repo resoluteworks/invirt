@@ -17,8 +17,8 @@ data class GeoBoundingBox(
 
     fun pad(delta: Double): GeoBoundingBox {
         return GeoBoundingBox(
-            southWest = GeoLocation(lng = southWest.lng + delta, lat = southWest.lat + delta),
-            northEast = GeoLocation(lng = northEast.lng - delta, lat = northEast.lat - delta)
+            southWest = GeoLocation.normalised(lng = southWest.lng + delta, lat = southWest.lat + delta),
+            northEast = GeoLocation.normalised(lng = northEast.lng - delta, lat = northEast.lat - delta)
         )
     }
 
@@ -28,8 +28,8 @@ data class GeoBoundingBox(
                 throw IllegalArgumentException("Bounding box coordinates array must be of size 4")
             }
             return GeoBoundingBox(
-                southWest = GeoLocation(lng = bbox[0], lat = bbox[1]),
-                northEast = GeoLocation(lng = bbox[2], lat = bbox[3])
+                southWest = GeoLocation.normalised(lng = bbox[0], lat = bbox[1]),
+                northEast = GeoLocation.normalised(lng = bbox[2], lat = bbox[3])
             )
         }
 
