@@ -1,13 +1,17 @@
 package invirt.mongodb
 
-import com.mongodb.client.model.CountOptions
-import com.mongodb.kotlin.client.FindIterable
+import com.mongodb.client.model.Aggregates.*
+import com.mongodb.client.model.Facet
+import com.mongodb.client.model.Filters
 import com.mongodb.kotlin.client.MongoCollection
 import invirt.data.Page
 import invirt.data.RecordsPage
 import invirt.data.Sort
-import org.bson.BsonDocument
+import org.bson.Document
+import org.bson.codecs.DecoderContext
 import org.bson.conversions.Bson
+import org.bson.json.JsonReader
+import kotlin.reflect.KClass
 
 interface MongoQuery {
     val page: Page
@@ -16,31 +20,54 @@ interface MongoQuery {
     val maxDocuments: Int get() = 1000
 }
 
-fun <E : StoredEntity> MongoCollection<E>.query(searchQuery: MongoQuery): RecordsPage<E> {
-    return this.pagedQuery(searchQuery.filter, searchQuery.page, searchQuery.maxDocuments, *searchQuery.sort.toTypedArray())
+inline fun <reified E : StoredEntity> MongoCollection<E>.query(searchQuery: MongoQuery): RecordsPage<E> {
+    return this.pagedQuery(
+        entityClass = E::class,
+        filter = searchQuery.filter,
+        page = searchQuery.page,
+        maxDocuments = searchQuery.maxDocuments,
+        sorts = searchQuery.sort.toTypedArray()
+    )
 }
 
 fun <E : StoredEntity> MongoCollection<E>.pagedQuery(
+    entityClass: KClass<E>,
     filter: Bson? = null,
     page: Page = Page(0, 10),
     maxDocuments: Int = 1000,
     vararg sorts: Sort = emptyArray()
 ): RecordsPage<E> {
-    val countOptions = CountOptions().limit(maxDocuments)
+    val queryPipeline = mutableListOf(
+        match(filter ?: Filters.empty()),
+        skip(page.from),
+        limit(page.size)
+    )
+    sorts.mongoSort()?.let { queryPipeline.add(it) }
 
-    // This isn't optimal as it performs two Mongo queries, but the alternative is using
-    // aggregations (see commented code below) and things get very complex, particularly with text search
-    val (count: Long, iterable: FindIterable<E>) =
-        if (filter != null) {
-            Pair(this.countDocuments(filter, countOptions), this.find(filter).page(page))
-        } else {
-            Pair(this.countDocuments(BsonDocument(), countOptions), this.find().page(page))
-        }
+    val countPipeline = listOf(match(filter ?: Filters.empty()), count())
+    val result = this.withDocumentClass<QueryResult>().aggregate(
+        listOf(
+            facet(
+                Facet("results", queryPipeline),
+                Facet("count", countPipeline)
+            )
+        )
+    ).first()
 
+    val records = result.results.map {
+        this.codecRegistry.get(entityClass.java).decode(JsonReader(it.toJson()), DecoderContext.builder().build())
+    }
     return RecordsPage(
-        records = iterable.sort(sorts.mongoSort()).toList(),
-        count = count,
+        records = records,
+        count = if (result.count.isNotEmpty()) result.count.first().count else 0,
         page = page,
         sort = sorts.toList()
     )
+}
+
+data class QueryResult(
+    val results: List<Document>,
+    val count: List<CountDto>
+) {
+    data class CountDto(val count: Long)
 }

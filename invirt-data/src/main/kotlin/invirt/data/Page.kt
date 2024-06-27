@@ -4,6 +4,7 @@ data class Page(
     val from: Int,
     val size: Int
 ) {
+
     val pageIndex: Int = if (size > 0L) {
         from / size
     } else {
