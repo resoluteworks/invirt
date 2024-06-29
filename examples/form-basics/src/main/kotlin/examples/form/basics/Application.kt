@@ -1,11 +1,9 @@
 package examples.form.basics
 
+import invirt.http4k.GET
 import invirt.http4k.POST
 import invirt.http4k.toForm
-import invirt.http4k.views.ViewResponse
-import invirt.http4k.views.Views
-import invirt.http4k.views.ok
-import invirt.http4k.views.setDefaultViewLens
+import invirt.http4k.views.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.http4k.cloudnative.env.Environment
 import org.http4k.cloudnative.env.EnvironmentKey
@@ -52,6 +50,8 @@ class Application {
         setDefaultViewLens(Views(hotReload = developmentMode))
 
         val appHandler = routes(
+            "/" GET { renderTemplate("create-order") },
+
             "/save-order" POST { request ->
                 val form = request.toForm<OrderForm>()
                 log.info { "Submitted form: $form" }

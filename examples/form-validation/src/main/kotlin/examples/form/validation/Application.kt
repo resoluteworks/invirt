@@ -1,41 +1,47 @@
 package examples.form.validation
 
 import invirt.http4k.*
-import invirt.http4k.filters.CatchAll
 import invirt.http4k.views.*
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.validk.ValidObject
+import io.validk.Validation
+import io.validk.email
+import io.validk.minLength
 import org.http4k.cloudnative.env.Environment
 import org.http4k.cloudnative.env.EnvironmentKey
 import org.http4k.core.then
 import org.http4k.lens.boolean
 import org.http4k.routing.routes
 import org.http4k.server.Netty
-import java.time.LocalDate
 
 private val log = KotlinLogging.logger {}
 
-data class OrderForm(
+data class SignupForm(
     val name: String,
     val email: String,
-    val deliveryDetails: DeliveryDetails,
-    val notifications: Set<NotificationType>,
-    val quantities: Map<String, Int>
-)
+    val password: String,
+    val confirmPassword: String
+) : ValidObject<SignupForm> {
 
-data class DeliveryDetails(
-    val whenNotAtHome: String,
-    val deliveryDate: LocalDate
-)
-
-enum class NotificationType(val label: String) {
-    DISPATCHED("Dispatched"),
-    IN_TRANSIT("In transit"),
-    DELIVERED("Delivered")
+    override val validation = Validation<SignupForm> {
+        SignupForm::name.notNullOrBlank("Name is required") {
+            minLength(5) message "Name is too short"
+        }
+        SignupForm::email.notNullOrBlank("Email is required") {
+            email() message "Not a valid email"
+        }
+        SignupForm::password.notNullOrBlank("Password is required") {
+            minLength(8) message "Password is too short"
+        }
+        withValue { form ->
+            if (form.password.isNotBlank()) {
+                SignupForm::password {
+                    addConstraint("Passwords don't match") { form.password == form.confirmPassword }
+                }
+            }
+        }
+    }
 }
-
-class OrderSaved(
-    val order: OrderForm
-) : ViewResponse("order-saved.peb")
 
 class Application {
 
@@ -44,14 +50,22 @@ class Application {
         setDefaultViewLens(Views(hotReload = developmentMode))
 
         val appHandler = AppRequestContexts()
-            .then(CatchAll())
             .then(StoreRequestOnThread())
             .then(
                 routes(
-                    "/save-order" POST { request ->
-                        val form = request.toForm<OrderForm>()
-                        log.info { "Submitted form: $form" }
-                        OrderSaved(form).ok()
+                    "/" GET { renderTemplate("signup") },
+
+                    "/signup" POST { request ->
+                        request.toForm<SignupForm>()
+                            .validate {
+                                error { errors ->
+                                    errorResponse(errors, "signup")
+                                }
+                                success { form ->
+                                    // Signup user with this form
+                                    httpSeeOther("/organiser/profile?saved=true")
+                                }
+                            }
                     }
                 )
             )

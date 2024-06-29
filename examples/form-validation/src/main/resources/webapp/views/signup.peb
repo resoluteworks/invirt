@@ -1,0 +1,43 @@
+{% extends "layout.peb" %}
+
+{% block pageContent %}
+    <form action="/signup" method="POST" class="flex flex-col items-start gap-2 w-96">
+        <h1 class="font-bold text-4xl">Sign up</h1>
+
+        <label class="label gap-1 flex flex-col items-start w-full">
+            <span class="label-text">Name</span>
+            <input type="text" name="name" value="{{ model.name }}" placeholder="Your full name" class="input input-bordered w-full"/>
+            {% if errors.hasErrors("name") %}
+                <div class="text-error">{{ errors.error("name") }}</div>
+            {% endif %}
+        </label>
+
+        <label class="label gap-1 flex flex-col items-start w-full">
+            <span class="label-text">Email</span>
+            <input type="text" name="email" value="{{ model.email }}" placeholder="Your email address" class="input input-bordered w-full"/>
+            {% if errors.hasErrors("email") %}
+                <div class="text-error">{{ errors.error("email") }}</div>
+            {% endif %}
+        </label>
+
+        <label class="label gap-1 flex flex-col items-start w-full">
+            <span class="label-text">Password</span>
+            <input type="password" name="password" class="input input-bordered w-full"/>
+            {% if errors.hasErrors("password") %}
+                <div class="text-error">{{ errors.error("password") }}</div>
+            {% endif %}
+        </label>
+
+        <label class="label gap-1 flex flex-col items-start w-full">
+            <span class="label-text">Confirm password</span>
+            <input type="password" name="confirmPassword" class="input input-bordered w-full"/>
+            {% if errors.hasErrors("confirmPassword") %}
+                <div class="text-error">{{ errors.error("confirmPassword") }}</div>
+            {% endif %}
+        </label>
+
+        <button type="submit" class="mt-4 btn btn-neutral">Sign up</button>
+    </form>
+
+    {{ errors }}
+{% endblock %}

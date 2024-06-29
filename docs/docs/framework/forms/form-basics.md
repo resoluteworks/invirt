@@ -1,6 +1,7 @@
 ---
 sidebar_position: 1
 ---
+import formBasics from './assets/form-basics.png';
 
 # Form basics
 
@@ -12,7 +13,7 @@ with support for arrays, maps and nested objects, similar to some other MVC fram
 Below is a (crude) example of a form with a variety of controls and inputs for collecting details
 about an online order.
 
-![Form screenshot](assets/form-basics.png)
+<img src={formBasics} width="600"/>
 
 A potential Kotlin data model for this form can be something along these lines.
 ```kotlin
@@ -66,3 +67,4 @@ Reading this form into the `OrderForm` object in an http4k handler is then as si
 }
 ```
 
+For the complete working example checkout the [example application](https://github.com/resoluteworks/invirt/tree/main/examples/form-basics).
