@@ -1,7 +1,6 @@
 package invirt.http4k.views
 
-import invirt.http4k.currentHttp4kRequest
-import invirt.pebble.InvirtPebbleRequest
+import invirt.http4k.InvirtRequestContext
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.pebbletemplates.pebble.PebbleEngine
 import io.pebbletemplates.pebble.error.LoaderException
@@ -31,15 +30,20 @@ class InvirtPebbleTemplates(
                 val writer = StringWriter()
 
                 val context = if (viewModel is ErrorResponseView) {
-                    currentHttp4kRequest!!.setErrors(viewModel.errors)
-                    mapOf("model" to viewModel.model, "errors" to viewModel.errors)
+                    InvirtRequestContext.setErrors(viewModel.errors)
+                    mapOf(
+                        "model" to viewModel.model,
+                        "errors" to viewModel.errors
+                    )
                 } else {
                     mapOf("model" to viewModel)
                 }
 
                 engine.getTemplate(template).evaluate(
                     writer,
-                    context.plus("request" to currentHttp4kRequest?.let { InvirtPebbleRequest(it) })
+                    context.plus(
+                        "request" to InvirtRequestContext.currentRequest
+                    )
                 )
                 writer.toString()
             } catch (e: LoaderException) {

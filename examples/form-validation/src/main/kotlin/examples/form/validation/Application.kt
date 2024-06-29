@@ -49,8 +49,7 @@ class Application {
         val developmentMode = EnvironmentKey.boolean().defaulted("DEVELOPMENT_MODE", false)(Environment.ENV)
         setDefaultViewLens(Views(hotReload = developmentMode))
 
-        val appHandler = AppRequestContexts()
-            .then(StoreRequestOnThread())
+        val appHandler = InvirtRequestContext()
             .then(
                 routes(
                     "/" GET { renderTemplate("signup") },

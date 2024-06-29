@@ -1,7 +1,7 @@
 package invirt.http4k.security.authentication
 
-import invirt.http4k.AppRequestContexts
 import invirt.http4k.GET
+import invirt.http4k.InvirtRequestContext
 import invirt.http4k.security.TestPrincipal
 import invirt.http4k.security.TestTokens
 import invirt.http4k.security.failingAuthenticator
@@ -21,7 +21,7 @@ import java.time.Instant
 class AuthenticationFilterTest : StringSpec({
 
     "unauthenticated" {
-        val response = AppRequestContexts().then(AuthenticationFilter(failingAuthenticator)).expectPrincipal(null)
+        val response = InvirtRequestContext().then(AuthenticationFilter(failingAuthenticator)).expectPrincipal(null)
         // No cookies set
         response.cookies().shouldBeEmpty()
     }
@@ -29,7 +29,7 @@ class AuthenticationFilterTest : StringSpec({
     "principal present and cookies set when authenticated" {
         val principal = TestPrincipal(uuid7())
         val authenticator = successAuthenticator(principal, TestTokens(Cookie("test-cookie", "value")))
-        val response = AppRequestContexts().then(AuthenticationFilter(authenticator)).expectPrincipal(principal)
+        val response = InvirtRequestContext().then(AuthenticationFilter(authenticator)).expectPrincipal(principal)
 
         // Cookies set when authenticated
         response shouldHaveSetCookie Cookie("test-cookie", "value")
@@ -43,7 +43,7 @@ class AuthenticationFilterTest : StringSpec({
         val principal = TestPrincipal(uuid7())
         val tokens = TestTokens(Cookie("test-cookie", "value"))
         val authenticator = successAuthenticator(principal, tokens)
-        val httpHandler = AppRequestContexts().then(AuthenticationFilter(authenticator))
+        val httpHandler = InvirtRequestContext().then(AuthenticationFilter(authenticator))
             .then(
                 Filter { next ->
                     { request ->
@@ -71,7 +71,7 @@ class AuthenticationFilterTest : StringSpec({
         val freshTokens = TestTokens(Cookie("test-cookie", "refreshed-value"))
 
         val authenticator = successAuthenticator(principal, tokens)
-        val httpHandler = AppRequestContexts().then(AuthenticationFilter(authenticator))
+        val httpHandler = InvirtRequestContext().then(AuthenticationFilter(authenticator))
             .then(
                 Filter { next ->
                     { request ->
@@ -98,7 +98,7 @@ class AuthenticationFilterTest : StringSpec({
         val tokens = TestTokens(Cookie("test-cookie", "value"))
 
         val authenticator = successAuthenticator(principal, tokens)
-        val httpHandler = AppRequestContexts().then(AuthenticationFilter(authenticator))
+        val httpHandler = InvirtRequestContext().then(AuthenticationFilter(authenticator))
             .then(
                 routes(
                     "/test" GET { request ->
@@ -129,7 +129,7 @@ class AuthenticationFilterTest : StringSpec({
         val freshTokens = TestTokens(Cookie("test-cookie", "refreshed-value"))
 
         val authenticator = successAuthenticator(principal, tokens)
-        val httpHandler = AppRequestContexts().then(AuthenticationFilter(authenticator))
+        val httpHandler = InvirtRequestContext().then(AuthenticationFilter(authenticator))
             .then(
                 routes(
                     "/test" GET { request ->

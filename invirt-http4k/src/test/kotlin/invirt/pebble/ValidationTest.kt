@@ -1,7 +1,6 @@
 package invirt.pebble
 
-import invirt.http4k.AppRequestContexts
-import invirt.http4k.StoreRequestOnThread
+import invirt.http4k.InvirtRequestContext
 import invirt.http4k.views.Views
 import invirt.http4k.views.errorResponse
 import invirt.http4k.views.setDefaultViewLens
@@ -28,7 +27,7 @@ class ValidationTest : StringSpec() {
                 ValidationError("email", "Not a valid email"),
                 ValidationError("details.age", "Age must be 18 or over")
             )
-            val httpHandler = AppRequestContexts().then(StoreRequestOnThread())
+            val httpHandler = InvirtRequestContext().then(InvirtRequestContext())
                 .then(routes("/test" bind Method.GET to { Form().errorResponse(errors, "validation/errors-from-context") }))
             val response = httpHandler(Request(Method.GET, "/test"))
             response.bodyString().trimIndent() shouldBe """
@@ -42,7 +41,7 @@ class ValidationTest : StringSpec() {
             class Form
 
             fun testErrors(errors: ValidationErrors, expect: Boolean) {
-                val httpHandler = AppRequestContexts().then(StoreRequestOnThread())
+                val httpHandler = InvirtRequestContext()
                     .then(routes("/test" bind Method.GET to { Form().errorResponse(errors, "validation/has-errors") }))
                 val response = httpHandler(Request(Method.GET, "/test"))
                 response.bodyString().trim() shouldBe expect.toString()
@@ -56,7 +55,7 @@ class ValidationTest : StringSpec() {
             class Form
 
             fun testErrors(errors: ValidationErrors, expect: String) {
-                val httpHandler = AppRequestContexts().then(StoreRequestOnThread())
+                val httpHandler = InvirtRequestContext()
                     .then(routes("/test" bind Method.GET to { Form().errorResponse(errors, "validation/errors-function-in-macro.peb") }))
                 val response = httpHandler(Request(Method.GET, "/test"))
                 response.bodyString().trim() shouldBe expect

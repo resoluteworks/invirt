@@ -1,7 +1,7 @@
 package invirt.pebble
 
 import invirt.data.Page
-import invirt.http4k.StoreRequestOnThread
+import invirt.http4k.InvirtRequestContext
 import invirt.http4k.views.*
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -73,13 +73,13 @@ class InvirtPebbleRequestTest : StringSpec() {
     }
 
     private fun testRequestFunction(function: String, request: String, expectedBody: String) {
-        val httpHandler = StoreRequestOnThread().then(routes("/test" bind Method.GET to { renderTemplate("request-function-${function}") }))
+        val httpHandler = InvirtRequestContext().then(routes("/test" bind Method.GET to { renderTemplate("request-function-${function}") }))
         val response = httpHandler(Request(Method.GET, request))
         response.bodyString().trim() shouldBe expectedBody
     }
 
     private fun testRequestFunctionModel(function: String, request: String = "/test", model: Any, expectedBody: String) {
-        val httpHandler = StoreRequestOnThread().then(
+        val httpHandler = InvirtRequestContext().then(
             routes(
                 "/test" bind Method.GET to {
                     if (model is ViewModel) {

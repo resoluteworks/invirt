@@ -1,7 +1,6 @@
 package examples.hotwire
 
 import invirt.http4k.*
-import invirt.http4k.filters.CatchAll
 import invirt.http4k.views.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.http4k.cloudnative.env.Environment
@@ -26,55 +25,52 @@ class Application {
         setDefaultViewLens(Views(hotReload = developmentMode))
 
         val userService = UserService()
-        val appHandler = AppRequestContexts()
-            .then(CatchAll())
-            .then(StoreRequestOnThread())
-            .then(
-                routes(
-                    "/" GET {
-                        ("users" to userService.allUsers()) withView "index"
-                    },
+        val appHandler = InvirtRequestContext().then(
+            routes(
+                "/" GET {
+                    ("users" to userService.allUsers()) withView "index"
+                },
 
-                    "/users/add" GET { renderTemplate("add-user") },
-                    "/users/add" POST { request ->
-                        request.toForm<AddUserForm>()
-                            .validate {
-                                error { errorResponse(it, "user-list") }
-                                success { form ->
-                                    val user = form.createUser()
-                                    userService.add(user)
-                                    UserListResponse(userService.allUsers(), user.id).ok()
-                                }
+                "/users/add" GET { renderTemplate("add-user") },
+                "/users/add" POST { request ->
+                    request.toForm<AddUserForm>()
+                        .validate {
+                            error { errorResponse(it, "user-list") }
+                            success { form ->
+                                val user = form.createUser()
+                                userService.add(user)
+                                UserListResponse(userService.allUsers(), user.id).ok()
                             }
-                    },
+                        }
+                },
 
-                    "/users/{userId}/edit" GET { request ->
-                        val userId = request.path("userId")!!
-                        val user = userService.getUser(userId)!!
-                        EditUserForm(user).ok().turboStream()
-                    },
+                "/users/{userId}/edit" GET { request ->
+                    val userId = request.path("userId")!!
+                    val user = userService.getUser(userId)!!
+                    EditUserForm(user).ok().turboStream()
+                },
 
-                    "/users/{userId}/edit" POST { request ->
-                        val userId = request.path("userId")!!
-                        request.toForm<EditUserForm>()
-                            .validate {
-                                error {
-                                    withUserId(userId).errorResponse(it, "edit-user").turboStream()
-                                }
-                                success { form ->
-                                    userService.update(userId) { form.update(it) }
-                                    turboStreamRefresh()
-                                }
+                "/users/{userId}/edit" POST { request ->
+                    val userId = request.path("userId")!!
+                    request.toForm<EditUserForm>()
+                        .validate {
+                            error {
+                                withUserId(userId).errorResponse(it, "edit-user").turboStream()
                             }
-                    },
+                            success { form ->
+                                userService.update(userId) { form.update(it) }
+                                turboStreamRefresh()
+                            }
+                        }
+                },
 
-                    "/users/{userId}/delete" POST { request ->
-                        val userId = request.path("userId")!!
-                        userService.deleteUser(userId)
-                        UserListResponse(userService.allUsers()).ok()
-                    }
-                )
+                "/users/{userId}/delete" POST { request ->
+                    val userId = request.path("userId")!!
+                    userService.deleteUser(userId)
+                    UserListResponse(userService.allUsers()).ok()
+                }
             )
+        )
 
         val server = Netty(8080)
         server.toServer(appHandler).start()

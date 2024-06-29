@@ -1,6 +1,6 @@
 package invirt.http4k.security.handlers
 
-import invirt.http4k.AppRequestContexts
+import invirt.http4k.InvirtRequestContext
 import invirt.http4k.security.TestPrincipal
 import invirt.http4k.security.TestTokens
 import invirt.http4k.security.authentication.AuthenticationFilter
@@ -23,7 +23,7 @@ class LogoutHandlerTest : StringSpec({
         val principal = TestPrincipal(uuid7())
         val authenticator = successAuthenticator(principal, TestTokens(Cookie("name", "value")))
 
-        val response = AppRequestContexts().then(AuthenticationFilter(authenticator))
+        val response = InvirtRequestContext().then(AuthenticationFilter(authenticator))
             .then(LogoutHandler(authenticator, "/logged-out"))
             .invoke(Request(Method.GET, "/logout"))
         response shouldHaveStatus Status.SEE_OTHER
@@ -35,7 +35,7 @@ class LogoutHandlerTest : StringSpec({
         val principal = TestPrincipal(uuid7())
         val authenticator = successAuthenticator(principal, TestTokens(Cookie("name", "value")))
 
-        val response = AppRequestContexts().then(AuthenticationFilter(authenticator))
+        val response = InvirtRequestContext().then(AuthenticationFilter(authenticator))
             .then(LogoutHandler(authenticator, "/logged-out", "/auth/logout", Method.POST))
             .invoke(Request(Method.POST, "/auth/logout"))
         response shouldHaveStatus Status.SEE_OTHER
