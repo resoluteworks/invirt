@@ -1,11 +1,10 @@
-package invirt.pebble
+package invirt.http4k
 
 import invirt.data.Page
-import invirt.http4k.*
 import org.http4k.core.Request
 import org.http4k.core.Uri
 
-data class InvirtPebbleRequest(val delegate: Request) : Request by delegate {
+class InvirtRequest(val delegate: Request) : Request by delegate {
 
     fun hasQueryValue(name: String, value: String): Boolean = delegate.uri.hasQueryValue(name, value)
     fun toggleQueryValue(name: String, value: Any): Uri = delegate.uri.toggleQueryValue(name, value)

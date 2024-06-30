@@ -1,6 +1,5 @@
 package invirt.http4k
 
-import invirt.pebble.InvirtPebbleRequest
 import invirt.utils.withValue
 import io.validk.ValidationErrors
 import org.http4k.core.Filter
@@ -19,7 +18,7 @@ object InvirtRequestContext {
     operator fun invoke(): Filter {
         val storeRequestOnCurrentThread = Filter { next ->
             { request ->
-                requestThreadLocal.withValue(InvirtPebbleRequest(request)) {
+                requestThreadLocal.withValue(InvirtRequest(request)) {
                     next(request)
                 }
             }
