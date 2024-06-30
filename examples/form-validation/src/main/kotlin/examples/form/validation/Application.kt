@@ -20,10 +20,9 @@ data class SignupForm(
     val name: String,
     val email: String,
     val password: String,
-    val confirmPassword: String
 ) : ValidObject<SignupForm> {
 
-    override val validation = Validation<SignupForm> {
+    override val validation = Validation {
         SignupForm::name.notNullOrBlank("Name is required") {
             minLength(5) message "Name is too short"
         }
@@ -32,13 +31,6 @@ data class SignupForm(
         }
         SignupForm::password.notNullOrBlank("Password is required") {
             minLength(8) message "Password is too short"
-        }
-        withValue { form ->
-            if (form.password.isNotBlank()) {
-                SignupForm::password {
-                    addConstraint("Passwords don't match") { form.password == form.confirmPassword }
-                }
-            }
         }
     }
 }
@@ -53,16 +45,17 @@ class Application {
             .then(
                 routes(
                     "/" GET { renderTemplate("signup") },
+                    "/signup/success" GET { renderTemplate("signup-success") },
 
                     "/signup" POST { request ->
                         request.toForm<SignupForm>()
                             .validate {
-                                error { errors ->
-                                    errorResponse(errors, "signup")
+                                error { form, errors ->
+                                    form.errorResponse(errors, "signup.peb")
                                 }
                                 success { form ->
                                     // Signup user with this form
-                                    httpSeeOther("/organiser/profile?saved=true")
+                                    httpSeeOther("/signup/success")
                                 }
                             }
                     }

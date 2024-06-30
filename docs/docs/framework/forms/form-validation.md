@@ -2,6 +2,9 @@
 sidebar_position: 2
 ---
 
+import validationConcept from './assets/form-validation-concept.png';
+import formSignupScreen from './assets/form-validation-signup-screen.png';
+
 # Form validation
 
 [Example application](https://github.com/resoluteworks/invirt/tree/main/examples/form-validation)
@@ -29,8 +32,144 @@ for customisation.
 
 In summary, at a high level, this is what Invirt is going for.
 
-![Validation](assets/form-validation-concept.png)
+<img src={validationConcept} width="800"/>
 
 ## Validation framework
-Invirt uses the [validk](https://github.com/resoluteworks/validk) Kotlin validation framework which your
+Invirt uses the [Validk](https://github.com/resoluteworks/validk) Kotlin validation framework which your
 application must wire as a dependency and use in its handlers to validate form inputs.
+
+## Submission flow
+Below is a very basic example of a form collecting signup details for a user. The form
+validation has the following rules:
+* Name is required and must be at least 5 characters long
+* Email is required and must be a valid email
+* Password is required and must be at least 8 characters long.
+
+We want to display the relevant validation error messages for each field, but we also
+want to present a "Please correct the errors below" message at the top when there are validation
+errors.
+
+<img src={formSignupScreen} width="800"/>
+
+<br/>
+<br/>
+
+The right side of the image depicts the desired outcome of a form submission that returns
+validation errors. A key element here is that we want to return the previously entered value for
+Name and Email, to avoid the user having to re-key these, but we don't want to send back a
+previously entered invalid password.
+
+Below are the (stripped down) HTML form and the respective Kotlin object for reading this in the handler code.
+
+```html
+<form action="/signup" method="POST">
+    <input type="text" name="name"/>
+    <input type="text" name="email"/>
+    <input type="password" name="password"/>
+    <button type="submit">Sign up</button>
+</form>
+```
+
+```kotlin
+data class SignupForm(
+    val name: String,
+    val email: String,
+    val password: String,
+) : ValidObject<SignupForm> {
+
+    override val validation = Validation {
+        ...
+    }
+}
+```
+
+Below is the handler that would then read this form, validate it, and return a response based on this outcome,
+including error messages and previously entered input values.
+
+```kotlin
+"/signup" POST { request ->
+    request.toForm<SignupForm>()
+        .validate {
+            error { form, errors ->
+                form.errorResponse(errors, "signup.peb")
+            }
+            success { form ->
+                // Signup user with this form
+                httpSeeOther("/signup/success")
+            }
+        }
+}
+```
+
+But there are several steps here, so let's take it one at a time. Firstly, we read the form
+into a `SignupForm` object, with the construct discussed in the [previous section](/docs/framework/forms/form-basics).
+```kotlin
+request.toForm<SignupForm>()
+```
+
+Because `SignupForm` implements Validk's `ValidObject` interface it means we can call
+`.validate` on this directly, which in turn allows us to provide custom handling
+logic for success and failure scenarios.
+
+In both cases, we want to return an httpk `Response`. For the success scenario
+we simply return an HTTP 303 using Invirt's `httpSeeOther` utility, redirecting to another
+handler, `/signup/success` in this case .
+
+For the error scenario, we want to return a view response, which renders the form again via
+`signup.peb` - the template we used to render the initial (empty) form.
+
+The error scenario uses Invirt's `errorResponse` utility which produces an http4k view response
+with a special implementation of the [ViewModel](https://www.http4k.org/api/org.http4k.template/-view-model/).
+
+```kotlin
+internal class ErrorResponseView(
+    val model: Any,
+    val errors: ValidationErrors,
+    val template: String
+) : ViewModel {
+    override fun template() = template
+}
+```
+
+When returning `form.errorResponse(errors, "signup.peb")`, Invirt's custom Pebble rendering detects
+that we're trying to render an error response and exposes the passed `errors` argument into the
+template context, and the form as the `model`.
+
+There are then two things we can add to our HTML form. First, we can set a value for our inputs
+to display a previously entered value. Second, we can show an error message for each input
+by checking if the field has any errors.
+
+To omit the password value from being rendered back on the form, we simply don't
+add a `value` to the password input, essentially leaving it as per earlier definition.
+
+```html
+<input type="text" name="name" value="{{ model.name }}"/>
+
+{% if errors.hasErrors("name") %}
+    <div class="text-error">{{ errors.error("name") }}</div>
+{% endif %}
+
+...
+
+<input type="password" name="password"/>
+
+{% if errors.hasErrors("password") %}
+    <div class="text-error">{{ errors.error("password") }}</div>
+{% endif %}
+```
+
+We can also check for the presence of validation errors and display a custom message
+at the top of the form.
+```html
+{% if errors != null %}
+    <div class="text-lg font-semibold text-error">Please correct the errors below</div>
+{% endif %}
+```
+
+For a working example of this flow, please check the [example application](https://github.com/resoluteworks/invirt/tree/main/examples/form-validation)
+
+## A note on error messages
+By default, the Validk framework stops after the first validation error for a field, and returns
+only that error message for it (fail-fast). This can be turned off
+so it returns the complete list of failures for a field, when that's required.
+You can read more about this [here](https://github.com/resoluteworks/validk?tab=readme-ov-file#fail-fast-validation).

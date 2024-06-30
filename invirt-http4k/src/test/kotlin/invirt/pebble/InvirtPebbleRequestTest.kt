@@ -45,8 +45,16 @@ class InvirtPebbleRequestTest : StringSpec() {
         "replacePage" {
             val model = mapOf("page" to Page(30, 15))
             testRequestFunctionModel("replacePage", "/test", model, "/test?from=30&size=15")
-            testRequestFunctionModel("replacePage", "/test?from=0&filter=individual&size=10", model, "/test?filter=individual&from=30&size=15")
-            testRequestFunctionModel("replacePage", "/test?from=0&filter=individual", model, "/test?filter=individual&from=30&size=15")
+            testRequestFunctionModel(
+                "replacePage",
+                "/test?from=0&filter=individual&size=10",
+                model,
+                "/test?filter=individual&from=30&size=15"
+            )
+            testRequestFunctionModel(
+                "replacePage", "/test?from=0&filter=individual",
+                model, "/test?filter=individual&from=30&size=15"
+            )
         }
 
         "toggleQueryValue" {

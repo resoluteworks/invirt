@@ -15,6 +15,8 @@ about an online order.
 
 <img src={formBasics} width="600"/>
 
+<br/>
+<br/>
 A potential Kotlin data model for this form can be something along these lines.
 ```kotlin
 data class OrderForm(

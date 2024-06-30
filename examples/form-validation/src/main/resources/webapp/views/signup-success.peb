@@ -3,5 +3,6 @@
 {% block pageContent %}
     <div class="flex flex-col items-start gap-4">
         <h1 class="font-bold text-4xl">Signup success</h1>
+        <div>You've been successfully signed up</div>
     </div>
 {% endblock %}
