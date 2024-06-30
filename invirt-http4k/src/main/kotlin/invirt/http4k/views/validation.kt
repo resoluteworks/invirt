@@ -18,8 +18,9 @@ internal class ErrorResponseView(
  * This will render a page with the specified [template] and exposed the [errors] directly into
  * the page's Pebble context to be queried for display.
  */
-fun Any.errorResponse(
+fun errorResponse(
+    model: Any,
     errors: ValidationErrors,
     template: String,
     status: Status = Status.UNPROCESSABLE_ENTITY
-): Response = ErrorResponseView(this, errors, template).status(status)
+): Response = ErrorResponseView(model, errors, template).status(status)

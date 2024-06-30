@@ -28,7 +28,7 @@ class ValidationTest : StringSpec() {
                 ValidationError("details.age", "Age must be 18 or over")
             )
             val httpHandler = InvirtRequestContext().then(InvirtRequestContext())
-                .then(routes("/test" bind Method.GET to { Form().errorResponse(errors, "validation/errors-from-context") }))
+                .then(routes("/test" bind Method.GET to { errorResponse(Form(), errors, "validation/errors-from-context") }))
             val response = httpHandler(Request(Method.GET, "/test"))
             response.bodyString().trimIndent() shouldBe """
                 name - Name too short
@@ -42,7 +42,7 @@ class ValidationTest : StringSpec() {
 
             fun testErrors(errors: ValidationErrors, expect: Boolean) {
                 val httpHandler = InvirtRequestContext()
-                    .then(routes("/test" bind Method.GET to { Form().errorResponse(errors, "validation/has-errors") }))
+                    .then(routes("/test" bind Method.GET to { errorResponse(Form(), errors, "validation/has-errors") }))
                 val response = httpHandler(Request(Method.GET, "/test"))
                 response.bodyString().trim() shouldBe expect.toString()
             }
@@ -56,7 +56,7 @@ class ValidationTest : StringSpec() {
 
             fun testErrors(errors: ValidationErrors, expect: String) {
                 val httpHandler = InvirtRequestContext()
-                    .then(routes("/test" bind Method.GET to { Form().errorResponse(errors, "validation/errors-function-in-macro.peb") }))
+                    .then(routes("/test" bind Method.GET to { errorResponse(Form(), errors, "validation/errors-function-in-macro.peb") }))
                 val response = httpHandler(Request(Method.GET, "/test"))
                 response.bodyString().trim() shouldBe expect
             }

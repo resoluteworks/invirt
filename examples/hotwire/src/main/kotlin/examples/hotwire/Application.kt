@@ -35,7 +35,7 @@ class Application {
                 "/users/add" POST { request ->
                     request.toForm<AddUserForm>()
                         .validate {
-                            error { errorResponse(it, "user-list") }
+                            error { form, errors -> errorResponse(form, errors, "user-list") }
                             success { form ->
                                 val user = form.createUser()
                                 userService.add(user)
@@ -54,8 +54,8 @@ class Application {
                     val userId = request.path("userId")!!
                     request.toForm<EditUserForm>()
                         .validate {
-                            error {
-                                withUserId(userId).errorResponse(it, "edit-user").turboStream()
+                            error { form, errors ->
+                                errorResponse(form.withUserId(userId), errors, "edit-user").turboStream()
                             }
                             success { form ->
                                 userService.update(userId) { form.update(it) }

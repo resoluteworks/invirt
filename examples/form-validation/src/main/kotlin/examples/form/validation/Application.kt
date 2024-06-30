@@ -51,7 +51,7 @@ class Application {
                         request.toForm<SignupForm>()
                             .validate {
                                 error { form, errors ->
-                                    form.errorResponse(errors, "signup.peb")
+                                    errorResponse(form, errors, "signup.peb")
                                 }
                                 success { form ->
                                     // Signup user with this form

@@ -91,7 +91,7 @@ including error messages and previously entered input values.
     request.toForm<SignupForm>()
         .validate {
             error { form, errors ->
-                form.errorResponse(errors, "signup.peb")
+                errorResponse(form, errors, "signup.peb")
             }
             success { form ->
                 // Signup user with this form
@@ -131,7 +131,7 @@ internal class ErrorResponseView(
 }
 ```
 
-When returning `form.errorResponse(errors, "signup.peb")`, Invirt's custom Pebble rendering detects
+When returning `errorResponse(form, errors, "signup.peb")`, Invirt's custom Pebble rendering detects
 that we're trying to render an error response and exposes the passed `errors` argument into the
 template context, and the form as the `model`.
 
