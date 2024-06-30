@@ -59,7 +59,8 @@ validation errors. A key element here is that we want to return the previously e
 Name and Email, to avoid the user having to re-key these, but we don't want to send back a
 previously entered invalid password.
 
-Below are the (stripped down) HTML form and the respective Kotlin object for reading this in the handler code.
+### Form and model
+Below are the (stripped down) HTML form and the respective Kotlin object for handling the form above.
 
 ```html
 <form action="/signup" method="POST">
@@ -83,6 +84,7 @@ data class SignupForm(
 }
 ```
 
+### Handling form validation
 Below is the handler that would then read this form, validate it, and return a response based on this outcome,
 including error messages and previously entered input values.
 
@@ -135,6 +137,8 @@ When returning `errorResponse(form, errors, "signup.peb")`, Invirt's custom Pebb
 that we're trying to render an error response and exposes the passed `errors` argument into the
 template context, and the form as the `model`.
 
+### Displaying error messages
+
 There are then two things we can add to our HTML form. First, we can set a value for our inputs
 to display a previously entered value. Second, we can show an error message for each input
 by checking if the field has any errors.
@@ -163,6 +167,20 @@ at the top of the form.
 ```html
 {% if errors != null %}
     <div class="text-lg font-semibold text-error">Please correct the errors below</div>
+{% endif %}
+```
+
+### Accessing errors from a Pebble macro
+[Pebble macros](https://pebbletemplates.io/wiki/tag/macro/) don't have the context of the view being rendered,
+so the `errors` object above (or `model`, for that matter) won't be accessible from a macro. When you need to handle
+validation errors within a macro, simply use the `error()` function instead.
+```html
+{% if errors() != null %}
+    <div class="text-lg font-semibold text-error">Please correct the errors below</div>
+{% endif %}
+...
+{% if errors().hasErrors("password") %}
+    <div>{{ errors().error("password") }}</div>
 {% endif %}
 ```
 
