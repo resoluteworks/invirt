@@ -141,7 +141,7 @@ class RequestQueryFiltersTest : StringSpec() {
             val filter =
                 queryValuesFilter {
                     Query.multi.optional("type").or { "entity-type".eq(it) }
-                    Query.optional("include-empty-docs").whenMissing("doc.size".gt(0))
+                    Query.optional("include-empty-docs").whenMissing { "doc.size".gt(0) }
                 }
 
             filter(Request(Method.GET, "/test?type=person")) shouldBe
