@@ -1,31 +1,26 @@
 package invirt.http4k.views
 
-import invirt.http4k.AppRequestContexts
 import io.validk.ValidationErrors
-import org.http4k.core.Request
 import org.http4k.core.Response
 import org.http4k.core.Status
-import org.http4k.lens.RequestContextKey
-
-/**
- * Used strictly to provide these errors within the context of a macro
- */
-internal val validationErrorContextKey = RequestContextKey.optional<ValidationErrors>(AppRequestContexts.contexts)
-
-internal fun Request.setErrors(errors: ValidationErrors) {
-    validationErrorContextKey[this] = errors
-}
+import org.http4k.template.ViewModel
 
 internal class ErrorResponseView(
     val model: Any,
     val errors: ValidationErrors,
-    val view: String
-) : ViewResponse(view)
+    val template: String
+) : ViewModel {
+    override fun template() = template
+}
 
-fun Any.errorResponse(
+/**
+ * Creates an [ErrorResponseView] from the given model object and the specified validation [errors].
+ * This will render a page with the specified [template] and exposed the [errors] directly into
+ * the page's Pebble context to be queried for display.
+ */
+fun errorResponse(
+    model: Any,
     errors: ValidationErrors,
     template: String,
     status: Status = Status.UNPROCESSABLE_ENTITY
-): Response {
-    return ErrorResponseView(this, errors, template).status(status)
-}
+): Response = ErrorResponseView(model, errors, template).status(status)

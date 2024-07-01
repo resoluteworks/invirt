@@ -1,7 +1,7 @@
 package invirt.pebble
 
 import invirt.data.Page
-import invirt.http4k.StoreRequestOnThread
+import invirt.http4k.InvirtRequestContext
 import invirt.http4k.views.*
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -45,8 +45,16 @@ class InvirtPebbleRequestTest : StringSpec() {
         "replacePage" {
             val model = mapOf("page" to Page(30, 15))
             testRequestFunctionModel("replacePage", "/test", model, "/test?from=30&size=15")
-            testRequestFunctionModel("replacePage", "/test?from=0&filter=individual&size=10", model, "/test?filter=individual&from=30&size=15")
-            testRequestFunctionModel("replacePage", "/test?from=0&filter=individual", model, "/test?filter=individual&from=30&size=15")
+            testRequestFunctionModel(
+                "replacePage",
+                "/test?from=0&filter=individual&size=10",
+                model,
+                "/test?filter=individual&from=30&size=15"
+            )
+            testRequestFunctionModel(
+                "replacePage", "/test?from=0&filter=individual",
+                model, "/test?filter=individual&from=30&size=15"
+            )
         }
 
         "toggleQueryValue" {
@@ -73,13 +81,13 @@ class InvirtPebbleRequestTest : StringSpec() {
     }
 
     private fun testRequestFunction(function: String, request: String, expectedBody: String) {
-        val httpHandler = StoreRequestOnThread().then(routes("/test" bind Method.GET to { renderTemplate("request-function-${function}") }))
+        val httpHandler = InvirtRequestContext().then(routes("/test" bind Method.GET to { renderTemplate("request-function-${function}") }))
         val response = httpHandler(Request(Method.GET, request))
         response.bodyString().trim() shouldBe expectedBody
     }
 
     private fun testRequestFunctionModel(function: String, request: String = "/test", model: Any, expectedBody: String) {
-        val httpHandler = StoreRequestOnThread().then(
+        val httpHandler = InvirtRequestContext().then(
             routes(
                 "/test" bind Method.GET to {
                     if (model is ViewModel) {

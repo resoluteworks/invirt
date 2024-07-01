@@ -11,8 +11,8 @@ test:
 	./gradlew clean test jacocoRootReport
 	./gradlew coverallsJacoco
 
-docs:
-	cd docs; npm run build
+docs-serve:
+	cd docs; npx docusaurus start
 
 publish:
 	./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository

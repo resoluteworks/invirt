@@ -1,8 +1,6 @@
 package invirt.pebble.functions
 
-import invirt.http4k.currentHttp4kRequest
-import invirt.http4k.views.validationErrorContextKey
-import invirt.pebble.InvirtPebbleRequest
+import invirt.http4k.InvirtRequestContext
 import invirt.utils.minorUnitToString
 import java.util.*
 
@@ -12,7 +10,7 @@ val currencyFromMinorUnitFunction = pebbleFunction("currencyFromMinorUnit", "min
 }
 
 val errorsFunction = pebbleFunction("errors") {
-    validationErrorContextKey[currentHttp4kRequest!!]
+    InvirtRequestContext.errors
 }
 
 /**
@@ -20,5 +18,5 @@ val errorsFunction = pebbleFunction("errors") {
  * in the current model for a template
  */
 val requestFunction = pebbleFunction("request") {
-    InvirtPebbleRequest(currentHttp4kRequest!!)
+    InvirtRequestContext.currentRequest
 }

@@ -22,6 +22,7 @@ dependencies {
     val kotlinVersion: String by project
     val invirtVersion: String by project
     val http4kVersion: String by project
+    val validkVersion: String by project
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}")
     implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
@@ -29,7 +30,7 @@ dependencies {
     implementation(platform("io.resoluteworks:invirt-bom:${invirtVersion}"))
     implementation("io.resoluteworks:invirt-http4k")
     implementation("io.resoluteworks:invirt-utils")
-    implementation("io.resoluteworks:validk:1.2.7")
+    implementation("io.resoluteworks:validk:${validkVersion}")
 
     implementation(platform("org.http4k:http4k-bom:${http4kVersion}"))
     implementation("org.http4k:http4k-core")

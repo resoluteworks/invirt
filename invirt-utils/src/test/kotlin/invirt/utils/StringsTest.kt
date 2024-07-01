@@ -9,7 +9,8 @@ class StringsTest : StringSpec({
     "wordCount" {
         "Sitting mistake towards his, few country ask".wordCount() shouldBe 7
         "Nay, impossible; dispatched! partiality - unaffected".wordCount() shouldBe 5
-        "   \t \n Sitting mistake towards his, few country ask \n\n \t Nay, impossible; dispatched! partiality - unaffected \n.".wordCount() shouldBe 12
+        "   \t \n Sitting mistake towards his, few country ask \n\n \t Nay, impossible; dispatched! partiality - unaffected \n."
+            .wordCount() shouldBe 12
     }
     "regex tests" {
         "a^$.b=1".replace(REGEX_NON_ALPHA, "") shouldBe "ab1"

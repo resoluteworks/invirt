@@ -10,12 +10,12 @@ in order to override the location/name of the template to be used for rendering 
 a file name derived from the `ViewModel` implementation class name).
 
 Invirt provides a set of utilities and wrappers to make it more convenient to write handlers that produce view model responses,
-as well as using a globally defined view lens, used implicitly throughout the framework.
+as well as using a globally defined view lens, used throughout the framework.
 
 ## ViewResponse
 `ViewResponse` implements the [ViewModel](https://www.http4k.org/api/org.http4k.template/-view-model/) interface
 in http4k and allows passing the template name as a constructor argument, in order to avoid having
-to implement `ViewModel.template()` explicitly with every view model object.
+to implement `ViewModel.template()` explicitly.
 
 ```kotlin
 data class ListUsersResponse(
@@ -56,7 +56,7 @@ This construct uses the defaults defined in the `Views.Classpath` and `Views.Hot
 
 #### Configuring views for both local and production
 With these defaults it's then easy to configure the application to use an environment variable to bootstrap the application
-so that it hot reloads locally (a browser refresh renders the updated template), while loading the classpath views at runtime
+so that it hot reloads locally (a browser refresh renders the updated template), but load the classpath views at runtime
 in production.
 
 ```kotlin
@@ -65,7 +65,9 @@ setDefaultViewLens(Views(hotReload = developmentMode))
 ```
 
 ## Rendering view model responses
-A set of utilities make use of the previously configured `setDefaultViewLens()` in order to simplify the rendering of a `ViewResponse`.
+A set of extension function make use of the previously configured `setDefaultViewLens()` in order to simplify
+the rendering of a `ViewResponse` and allow returning an http4k `Response` directly from a `ViewResponse` object.
+
 ```kotlin
 val developmentMode = EnvironmentKey.boolean().defaulted("DEVELOPMENT_MODE", false)(Environment.ENV)
 setDefaultViewLens(Views(hotReload = developmentMode))
