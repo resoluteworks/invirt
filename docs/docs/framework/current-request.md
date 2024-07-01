@@ -69,6 +69,6 @@ directly.
 
 ```html
 {% if request.hasQueryValue('type', 'person') %}
-    <a href="{{ request.toggleQueryValue('type', 'company') }}">Show companies</a>
+    <a href="{{ request.replaceQuery('type', 'company') }}">Show companies</a>
 {% endif %}
 ```

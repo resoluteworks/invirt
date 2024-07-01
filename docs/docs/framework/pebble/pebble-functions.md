@@ -5,8 +5,8 @@ sidebar_position: 1
 # Pebble functions
 
 ### request
-Returns the current http4k `Request` object (as an [InvirtRequest](./)). The function is only required in the context of a macro - but can be used
-anywhere. Outside macros, Invirt `exposes` this as a `request` field on the Pebble context with each page rendering.
+Returns the current http4k `Request` object (as an [InvirtRequest](/docs/framework/current-request)). The function is only required in the context of a macro - but can be used
+anywhere. Outside macros, Invirt exposes a `request` field on the Pebble root context with each page rendering.
 
 ```html
 {% macro requestSummary() %}
