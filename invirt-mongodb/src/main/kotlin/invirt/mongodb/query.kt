@@ -42,7 +42,7 @@ fun <E : StoredEntity> MongoCollection<E>.pagedQuery(
     queryPipeline.add(skip(page.from))
     queryPipeline.add(limit(page.size))
 
-    val countPipeline = listOf(match(filter ?: Filters.empty()), count())
+    val countPipeline = listOf(match(filter ?: Filters.empty()), limit(maxDocuments), count())
     val result = this.withDocumentClass<QueryResult>().aggregate(
         listOf(
             facet(
