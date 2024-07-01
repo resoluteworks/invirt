@@ -164,11 +164,7 @@ class QueryTest : StringSpec() {
                 override var updatedAt: Instant = mongoNow()
             ) : StoredEntity
 
-            data class SimpleMongoQuery(
-                override val filter: Bson?,
-                override val page: Page,
-                override val sort: List<Sort>
-            ) : MongoQuery
+            data class SimpleMongoQuery(override val filter: Bson?, override val page: Page, override val sort: List<Sort>) : MongoQuery
 
             val collection = database.collection<Entity>()
             val companyCount = 95
@@ -247,8 +243,12 @@ class QueryTest : StringSpec() {
             collection.save(doc1)
             collection.save(doc2)
 
-            collection.pagedQuery(Entity::class, mongoTextSearch("dogs")).records.sortedBy { it.id } shouldBe listOf(doc1, doc2).sortedBy { it.id }
-            collection.pagedQuery(Entity::class, mongoTextSearch("dog")).records.sortedBy { it.id } shouldBe listOf(doc1, doc2).sortedBy { it.id }
+            collection.pagedQuery(Entity::class, mongoTextSearch("dogs")).records.sortedBy { it.id } shouldBe
+                listOf(doc1, doc2).sortedBy { it.id }
+
+            collection.pagedQuery(Entity::class, mongoTextSearch("dog")).records.sortedBy { it.id } shouldBe
+                listOf(doc1, doc2).sortedBy { it.id }
+
             collection.pagedQuery(Entity::class, mongoTextSearch("barking")).records shouldBe listOf(doc1)
             collection.pagedQuery(Entity::class, mongoTextSearch("cat")).records shouldBe listOf(doc2)
         }

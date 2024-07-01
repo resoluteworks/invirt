@@ -20,15 +20,13 @@ interface MongoQuery {
     val maxDocuments: Int get() = 1000
 }
 
-inline fun <reified E : StoredEntity> MongoCollection<E>.query(searchQuery: MongoQuery): RecordsPage<E> {
-    return this.pagedQuery(
-        entityClass = E::class,
-        filter = searchQuery.filter,
-        page = searchQuery.page,
-        maxDocuments = searchQuery.maxDocuments,
-        sorts = searchQuery.sort.toTypedArray()
-    )
-}
+inline fun <reified E : StoredEntity> MongoCollection<E>.query(searchQuery: MongoQuery): RecordsPage<E> = this.pagedQuery(
+    entityClass = E::class,
+    filter = searchQuery.filter,
+    page = searchQuery.page,
+    maxDocuments = searchQuery.maxDocuments,
+    sorts = searchQuery.sort.toTypedArray()
+)
 
 fun <E : StoredEntity> MongoCollection<E>.pagedQuery(
     entityClass: KClass<E>,
@@ -37,12 +35,12 @@ fun <E : StoredEntity> MongoCollection<E>.pagedQuery(
     maxDocuments: Int = 1000,
     vararg sorts: Sort = emptyArray()
 ): RecordsPage<E> {
-    val queryPipeline = mutableListOf(
-        match(filter ?: Filters.empty()),
-        skip(page.from),
-        limit(page.size)
+    val queryPipeline: MutableList<Bson> = mutableListOf(
+        match(filter ?: Filters.empty())
     )
-    sorts.mongoSort()?.let { queryPipeline.add(it) }
+    sorts.mongoSort()?.let { queryPipeline.add(sort(it)) }
+    queryPipeline.add(skip(page.from))
+    queryPipeline.add(limit(page.size))
 
     val countPipeline = listOf(match(filter ?: Filters.empty()), count())
     val result = this.withDocumentClass<QueryResult>().aggregate(
@@ -65,9 +63,6 @@ fun <E : StoredEntity> MongoCollection<E>.pagedQuery(
     )
 }
 
-data class QueryResult(
-    val results: List<Document>,
-    val count: List<CountDto>
-) {
+data class QueryResult(val results: List<Document>, val count: List<CountDto>) {
     data class CountDto(val count: Long)
 }
