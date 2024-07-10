@@ -21,6 +21,7 @@ object MongoExtension {
     )
 }
 
+@Synchronized
 fun Spec.testMongo(): Mongo {
     val container = install(MongoExtension.mongoContainerExtension)
     val connectionString = container.connectionString + "/${uuid7()}"
