@@ -13,13 +13,16 @@ import io.kotest.extensions.testcontainers.ContainerLifecycleMode
 import org.testcontainers.containers.MongoDBContainer
 
 private val log = KotlinLogging.logger {}
-private val mongoContainerExtension = ContainerExtension(
-    container = MongoDBContainer("mongo:7.0.4"),
-    mode = ContainerLifecycleMode.Project
-)
+
+object MongoExtension {
+    val mongoContainerExtension = ContainerExtension(
+        container = MongoDBContainer("mongo:7.0.4"),
+        mode = ContainerLifecycleMode.Project
+    )
+}
 
 fun Spec.testMongo(): Mongo {
-    val container = install(mongoContainerExtension)
+    val container = install(MongoExtension.mongoContainerExtension)
     val connectionString = container.connectionString + "/${uuid7()}"
     log.info { "Test MongoDB connection string is $connectionString" }
     return Mongo(connectionString)
