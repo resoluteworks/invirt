@@ -1,7 +1,9 @@
 {% macro requestUri() %}
-    {{ request().uri }}
+{{ request().uri }}
 {% endmacro %}
 
 {{ request.method }}
+
+{{ requestUri() }}
 
 {{ request().query("q") }}
