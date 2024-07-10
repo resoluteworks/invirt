@@ -49,4 +49,8 @@ class Mongo(val connectionString: String) {
             session.close()
         }
     }
+
+    fun close() {
+        mongoClient.close()
+    }
 }
