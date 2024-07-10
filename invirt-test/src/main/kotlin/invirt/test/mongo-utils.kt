@@ -22,13 +22,7 @@ fun Spec.testMongo(): Mongo {
     val container = install(mongoContainerExtension)
     val connectionString = container.connectionString + "/${uuid7()}"
     log.info { "Test MongoDB connection string is $connectionString" }
-    val mongo = Mongo(connectionString)
-    afterSpec {
-        mongo.close()
-    }
-    return mongo
+    return Mongo(connectionString)
 }
 
-inline fun <reified E : StoredEntity> MongoDatabase.randomCollection(): MongoCollection<E> {
-    return getCollection<E>(uuid7())
-}
+inline fun <reified E : StoredEntity> MongoDatabase.randomCollection(): MongoCollection<E> = getCollection<E>(uuid7())
