@@ -1,7 +1,7 @@
 package invirt.mongodb
 
-import invirt.test.randomCollection
-import invirt.test.testMongo
+import invirt.randomCollection
+import invirt.testMongo
 import invirt.utils.uuid7
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec

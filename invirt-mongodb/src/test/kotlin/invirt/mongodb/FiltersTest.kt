@@ -6,8 +6,8 @@ import invirt.data.exists
 import invirt.data.geo.GeoBoundingBox
 import invirt.data.geo.GeoLocation
 import invirt.data.withinGeoBounds
-import invirt.test.randomCollection
-import invirt.test.testMongo
+import invirt.randomCollection
+import invirt.testMongo
 import invirt.utils.uuid7
 import io.kotest.assertions.throwables.shouldThrowWithMessage
 import io.kotest.core.spec.style.StringSpec

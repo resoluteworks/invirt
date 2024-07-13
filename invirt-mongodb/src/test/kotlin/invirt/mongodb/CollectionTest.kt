@@ -2,10 +2,10 @@ package invirt.mongodb
 
 import invirt.data.sortAsc
 import invirt.data.sortDesc
-import invirt.test.randomCollection
+import invirt.randomCollection
 import invirt.test.shouldBeNextUpdateOf
 import invirt.test.shouldBeSameEntity
-import invirt.test.testMongo
+import invirt.testMongo
 import invirt.utils.uuid7
 import io.kotest.assertions.throwables.shouldThrowWithMessage
 import io.kotest.core.spec.style.StringSpec

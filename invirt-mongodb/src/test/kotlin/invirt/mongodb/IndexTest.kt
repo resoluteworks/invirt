@@ -4,7 +4,7 @@ import invirt.data.sortAsc
 import invirt.test.shouldHaveAscIndex
 import invirt.test.shouldHaveDescIndex
 import invirt.test.shouldHaveTextIndex
-import invirt.test.testMongo
+import invirt.testMongo
 import invirt.utils.uuid7
 import io.kotest.assertions.throwables.shouldThrowWithMessage
 import io.kotest.core.spec.style.StringSpec
@@ -162,7 +162,5 @@ class IndexTest : StringSpec() {
         }
     }
 
-    private fun List<Document>.indexForField(field: String): Document {
-        return find { (it["key"] as Document)[field] != null } as Document
-    }
+    private fun List<Document>.indexForField(field: String): Document = find { (it["key"] as Document)[field] != null } as Document
 }

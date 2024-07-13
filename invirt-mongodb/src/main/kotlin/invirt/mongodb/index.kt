@@ -1,6 +1,10 @@
 package invirt.mongodb
 
-import com.mongodb.client.model.*
+import com.mongodb.client.model.Collation
+import com.mongodb.client.model.CollationStrength
+import com.mongodb.client.model.IndexModel
+import com.mongodb.client.model.IndexOptions
+import com.mongodb.client.model.Indexes
 import com.mongodb.kotlin.client.ClientSession
 import com.mongodb.kotlin.client.MongoCollection
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -8,25 +12,15 @@ import kotlin.reflect.KProperty1
 
 private val log = KotlinLogging.logger {}
 
-fun String.indexAsc(caseInsensitive: Boolean = false): IndexModel {
-    return IndexModel(Indexes.ascending(this), indexOptions(caseInsensitive))
-}
+fun String.indexAsc(caseInsensitive: Boolean = false): IndexModel = IndexModel(Indexes.ascending(this), indexOptions(caseInsensitive))
 
-fun String.indexDesc(caseInsensitive: Boolean = false): IndexModel {
-    return IndexModel(Indexes.descending(this), indexOptions(caseInsensitive))
-}
+fun String.indexDesc(caseInsensitive: Boolean = false): IndexModel = IndexModel(Indexes.descending(this), indexOptions(caseInsensitive))
 
-fun textIndex(vararg fields: String): IndexModel {
-    return IndexModel(Indexes.compoundIndex(fields.map { Indexes.text(it) }))
-}
+fun textIndex(vararg fields: String): IndexModel = IndexModel(Indexes.compoundIndex(fields.map { Indexes.text(it) }))
 
-fun indexAsc(vararg fields: String, caseInsensitive: Boolean = false): List<IndexModel> {
-    return fields.map { it.indexAsc(caseInsensitive) }
-}
+fun indexAsc(vararg fields: String, caseInsensitive: Boolean = false): List<IndexModel> = fields.map { it.indexAsc(caseInsensitive) }
 
-fun indexDesc(vararg fields: String, caseInsensitive: Boolean = false): List<IndexModel> {
-    return fields.map { it.indexDesc(caseInsensitive) }
-}
+fun indexDesc(vararg fields: String, caseInsensitive: Boolean = false): List<IndexModel> = fields.map { it.indexDesc(caseInsensitive) }
 
 fun <E : StoredEntity> MongoCollection<E>.createIndexes(
     clientSession: ClientSession? = null,

@@ -2,7 +2,10 @@ package invirt.http4k
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
-import org.http4k.core.*
+import org.http4k.core.Method
+import org.http4k.core.Request
+import org.http4k.core.Response
+import org.http4k.core.Status
 import org.http4k.core.cookie.Cookie
 import org.http4k.kotest.shouldHaveSetCookie
 import org.http4k.routing.bind
@@ -11,6 +14,7 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 class ResponseTest : StringSpec({
+
     "bidilens.ok" {
         data class JsonTestPojo(
             val name: String,
@@ -25,10 +29,7 @@ class ResponseTest : StringSpec({
         )
 
         httpHandler(
-            Request(
-                Method.GET,
-                "/test"
-            )
+            Request(Method.GET, "/test")
         ).bodyString() shouldBe """{"name":"Apache Productions","enabled":true}"""
     }
 

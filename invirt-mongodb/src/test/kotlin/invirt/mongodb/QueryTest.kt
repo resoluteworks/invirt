@@ -1,7 +1,11 @@
 package invirt.mongodb
 
-import invirt.data.*
-import invirt.test.testMongo
+import invirt.data.Page
+import invirt.data.Sort
+import invirt.data.SortOrder
+import invirt.data.sortAsc
+import invirt.data.sortDesc
+import invirt.testMongo
 import invirt.utils.uuid7
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -164,11 +168,7 @@ class QueryTest : StringSpec() {
                 override var updatedAt: Instant = mongoNow()
             ) : StoredEntity
 
-            data class SimpleMongoQuery(
-                override val filter: Bson?,
-                override val page: Page,
-                override val sort: List<Sort>
-            ) : MongoQuery
+            data class SimpleMongoQuery(override val filter: Bson?, override val page: Page, override val sort: List<Sort>) : MongoQuery
 
             val collection = database.collection<Entity>()
             val companyCount = 95

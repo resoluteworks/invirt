@@ -2,7 +2,11 @@ package invirt.pebble
 
 import invirt.data.Page
 import invirt.http4k.InvirtRequestContext
-import invirt.http4k.views.*
+import invirt.http4k.views.Views
+import invirt.http4k.views.ok
+import invirt.http4k.views.renderTemplate
+import invirt.http4k.views.setDefaultViewLens
+import invirt.http4k.views.withView
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.http4k.core.Method

@@ -2,7 +2,10 @@ package invirt.http4k.handlers
 
 import invirt.http4k.cacheDays
 import org.http4k.core.then
-import org.http4k.routing.*
+import org.http4k.routing.ResourceLoader
+import org.http4k.routing.RoutingHttpHandler
+import org.http4k.routing.routes
+import org.http4k.routing.static
 
 /**
  * Binds
@@ -14,33 +17,27 @@ import org.http4k.routing.*
 @Suppress("ktlint:standard:function-naming")
 object StaticResources {
 
-    operator fun invoke(hotReload: Boolean, version: String): RoutingHttpHandler {
-        return if (hotReload) HotReload(version) else Classpath(version)
-    }
+    operator fun invoke(hotReload: Boolean, version: String): RoutingHttpHandler = if (hotReload) HotReload(version) else Classpath(version)
 
     fun Classpath(
         version: String,
         classpathDir: String = "webapp/static",
         cacheDays: Int = 365
-    ): RoutingHttpHandler {
-        return "/static" bind routes(
-            "/assets/${version}" bind cacheDays(cacheDays)
-                .then(static(ResourceLoader.Classpath("$classpathDir/assets"))),
+    ): RoutingHttpHandler = "/static" bind routes(
+        "/assets/${version}" bind cacheDays(cacheDays)
+            .then(static(ResourceLoader.Classpath("$classpathDir/assets"))),
 
-            "/" bind static(ResourceLoader.Classpath(classpathDir))
-        )
-    }
+        "/" bind static(ResourceLoader.Classpath(classpathDir))
+    )
 
     fun HotReload(
         version: String,
         directory: String = "src/main/resources/webapp/static",
         cacheDays: Int = 365
-    ): RoutingHttpHandler {
-        return "/static" bind routes(
-            "/assets/${version}" bind cacheDays(cacheDays)
-                .then(static(ResourceLoader.Directory("$directory/assets"))),
+    ): RoutingHttpHandler = "/static" bind routes(
+        "/assets/${version}" bind cacheDays(cacheDays)
+            .then(static(ResourceLoader.Directory("$directory/assets"))),
 
-            "/" bind static(ResourceLoader.Directory(directory))
-        )
-    }
+        "/" bind static(ResourceLoader.Directory(directory))
+    )
 }

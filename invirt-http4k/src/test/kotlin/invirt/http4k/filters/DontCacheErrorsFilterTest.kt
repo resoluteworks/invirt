@@ -3,7 +3,11 @@ package invirt.http4k.filters
 import invirt.http4k.GET
 import invirt.http4k.cacheOneYear
 import io.kotest.core.spec.style.StringSpec
-import org.http4k.core.*
+import org.http4k.core.Method
+import org.http4k.core.Request
+import org.http4k.core.Response
+import org.http4k.core.Status
+import org.http4k.core.then
 import org.http4k.kotest.shouldHaveHeader
 import org.http4k.kotest.shouldHaveStatus
 import org.http4k.routing.routes

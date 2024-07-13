@@ -14,5 +14,5 @@ ij_kotlin_allow_trailing_comma_on_call_site = false
 ktlint_standard_filename = disabled
 ktlint_standard_string-template = disabled
 ktlint_standard_function-signature = disabled
-ktlint_standard_no-wildcard-imports = disabled
+ktlint_standard_class-signature = disabled
 ktlint_standard_argument-list-wrapping = disabled

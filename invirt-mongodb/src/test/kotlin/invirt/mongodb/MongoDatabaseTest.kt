@@ -1,6 +1,6 @@
 package invirt.mongodb
 
-import invirt.test.testMongo
+import invirt.testMongo
 import invirt.utils.uuid7
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -29,7 +29,5 @@ class MongoDatabaseTest : StringSpec() {
         }
     }
 
-    private fun Document.getIndexOrder(field: String): Int? {
-        return (this["key"] as Document)[field] as Int?
-    }
+    private fun Document.getIndexOrder(field: String): Int? = (this["key"] as Document)[field] as Int?
 }

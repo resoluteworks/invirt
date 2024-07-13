@@ -1,4 +1,4 @@
-package invirt.test
+package invirt
 
 import com.mongodb.kotlin.client.MongoCollection
 import com.mongodb.kotlin.client.MongoDatabase

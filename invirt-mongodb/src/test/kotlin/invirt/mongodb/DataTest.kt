@@ -10,8 +10,8 @@ import invirt.data.Page
 import invirt.data.Sort
 import invirt.data.geo.GeoBoundingBox
 import invirt.data.geo.GeoLocation
-import invirt.test.randomCollection
-import invirt.test.testMongo
+import invirt.randomCollection
+import invirt.testMongo
 import invirt.utils.uuid7
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder

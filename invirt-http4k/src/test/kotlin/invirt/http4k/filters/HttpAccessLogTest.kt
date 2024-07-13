@@ -5,7 +5,7 @@ import io.kotest.core.spec.style.StringSpec
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.verify
-import org.http4k.core.*
+import org.http4k.core.Status
 import org.http4k.routing.path
 import org.http4k.routing.routes
 
