@@ -1,6 +1,10 @@
 package invirt.http4k.data
 
-import invirt.data.*
+import invirt.data.CompoundFilter
+import invirt.data.FieldFilter
+import invirt.data.eq
+import invirt.data.gt
+import invirt.data.gte
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.http4k.core.Method

@@ -1,6 +1,8 @@
 package invirt.http4k.data
 
-import invirt.data.*
+import invirt.data.Page
+import invirt.data.Sort
+import invirt.data.SortOrder
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.http4k.core.Method

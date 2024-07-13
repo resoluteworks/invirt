@@ -4,6 +4,7 @@ import invirt.http4k.cacheDays
 import org.http4k.core.then
 import org.http4k.routing.ResourceLoader
 import org.http4k.routing.RoutingHttpHandler
+import org.http4k.routing.bind
 import org.http4k.routing.routes
 import org.http4k.routing.static
 
