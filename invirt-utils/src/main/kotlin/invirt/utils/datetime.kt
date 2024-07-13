@@ -5,14 +5,11 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import kotlin.time.toJavaDuration
 
-fun Instant.plusDays(days: Int): Instant {
-    return this.plus(days.toLong(), ChronoUnit.DAYS)
-}
+fun Instant.plusDays(days: Int): Instant = this.plus(days.toLong(), ChronoUnit.DAYS)
 
-fun Instant.minusDays(days: Int): Instant {
-    return this.minus(days.toLong(), ChronoUnit.DAYS)
-}
+fun Instant.minusDays(days: Int): Instant = this.minus(days.toLong(), ChronoUnit.DAYS)
 
 fun LocalDate.dayOfMonthSuffix(): String {
     if (dayOfMonth in 11..13) {
@@ -27,13 +24,9 @@ fun LocalDate.dayOfMonthSuffix(): String {
 }
 
 private val REGEX_DAY_PATTERN = "d(\\s|$)".toRegex()
-fun LocalDate.patternWithDaySuffix(pattern: String): String {
-    return pattern.replace(REGEX_DAY_PATTERN, "d'" + dayOfMonthSuffix() + "'$1")
-}
+fun LocalDate.patternWithDaySuffix(pattern: String): String = pattern.replace(REGEX_DAY_PATTERN, "d'" + dayOfMonthSuffix() + "'$1")
 
-fun LocalDate.formatWithDaySuffix(pattern: String): String {
-    return format(DateTimeFormatter.ofPattern(patternWithDaySuffix(pattern)))
-}
+fun LocalDate.formatWithDaySuffix(pattern: String): String = format(DateTimeFormatter.ofPattern(patternWithDaySuffix(pattern)))
 
 fun Duration.toHumanReadableString(): String {
     val duration = this.truncatedTo(ChronoUnit.MILLIS)
@@ -53,3 +46,5 @@ fun Duration.toHumanReadableString(): String {
     val end = elements.indexOfLast { it[0] != '0' }
     return elements.subList(start, end + 1).joinToString(" ")
 }
+
+fun kotlin.time.Duration.toHumanReadableString(): String = this.toJavaDuration().toHumanReadableString()
