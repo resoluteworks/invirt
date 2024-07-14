@@ -13,7 +13,7 @@ import org.http4k.routing.routes
 
 class InvirtPebbleTemplatesTest : StringSpec({
 
-    beforeAny { setDefaultViewLens(Views.Classpath("webapp/views")) }
+    beforeSpec { setDefaultViewLens(Views.Classpath("webapp/views")) }
 
     "request object in pebble templates" {
         val handler = InvirtRequestContext().then(

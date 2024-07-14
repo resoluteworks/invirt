@@ -17,7 +17,7 @@ import org.http4k.routing.routes
 class ValidationTest : StringSpec() {
 
     init {
-        beforeAny { setDefaultViewLens(Views.Classpath("webapp/views")) }
+        beforeSpec { setDefaultViewLens(Views.Classpath("webapp/views")) }
 
         "errors from context" {
             class Form

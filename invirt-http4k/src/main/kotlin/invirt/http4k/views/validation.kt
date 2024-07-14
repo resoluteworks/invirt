@@ -1,12 +1,13 @@
 package invirt.http4k.views
 
+import io.validk.ValidationError
 import io.validk.ValidationErrors
 import org.http4k.core.Response
 import org.http4k.core.Status
 import org.http4k.template.ViewModel
 
 internal class ErrorResponseView(
-    val model: Any,
+    val model: Any?,
     val errors: ValidationErrors,
     val template: String
 ) : ViewModel {
@@ -19,8 +20,18 @@ internal class ErrorResponseView(
  * the page's Pebble context to be queried for display.
  */
 fun errorResponse(
-    model: Any,
+    model: Any?,
     errors: ValidationErrors,
     template: String,
     status: Status = Status.UNPROCESSABLE_ENTITY
 ): Response = ErrorResponseView(model, errors, template).status(status)
+
+fun errorResponse(
+    template: String,
+    vararg errors: Pair<String, String>
+): Response {
+    if (errors.isEmpty()) {
+        throw IllegalArgumentException("Errors cannot be empty")
+    }
+    return errorResponse(null, ValidationErrors(errors.map { ValidationError(it.first, it.second) }), template)
+}

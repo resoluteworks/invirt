@@ -14,7 +14,7 @@ import org.http4k.routing.routes
 
 class ErrorPagesFilterTest : StringSpec({
 
-    beforeAny { setDefaultViewLens(Views.Classpath("webapp/views")) }
+    beforeSpec { setDefaultViewLens(Views.Classpath("webapp/views")) }
 
     "404 page" {
         val httpHandler = ErrorPages(Status.NOT_FOUND to "error/404")

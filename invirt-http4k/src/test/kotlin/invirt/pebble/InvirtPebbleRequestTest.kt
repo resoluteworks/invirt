@@ -19,7 +19,7 @@ import org.http4k.template.ViewModel
 class InvirtPebbleRequestTest : StringSpec() {
 
     init {
-        beforeAny { setDefaultViewLens(Views.Classpath("webapp/views")) }
+        beforeSpec { setDefaultViewLens(Views.Classpath("webapp/views")) }
 
         "replaceQuery" {
             testRequestFunction("replaceQuery", "/test", "/test?from=10")

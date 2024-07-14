@@ -21,7 +21,7 @@ import java.time.LocalDate
 class PebbleFunctionsTest : StringSpec() {
 
     init {
-        beforeAny { setDefaultViewLens(Views.Classpath("webapp/views")) }
+        beforeSpec { setDefaultViewLens(Views.Classpath("webapp/views")) }
 
         "today" {
             testFunction("today", "/test", "${LocalDate.now()}")
