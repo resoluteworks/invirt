@@ -10,15 +10,7 @@ import org.http4k.core.Uri
  */
 class InvirtRequest(private val delegate: Request) : Request by delegate {
 
-    /**
-     * Checks whether this request's URI has a query parameter with the specified [name] and [value]
-     *
-     * @param name Query parameter name
-     * @param value Query parameter value
-     * @return Returns true when the URI has a query parameter with the specified [name] and [value], false otherwise.
-     */
     fun hasQueryValue(name: String, value: String): Boolean = delegate.uri.hasQueryValue(name, value)
-
     fun toggleQueryValue(name: String, value: Any): Uri = delegate.uri.toggleQueryValue(name, value)
     fun replacePage(page: Page): Uri = delegate.uri.replacePage(page)
     fun replaceQuery(name: String, value: Any): Uri = delegate.uri.replaceQuery(name to value)

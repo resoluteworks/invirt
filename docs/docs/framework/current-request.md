@@ -49,7 +49,7 @@ fun Uri.removeQueries(names: Collection<String>): Uri { ... }
 
 ## InvirtRequest
 Invirt wraps the core http4k `Request` object in an `InvirtRequest`, which implements http4k's [Request interface](https://www.http4k.org/api/org.http4k.core/-request/)
-and simply delegates to the underlying `Request` object.
+and simply delegates to that object.
 
 ```kotlin
 class InvirtRequest(val delegate: Request) : Request by delegate {
@@ -64,7 +64,7 @@ class InvirtRequest(val delegate: Request) : Request by delegate {
 
 Within the Kotlin code you don't typically need access to the `InvirtRequest` object, as the functionality it defines
 is already contained in Kotlin extensions, as discussed above. However, within the context of a Pebble template,
-we require this object to get access to these extensions, as Pebble templates can't access Kotlin extension functions
+we require this object to get access to these extensions, as Pebble templates can't operate Kotlin extension functions
 directly.
 
 ```html

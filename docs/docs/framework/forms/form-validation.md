@@ -12,8 +12,8 @@ import formSignupScreen from './assets/form-validation-signup-screen.png';
 ## Design approach
 
 Invirt's approach to form validation is based on general practices of how HTML forms
-should work, and common UX practices in application development. Below are some of the constraints
-and guiding principles for how we've implemented this on top of http4k.
+should work, and common UX principles. Below are some of the constraints
+and guiding principles for how Invirt implements these on top of http4k.
 
 #### Explicit, server-side validation
 Validation is an explicit step performed by the http4k handler, there's no "magic" and no annotations
@@ -38,16 +38,22 @@ In summary, at a high level, this is what Invirt is going for.
 Invirt uses the [Validk](https://github.com/resoluteworks/validk) Kotlin validation framework which your
 application must wire as a dependency and use in its handlers to validate form inputs.
 
+```kotlin
+implementation "io.resoluteworks:validk:${validkVersion}"
+```
+Validk is not part of the Invirt framework as it's been designed as a stand-alone re-usable
+library. But it's under the tutelage of the same maintainers as Invirt.
+
 ## Submission flow
 Below is a very basic example of a form collecting signup details for a user. The form
-validation has the following rules:
+validation has the following requirements:
 * Name is required and must be at least 5 characters long
 * Email is required and must be a valid email
 * Password is required and must be at least 8 characters long.
 
 We want to display the relevant validation error messages for each field, but we also
-want to present a "Please correct the errors below" message at the top when there are validation
-errors.
+want to present a "Please correct the errors below" message at the top when the input doesn't
+pass validation.
 
 <img src={formSignupScreen} width="800"/>
 
@@ -96,7 +102,7 @@ including error messages and previously entered input values.
                 errorResponse(form, errors, "signup.peb")
             }
             success { form ->
-                // Signup user with this form
+                // Signup user with the date on the form and redirect to /signup/success
                 httpSeeOther("/signup/success")
             }
         }
@@ -114,11 +120,10 @@ Because `SignupForm` implements Validk's `ValidObject` interface it means we can
 logic for success and failure scenarios.
 
 In both cases, we want to return an httpk `Response`. For the success scenario
-we simply return an HTTP 303 using Invirt's `httpSeeOther` utility, redirecting to another
-handler, `/signup/success` in this case .
+we simply return an HTTP 303 using Invirt's `httpSeeOther` utility.
 
 For the error scenario, we want to return a view response, which renders the form again via
-`signup.peb` - the template we used to render the initial (empty) form.
+`signup.peb`, the template we used to render the initial (empty) form.
 
 The error scenario uses Invirt's `errorResponse` utility which produces an http4k view response
 with a special implementation of the [ViewModel](https://www.http4k.org/api/org.http4k.template/-view-model/).
@@ -141,7 +146,8 @@ template context, and the form as the `model`.
 
 There are then two things we can add to our HTML form. First, we can set a value for our inputs
 to display a previously entered value. Second, we can show an error message for each input
-by checking if the field has any errors.
+by checking if the field has any errors. This is a common pattern that you've likely encountered
+in other MVC frameworks.
 
 To omit the password value from being rendered back on the form, we simply don't
 add a `value` to the password input, essentially leaving it as per earlier definition.
@@ -162,7 +168,7 @@ add a `value` to the password input, essentially leaving it as per earlier defin
 {% endif %}
 ```
 
-We can also check for the presence of validation errors and display a custom message
+Lastly, we can also check for the presence of validation errors and display the custom message
 at the top of the form.
 ```html
 {% if errors != null %}

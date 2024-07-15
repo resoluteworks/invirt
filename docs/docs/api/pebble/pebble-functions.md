@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# Built-in Pebble functions
+# Invirt Pebble functions
 A set of utility functions that can be used by Pebble templates in an Invirt application.
 
 ### request()

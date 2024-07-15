@@ -7,6 +7,13 @@ import org.http4k.core.query
 import org.http4k.core.toParameters
 import org.http4k.core.toUrlFormEncoded
 
+/**
+ * Checks whether this URI has a query parameter with the specified [name] and [value]
+ *
+ * @param name Query parameter name
+ * @param value Query parameter value
+ * @return Returns true when the URI has a query parameter with the specified [name] and [value], false otherwise.
+ */
 fun Uri.hasQueryValue(name: String, value: String): Boolean = this.queries().any { it.first == name && it.second == value }
 
 fun Uri.removeQueryValue(name: String, value: Any): Uri = copy(

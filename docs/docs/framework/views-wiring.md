@@ -20,44 +20,36 @@ to implement `ViewModel.template()` explicitly.
 ```kotlin
 data class ListUsersResponse(
     val users: List<User>
-): ViewResponse("users/list") // resources/webapp/views/users/list.peb
+): ViewResponse("users/list") // classpath:/webapp/views/users/list.peb
 ```
 ## Default view lens
-A default view lens can be configured at application bootstrap as follows.
-```kotlin
-setDefaultViewLens(viewLens)
-```
 Invirt provides a built-in [Views](https://github.com/resoluteworks/invirt/blob/main/invirt-core/src/main/kotlin/invirt/http4k/views/views.kt#L23)
-component to bootstrap some of the core framework capabilities, enable Pebble templates rendering, and configure how the views are loaded
+component to bootstrap some of the core framework capabilities, enable Pebble templates rendering, and configure how the views are loaded.
+This component can then be wired at application startup using a `setDefaultViewLens()` call.
 
 ```kotlin
 // Used for hot reload capabilities, useful at development time
+// (browser refresh reloads the Pebble template edits)
 setDefaultViewLens(Views.HotReload(directory = "../views"))
 
-// Used in production to load the views from the classpath
+// Used in production to load the views from the classpath, with
+// caching and no hot reload capabilities
 setDefaultViewLens(Views.Classpath(classpathDir = "webapps/views"))
+
+// [RECOMMENDED]
+// Can be used in both production and local development with the value
+// for hotReload read from an env var
+setDefaultViewLens(Views(hotReload = ...))
 ```
 
-:::warning
-Certain core Invirt capabilities will be disabled or will manifest unexpectedly when using a view lens that's not created
-via the `Views` component.
-:::
-
-Alternatively, the `Views` component can be used with a `hotReload` boolean flag, which loads one of the two components above
-based on the value of this flag.
-
-```kotlin
-setDefaultViewLens(Views(hotReload = developmentMode))
-```
-
-This construct uses the defaults defined in the `Views.Classpath` and `Views.HotReload` respectively, which are set to
+### Configuring views for both local and production
+The latter construct uses the defaults defined in the `Views.Classpath` and `Views.HotReload` respectively, which are set to
  * `webapp/views` for classpath views
  * `src/main/resources/webapp/views` for directory (hot reloading) views
 
-#### Configuring views for both local and production
 With these defaults it's then easy to configure the application to use an environment variable to bootstrap the application
-so that it hot reloads locally (a browser refresh renders the updated template), but load the classpath views at runtime
-in production.
+so that it hot reloads locally (a browser refresh renders the updated template), but load the classpath views with caching
+at runtime, in production.
 
 ```kotlin
 val developmentMode = EnvironmentKey.boolean().defaulted("DEVELOPMENT_MODE", false)(Environment.ENV)
@@ -66,7 +58,7 @@ setDefaultViewLens(Views(hotReload = developmentMode))
 
 ## Rendering view model responses
 A set of extension functions make use of the previously configured `setDefaultViewLens()` in order to simplify
-the rendering of a `ViewResponse` and allow returning an http4k `Response` directly from a `ViewResponse` object.
+returning an http4k `Response` directly from a `ViewResponse` object.
 
 ```kotlin
 val developmentMode = EnvironmentKey.boolean().defaulted("DEVELOPMENT_MODE", false)(Environment.ENV)
