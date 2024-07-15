@@ -47,12 +47,11 @@ A set of extension functions make use of the previously configured `setDefaultVi
 returning an http4k `Response` directly from a `ViewResponse` object.
 
 ```kotlin
-val developmentMode = EnvironmentKey.boolean().defaulted("DEVELOPMENT_MODE", false)(Environment.ENV)
-setDefaultViewLens(Views(hotReload = developmentMode))
+setDefaultViewLens(Views(hotReload = ...))
 
 // "users/list" points to
 // - classpath:webapp/views/users/list.peb when hotReload is false
-// - src/main/resources/webapp/views/users/list.peb when hotReload is true
+// - file:src/main/resources/webapp/views/users/list.peb when hotReload is true
 data class ListUsersResponse(
     val users: List<User>
 ): ViewResponse("users/list")
@@ -60,12 +59,12 @@ data class ListUsersResponse(
 val handler =  routes(
     "/users/list" GET {
         ...
-        ListUsersResponse(users).ok()
+        ListUsersResponse(users).ok() // Returns a response with Status.OK
     },
 
     "/users/create" POST {
         ...
-        CreateUserResponse(user).status(Status.ACCEPTED)
+        CreateUserResponse(user).status(Status.ACCEPTED) // Returns a response with Status.ACCEPTED
     }
 }
 ```
