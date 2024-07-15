@@ -3,19 +3,19 @@ sidebar_position: 2
 ---
 
 # Views wiring
-The core http4k wiring for using a [templating engine](https://www.http4k.org/guide/howto/use_a_templating_engine/),
-requires that view models are explicitly rendered using a previously declared view lens.
-It also requires a view response to implement [ViewModel.template()](https://www.http4k.org/api/org.http4k.template/-view-model/)
-in order to override the location/name of the template to be used for rendering the view (otherwise defaulting to
-a file name derived from the `ViewModel` implementation class name).
+When using a [templating engine](https://www.http4k.org/guide/howto/use_a_templating_engine/), http4k requires a view model
+to implement [ViewModel.template()](https://www.http4k.org/api/org.http4k.template/-view-model/)
+in order to override the location of the template to render the view. Invirt provides a [ViewResponse](#viewresponse) class
+to make this more convenient.
 
-Invirt provides a set of utilities and wrappers to make it more convenient to write handlers that produce view model responses,
-as well as using a globally defined view lens, used throughout the framework.
+Http4k also requires that view models are explicitly rendered using a previously declared lens. Invirt allows this be defined
+globally and reused using [Default view lens](#default-view-lens).
+
 
 ## ViewResponse
 `ViewResponse` implements the [ViewModel](https://www.http4k.org/api/org.http4k.template/-view-model/) interface
 in http4k and allows passing the template name as a constructor argument, in order to avoid having
-to implement `ViewModel.template()` explicitly.
+to implement `ViewModel.template()` every time.
 
 ```kotlin
 data class ListUsersResponse(
@@ -42,21 +42,7 @@ setDefaultViewLens(Views.Classpath(classpathDir = "webapps/views"))
 setDefaultViewLens(Views(hotReload = ...))
 ```
 
-### Configuring views for both local and production
-The latter construct uses the defaults defined in the `Views.Classpath` and `Views.HotReload` respectively, which are set to
- * `webapp/views` for classpath views
- * `src/main/resources/webapp/views` for directory (hot reloading) views
-
-With these defaults it's then easy to configure the application to use an environment variable to bootstrap the application
-so that it hot reloads locally (a browser refresh renders the updated template), but load the classpath views with caching
-at runtime, in production.
-
-```kotlin
-val developmentMode = EnvironmentKey.boolean().defaulted("DEVELOPMENT_MODE", false)(Environment.ENV)
-setDefaultViewLens(Views(hotReload = developmentMode))
-```
-
-## Rendering view model responses
+## ViewResponse to HTTP response
 A set of extension functions make use of the previously configured `setDefaultViewLens()` in order to simplify
 returning an http4k `Response` directly from a `ViewResponse` object.
 

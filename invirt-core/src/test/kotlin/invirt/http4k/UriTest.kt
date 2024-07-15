@@ -11,6 +11,7 @@ class UriTest : StringSpec({
         Uri.of("/test").removeQueryValue("q", "John").toString() shouldBe "/test"
         Uri.of("/test?q=John").removeQueryValue("q", "John").toString() shouldBe "/test"
         Uri.of("/test?q=nothing&from=0&size=1").removeQueryValue("q", "nothing").toString() shouldBe "/test?from=0&size=1"
+        Uri.of("/test?q=kotlin&q=java").removeQueryValue("q", "java").toString() shouldBe "/test?q=kotlin"
 
         Uri.of("/test?q=nothing&from=0&filter=one&size=1&filter=two").removeQueryValue("filter", "one")
             .toString() shouldBe "/test?q=nothing&from=0&size=1&filter=two"
@@ -24,6 +25,7 @@ class UriTest : StringSpec({
 
     "replacePage" {
         Uri.of("/test").replacePage(Page(20, 10)).toString() shouldBe "/test?from=20&size=10"
+        Uri.of("/test?from=0&size=10").replacePage(Page(10, 5)).toString() shouldBe "/test?from=10&size=5"
         Uri.of("/test?q=john&filter=name").removeQueries(listOf("q", "filter")).toString() shouldBe "/test"
         Uri.of("/test?q=john&filter=name&size=10").removeQueries(listOf("q", "filter")).toString() shouldBe "/test?size=10"
     }

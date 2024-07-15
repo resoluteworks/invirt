@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Context objects
+# Template context objects
 These objects are available in the root context when rendering a Pebble template.
 
 ### model
