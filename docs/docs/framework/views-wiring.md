@@ -1,5 +1,5 @@
 ---
-sidebar_position: 1
+sidebar_position: 2
 ---
 
 # Views wiring
@@ -27,7 +27,7 @@ A default view lens can be configured at application bootstrap as follows.
 ```kotlin
 setDefaultViewLens(viewLens)
 ```
-Invirt provides a built-in [Views](https://github.com/resoluteworks/invirt/blob/main/invirt-http4k/src/main/kotlin/invirt/http4k/views/views.kt#L23)
+Invirt provides a built-in [Views](https://github.com/resoluteworks/invirt/blob/main/invirt-core/src/main/kotlin/invirt/http4k/views/views.kt#L23)
 component to bootstrap some of the core framework capabilities, enable Pebble templates rendering, and configure how the views are loaded
 
 ```kotlin
@@ -65,7 +65,7 @@ setDefaultViewLens(Views(hotReload = developmentMode))
 ```
 
 ## Rendering view model responses
-A set of extension function make use of the previously configured `setDefaultViewLens()` in order to simplify
+A set of extension functions make use of the previously configured `setDefaultViewLens()` in order to simplify
 the rendering of a `ViewResponse` and allow returning an http4k `Response` directly from a `ViewResponse` object.
 
 ```kotlin

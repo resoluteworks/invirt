@@ -10,4 +10,4 @@ fi
 
 PROJECT_NAME=$1
 export DEVELOPMENT_MODE=true
-./gradlew $PROJECT_NAME:run
+./gradlew clean $PROJECT_NAME:run

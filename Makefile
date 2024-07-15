@@ -11,7 +11,7 @@ test:
 	./gradlew clean test jacocoRootReport
 	./gradlew coverallsJacoco
 
-docs-serve:
+doc-serve:
 	cd docs; npx docusaurus start
 
 publish:

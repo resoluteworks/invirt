@@ -1,0 +1,6 @@
+{% extends "layout.peb" %}
+
+{% block pageContent %}
+    <h1>Homepage</h1>
+    <div>Current user is <b>{{ model.currentUsername }}</b></div>
+{% endblock %}

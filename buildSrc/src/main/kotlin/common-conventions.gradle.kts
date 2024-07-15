@@ -2,6 +2,7 @@ plugins {
     kotlin("jvm")
     id("artifact-conventions")
     id("org.jmailen.kotlinter")
+    id("org.jetbrains.dokka")
 }
 
 repositories {
@@ -32,4 +33,9 @@ java {
 
 afterEvaluate {
     tasks["test"].dependsOn(tasks["lintKotlin"])
+}
+
+tasks.dokkaHtml {
+    outputDirectory.set(layout.projectDirectory.dir("../docs/dokka"))
+    suppressInheritedMembers = true
 }

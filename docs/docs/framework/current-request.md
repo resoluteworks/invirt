@@ -3,12 +3,12 @@ sidebar_position: 3
 ---
 
 # Request object
-Invirt provides several mechanism for the application to access the current http4k request object outside the
+Invirt provides several mechanisms for the application to access the current http4k request object outside the
 handler. This is useful for several scenarios, including template rendering that requires context about
 the current HTTP request.
 
 Invirt also provides a series of utilities for operating on the current request object, including manipulating
-the URI or query parameters, which can be useful for use cases like toggling filters or resetting query parameters.
+the URI or query parameters, which can be employed for use cases like toggling filters or resetting query parameters.
 
 ## Kotlin code
 Invirt uses an http4k filter to store the current http4k request in a thread local and clear it after the
@@ -19,9 +19,9 @@ println(InvirtRequestContext.currentRequest!!.uri)
 ```
 
 ## Current request in Pebble templates
-Pebble templates can access the request object either via `request` directly from the template rendering context,
-or via the [request function](/docs/framework/pebble/pebble-functions#request). The request function is only required
-when inside a macro, where the template context is not available, and neither `model` or `request`, as a result.
+Pebble templates can access the request object either directly from the [`request`](/docs/api/pebble/pebble-context-objects#request)
+object in the root context, when not inside a macro. Inside macros, the [`request()`](/docs/api/pebble/pebble-functions#request)
+Pebble function must be used instead (due to the fact that [macros don't have access to the global context](https://pebbletemplates.io/wiki/tag/macro/)).
 
 ```html
 {% macro requestSummary() %}
@@ -35,7 +35,7 @@ when inside a macro, where the template context is not available, and neither `m
 
 ## URI extension functions
 Invirt provides a set of extensions to enable the manipulation of a request's URI. Below are a few examples, and
-the complete list can be found [here](https://github.com/resoluteworks/invirt/blob/main/invirt-http4k/src/main/kotlin/invirt/http4k/uri.kt).
+the complete list can be found [here](https://github.com/resoluteworks/invirt/blob/main/invirt-core/src/main/kotlin/invirt/http4k/uri.kt).
 
 ```kotlin
 fun Uri.hasQueryValue(name: String, value: String): Boolean { ... }

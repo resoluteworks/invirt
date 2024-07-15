@@ -1,0 +1,28 @@
+package invirt.http4k
+
+import invirt.data.Page
+import org.http4k.core.Request
+import org.http4k.core.Uri
+
+/**
+ * A thin wrapper of http4k's [Request] object.
+ * @param delegate The underlying http4k [Request]
+ */
+class InvirtRequest(private val delegate: Request) : Request by delegate {
+
+    /**
+     * Checks whether this request's URI has a query parameter with the specified [name] and [value]
+     *
+     * @param name Query parameter name
+     * @param value Query parameter value
+     * @return Returns true when the URI has a query parameter with the specified [name] and [value], false otherwise.
+     */
+    fun hasQueryValue(name: String, value: String): Boolean = delegate.uri.hasQueryValue(name, value)
+
+    fun toggleQueryValue(name: String, value: Any): Uri = delegate.uri.toggleQueryValue(name, value)
+    fun replacePage(page: Page): Uri = delegate.uri.replacePage(page)
+    fun replaceQuery(name: String, value: Any): Uri = delegate.uri.replaceQuery(name to value)
+    fun removeQueryValue(name: String, value: Any): Uri = delegate.uri.removeQueryValue(name, value)
+    fun removeQueries(names: Collection<String>): Uri = delegate.uri.removeQueries(names)
+    fun removeQueries(names: Array<String>): Uri = delegate.uri.removeQueries(names.toSet())
+}

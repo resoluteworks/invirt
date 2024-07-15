@@ -12,7 +12,7 @@ dependencies {
 
     implementation(project(":invirt-data"))
     implementation(project(":invirt-utils"))
-    implementation(project(":invirt-http4k"))
+    implementation(project(":invirt-core"))
     implementation(project(":invirt-mongodb"))
 
     implementation("io.kotest:kotest-assertions-core:${kotestVersion}")
