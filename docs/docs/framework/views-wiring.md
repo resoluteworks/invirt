@@ -66,5 +66,5 @@ val handler =  routes(
         ...
         CreateUserResponse(user).status(Status.ACCEPTED) // Returns a response with Status.ACCEPTED
     }
-}
+)
 ```
