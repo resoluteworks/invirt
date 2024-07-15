@@ -10,7 +10,7 @@ current request or URI.
 ## In Kotlin
 Invirt uses an http4k filter to store the current `Request` in a thread local and clear it after the
 request completes. This is done automatically when wiring
-[InvirtRequestContext](http://localhost:3000/docs/framework/quickstart#2-wiring-the-invirtrequestcontext-filter).
+[InvirtRequestContext](/docs/framework/quickstart#2-wiring-the-invirtrequestcontext-filter).
 `InvirtRequestContext` then exposes a `currentRequest` property which can be accessed anywhere within the application.
 ```kotlin
 println(InvirtRequestContext.currentRequest!!.uri)
