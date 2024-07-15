@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# Views wiring
+# Pebble views wiring
 When using a [templating engine](https://www.http4k.org/guide/howto/use_a_templating_engine/), http4k requires a view model
 to implement [ViewModel.template()](https://www.http4k.org/api/org.http4k.template/-view-model/)
 in order to override the location of the template to render the view. Invirt provides a [ViewResponse](#viewresponse) class

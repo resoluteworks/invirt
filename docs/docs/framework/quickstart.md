@@ -28,9 +28,8 @@ implementation("org.http4k:http4k-template-pebble")
 
 ## Project structure
 
-The structure of an Invirt project is similar to any other http4k application, with some built-in conventions
-for template look-ups.
-For a complete example, please check the [Quickstart project](https://github.com/resoluteworks/invirt/tree/main/examples/quickstart).
+The structure of an Invirt project is similar to any other http4k application, with some built-in defaults
+for template look-ups. For a complete example, please check the [Quickstart project](https://github.com/resoluteworks/invirt/tree/main/examples/quickstart).
 
 ```text
 ├── build.gradle.kts
@@ -43,8 +42,7 @@ For a complete example, please check the [Quickstart project](https://github.com
         └── resources
             └── webapp
                 └── views
-                    ├── index.peb
-                    └── layout.peb
+                    └── index.peb
 ```
 
 ## Application
@@ -52,6 +50,8 @@ A basic setup for an application using Invirt looks something like the one below
 in line with any other http4k application, except for a couple of Invirt wiring elements.
 
 ```kotlin
+class IndexResponse(val currentUsername: String) : ViewResponse("index")
+
 class Application {
 
     fun start() {
@@ -60,7 +60,9 @@ class Application {
         val appHandler = InvirtRequestContext()
             .then(
                 routes(
-                    "/" GET { ... }
+                    "/" GET {
+                        IndexResponse(currentUsername = "email@test.com").ok()
+                    }
                 )
             )
 
@@ -69,6 +71,17 @@ class Application {
     }
 }
 ```
+
+The code above renders the `index.peb` template for the default (`/`) route and sets the template's `model`
+to an instance of `IndexResponse`. Below is an example of rendering the `currentUsername` field within
+this template, which uses http4k's [native constructs](https://www.http4k.org/guide/reference/templating/#notes_for_pebble)
+for accessing view model data in Pebble template.
+```html
+<div>
+    Current user is {{ model.currentUsername }}
+</div>
+```
+
 ## Wiring explained
 In the code above there are two components required to enable Invirt in your http4k application.
 
@@ -81,26 +94,7 @@ By default, it looks up templates in `classpath:/webapp/views`. We recommend rea
 [templating capabilities](https://www.http4k.org/guide/howto/use_a_templating_engine/), most of Invirt
 is built on top of those.
 
-```kotlin
-class IndexResponse(val currentUsername: String) : ViewResponse("index")
-
-val appHandler = InvirtRequestContext()
-    .then(
-        routes(
-            "/" GET {
-                IndexResponse(currentUsername = "email@test.com").ok()
-            }
-        )
-    )
-```
-The code above returns an http4k `Response` with `Status.OK` that will render the `index.peb` template.
-The template rendering context will have a `model` object which is set to the `IndexResponse` instance.
-You can read more about views wiring [here](/docs/framework/views-wiring).
-
-The `index.peb` template can then render the data in `IndexResponse` as per example below.
-```html
-Current user is {{ model.currentUsername }}
-```
+We discuss Invirt views wiring in detail [here](/docs/framework/views-wiring).
 
 #### 2. Wiring the InvirtRequestContext filter
 ```kotlin

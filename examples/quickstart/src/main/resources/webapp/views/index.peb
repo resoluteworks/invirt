@@ -1,6 +1,12 @@
-{% extends "layout.peb" %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1"/>
+    </head>
 
-{% block pageContent %}
-    <h1>Homepage</h1>
-    <div>Current user is <b>{{ model.currentUsername }}</b></div>
-{% endblock %}
+    <body style="padding: 40px;">
+        <h1>Homepage</h1>
+        <div>Current user is <b>{{ model.currentUsername }}</b></div>
+    </body>
+</html>
