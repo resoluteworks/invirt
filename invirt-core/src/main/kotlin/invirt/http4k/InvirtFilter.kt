@@ -9,7 +9,7 @@ import org.http4k.core.then
 import org.http4k.filter.ServerFilters
 import org.http4k.lens.RequestContextKey
 
-object InvirtRequestContext {
+object InvirtFilter {
 
     val requestContexts = RequestContexts()
     private val requestThreadLocal = ThreadLocal<Request>()

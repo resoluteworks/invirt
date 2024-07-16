@@ -9,7 +9,7 @@ import org.http4k.routing.routes
 
 class MapViewTest : StringSpec({
 
-    beforeSpec { setDefaultViewLens(Views.Classpath("webapp/views")) }
+    beforeSpec { initialiseInvirtViews() }
 
     "MapView" {
         val httpHandler = routes("/test" bind Method.GET to { MapView(mapOf("key" to "value"), "map-view").ok() })

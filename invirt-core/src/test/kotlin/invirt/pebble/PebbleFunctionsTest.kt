@@ -1,10 +1,9 @@
 package invirt.pebble
 
-import invirt.http4k.InvirtRequestContext
-import invirt.http4k.views.Views
+import invirt.http4k.InvirtFilter
+import invirt.http4k.views.initialiseInvirtViews
 import invirt.http4k.views.ok
 import invirt.http4k.views.renderTemplate
-import invirt.http4k.views.setDefaultViewLens
 import invirt.http4k.views.withView
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.comparables.shouldBeGreaterThan
@@ -21,7 +20,7 @@ import java.time.LocalDate
 class PebbleFunctionsTest : StringSpec() {
 
     init {
-        beforeSpec { setDefaultViewLens(Views.Classpath("webapp/views")) }
+        beforeSpec { initialiseInvirtViews() }
 
         "today" {
             testFunction("today", "/test", "${LocalDate.now()}")
@@ -79,7 +78,7 @@ class PebbleFunctionsTest : StringSpec() {
         }
 
         "uuid" {
-            val httpHandler = InvirtRequestContext().then(routes("/test" bind Method.GET to { renderTemplate("function-uuid") }))
+            val httpHandler = InvirtFilter().then(routes("/test" bind Method.GET to { renderTemplate("function-uuid") }))
             val response1 = httpHandler(Request(Method.GET, "/test"))
             val response2 = httpHandler(Request(Method.GET, "/test"))
 
@@ -96,13 +95,13 @@ class PebbleFunctionsTest : StringSpec() {
     }
 
     private fun testFunction(function: String, request: String, expectedBody: String) {
-        val httpHandler = InvirtRequestContext().then(routes("/test" bind Method.GET to { renderTemplate("function-${function}") }))
+        val httpHandler = InvirtFilter().then(routes("/test" bind Method.GET to { renderTemplate("function-${function}") }))
         val response = httpHandler(Request(Method.GET, request))
         response.bodyString().trim() shouldBe expectedBody
     }
 
     private fun testFunctionModel(function: String, request: String = "/test", model: Any, expectedBody: String) {
-        val httpHandler = InvirtRequestContext().then(
+        val httpHandler = InvirtFilter().then(
             routes(
                 "/test" bind Method.GET to {
                     if (model is ViewModel) {

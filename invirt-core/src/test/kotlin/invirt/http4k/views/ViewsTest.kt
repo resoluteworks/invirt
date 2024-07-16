@@ -18,13 +18,13 @@ import java.io.File
 class ViewsTest : StringSpec() {
 
     init {
-        "Views.HotReload" {
+        "hot reload views" {
             val templateFile = File("src/test/resources/hot-reload-views/hot-reload-template.peb")
             val initialContent = templateFile.readText()
             try {
-                val viewLens = Views.HotReload("src/test/resources/hot-reload-views")
+                initialiseInvirtViews(hotReload = true, hotReloadDirectory = "src/test/resources/hot-reload-views")
 
-                val httpHandler = routes("/test" GET { renderTemplate("hot-reload-template", viewLens) })
+                val httpHandler = routes("/test" GET { renderTemplate("hot-reload-template") })
                 httpHandler(Request(Method.GET, "/test")).bodyString() shouldBe initialContent
 
                 val updatedContent = uuid7()
@@ -35,10 +35,22 @@ class ViewsTest : StringSpec() {
             }
         }
 
+        "classpath views" {
+            val templateFile = File("src/test/resources/hot-reload-views/hot-reload-template.peb")
+            val initialContent = templateFile.readText()
+            initialiseInvirtViews(hotReload = false, classpathLocation = "classpath-views")
+
+            val httpHandler = routes("/test" GET { renderTemplate("classpath-view") })
+            httpHandler(Request(Method.GET, "/test")).bodyString().trim() shouldBe "Classpath view content"
+        }
+
         "renderTemplate" {
-            val viewLens = Views.Classpath("webapp/views")
+            initialiseInvirtViews(
+                hotReload = false,
+                classpathLocation = "webapp/views"
+            )
             val httpHandler = routes(
-                "/test" GET { renderTemplate("render-template", viewLens) }
+                "/test" GET { renderTemplate("render-template") }
             )
 
             val response = httpHandler(Request(Method.GET, "/test"))
@@ -46,10 +58,10 @@ class ViewsTest : StringSpec() {
         }
 
         "ViewModel.ok" {
-            val viewLens = Views.Classpath("webapp/views")
+            initialiseInvirtViews()
             val httpHandler = routes(
                 "/test" bind Method.GET to {
-                    renderTemplate("view-model-ok", viewLens)
+                    renderTemplate("view-model-ok")
                 }
             )
 
@@ -58,7 +70,11 @@ class ViewsTest : StringSpec() {
         }
 
         "custom pebble extensions" {
-            setDefaultViewLens(Views.Classpath("webapp/views", CustomExtension()))
+            initialiseInvirtViews(
+                hotReload = false,
+                classpathLocation = "webapp/views",
+                pebbleExtensions = listOf(CustomExtension())
+            )
             val httpHandler = routes(
                 "/test" bind Method.GET to {
                     renderTemplate("custom-pebble-extension")
@@ -73,15 +89,16 @@ class ViewsTest : StringSpec() {
 
 private class CurrentUsernameFunction : NoArgsPebbleFunction("currentUsername") {
 
-    override fun execute(args: MutableMap<String, Any>?, self: PebbleTemplate?, context: EvaluationContext?, lineNumber: Int): Any {
-        return "John Smith"
-    }
+    override fun execute(
+        args: MutableMap<String, Any>?,
+        self: PebbleTemplate?,
+        context: EvaluationContext?,
+        lineNumber: Int
+    ): Any = "John Smith"
 }
 
 private class CustomExtension : AbstractExtension() {
-    override fun getFunctions(): Map<String, Function> {
-        return listOf(
-            CurrentUsernameFunction()
-        ).associateBy { it.name }
-    }
+    override fun getFunctions(): Map<String, Function> = listOf(
+        CurrentUsernameFunction()
+    ).associateBy { it.name }
 }

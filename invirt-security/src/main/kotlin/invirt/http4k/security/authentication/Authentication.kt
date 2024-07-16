@@ -1,10 +1,10 @@
 package invirt.http4k.security.authentication
 
-import invirt.http4k.InvirtRequestContext
+import invirt.http4k.InvirtFilter
 import org.http4k.core.Request
 import org.http4k.lens.RequestContextKey
 
-private val authenticationContextKey = RequestContextKey.optional<Authentication<*, *>>(InvirtRequestContext.requestContexts)
+private val authenticationContextKey = RequestContextKey.optional<Authentication<*, *>>(InvirtFilter.requestContexts)
 
 data class Authentication<P : Principal, T : AuthTokens>(val principal: P, val tokens: T) {
     companion object {

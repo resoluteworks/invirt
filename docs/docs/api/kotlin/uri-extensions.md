@@ -5,7 +5,7 @@ sidebar_position: 2
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Uri extensions
+# Uri Extensions
 
 ### hasQueryValue
 Checks whether this Uri has a query parameter with the specified `name` and `value`.

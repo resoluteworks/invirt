@@ -2,7 +2,7 @@
 sidebar_position: 4
 ---
 
-# Current HTTP request
+# Current HTTP Request
 Invirt provides several mechanisms for the application to access the current http4k `Request` object outside the
 handler. This is useful for several scenarios, including the rendering of templates that require access to the
 current request or URI.

@@ -1,11 +1,10 @@
 package invirt.pebble
 
 import invirt.data.Page
-import invirt.http4k.InvirtRequestContext
-import invirt.http4k.views.Views
+import invirt.http4k.InvirtFilter
+import invirt.http4k.views.initialiseInvirtViews
 import invirt.http4k.views.ok
 import invirt.http4k.views.renderTemplate
-import invirt.http4k.views.setDefaultViewLens
 import invirt.http4k.views.withView
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -19,7 +18,7 @@ import org.http4k.template.ViewModel
 class InvirtPebbleRequestTest : StringSpec() {
 
     init {
-        beforeSpec { setDefaultViewLens(Views.Classpath("webapp/views")) }
+        beforeSpec { initialiseInvirtViews() }
 
         "replaceQuery" {
             testRequestFunction("replaceQuery", "/test", "/test?from=10")
@@ -85,13 +84,13 @@ class InvirtPebbleRequestTest : StringSpec() {
     }
 
     private fun testRequestFunction(function: String, request: String, expectedBody: String) {
-        val httpHandler = InvirtRequestContext().then(routes("/test" bind Method.GET to { renderTemplate("request-function-${function}") }))
+        val httpHandler = InvirtFilter().then(routes("/test" bind Method.GET to { renderTemplate("request-function-${function}") }))
         val response = httpHandler(Request(Method.GET, request))
         response.bodyString().trim() shouldBe expectedBody
     }
 
     private fun testRequestFunctionModel(function: String, request: String = "/test", model: Any, expectedBody: String) {
-        val httpHandler = InvirtRequestContext().then(
+        val httpHandler = InvirtFilter().then(
             routes(
                 "/test" bind Method.GET to {
                     if (model is ViewModel) {

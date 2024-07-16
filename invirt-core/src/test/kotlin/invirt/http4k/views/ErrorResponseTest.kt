@@ -1,6 +1,6 @@
 package invirt.http4k.views
 
-import invirt.http4k.InvirtRequestContext
+import invirt.http4k.InvirtFilter
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -15,17 +15,17 @@ import org.http4k.routing.routes
 
 class ErrorResponseTest : StringSpec({
 
-    beforeSpec { setDefaultViewLens(Views.Classpath("webapp/views")) }
+    beforeSpec { initialiseInvirtViews() }
 
     "errorResponse - response status" {
         val errors = ValidationErrors(ValidationError("test", "test"))
 
-        InvirtRequestContext()
+        InvirtFilter()
             .then(routes("/test" bind Method.GET to { errorResponse("model", errors, "errorResponse-utils-test") }))
             .invoke(Request(Method.GET, "/test"))
             .status shouldBe Status.UNPROCESSABLE_ENTITY
 
-        InvirtRequestContext()
+        InvirtFilter()
             .then(routes("/test" bind Method.GET to { errorResponse("model", errors, "errorResponse-utils-test", Status.BAD_REQUEST) }))
             .invoke(Request(Method.GET, "/test"))
             .status shouldBe Status.BAD_REQUEST

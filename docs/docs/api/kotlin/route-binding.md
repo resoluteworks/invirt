@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Route binding
+# Route Binding
 Convenience utilities for route binding.
 
 ```kotlin

@@ -7,19 +7,15 @@ import org.http4k.cloudnative.env.EnvironmentKey
 import org.http4k.lens.boolean
 import org.http4k.lens.int
 
-fun Environment.withDotEnv(dotEnvDirectory: String = "./"): Environment {
-    return withDotEnv(
-        dotenv {
-            directory = dotEnvDirectory
-            ignoreIfMissing = true
-            systemProperties = false
-        }
-    )
-}
+fun Environment.withDotEnv(dotEnvDirectory: String = "./"): Environment = withDotEnv(
+    dotenv {
+        directory = dotEnvDirectory
+        ignoreIfMissing = true
+        systemProperties = false
+    }
+)
 
-fun Environment.withDotEnv(dotEnv: Dotenv): Environment {
-    return this overrides Environment.from(dotEnv.entries().associate { it.key to it.value })
-}
+fun Environment.withDotEnv(dotEnv: Dotenv): Environment = this overrides Environment.from(dotEnv.entries().associate { it.key to it.value })
 
 /**
  * Boolean set with DEVELOPMENT_MODE
@@ -27,9 +23,12 @@ fun Environment.withDotEnv(dotEnv: Dotenv): Environment {
 val Environment.developmentMode: Boolean get() = EnvironmentKey.boolean().defaulted("DEVELOPMENT_MODE", false)(this)
 
 /**
- * Reads "git.commit.id" from git.properties in the classpath. Requires gradle plugin id("com.gorylenko.gradle-git-properties")
+ * Reads "git.commit.id" from git.properties in the classpath.
+ *
+ * Requires Gradle plugin id("com.gorylenko.gradle-git-properties") or some other mechanism to
+ * generate a classpath:git.properties with a git.commit.id property
  */
-val gitCommitHash: String get() = Environment.fromResource("git.properties")["git.commit.id"]!!
+fun gitCommitId(): String? = EnvironmentKey.optional("git.commit.id")(Environment.fromResource("git.properties"))
 
 /**
  * Application port set via APPLICATION_PORT

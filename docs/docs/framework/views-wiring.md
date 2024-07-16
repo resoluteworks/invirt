@@ -2,14 +2,67 @@
 sidebar_position: 2
 ---
 
-# Pebble views wiring
-When using a [templating engine](https://www.http4k.org/guide/howto/use_a_templating_engine/), http4k requires a view model
-to implement [ViewModel.template()](https://www.http4k.org/api/org.http4k.template/-view-model/)
-in order to override the location of the template to render the view. Invirt provides a [ViewResponse](#viewresponse) class
-to make this more convenient.
+# Pebble Views Wiring
 
-Http4k also requires that view models are explicitly rendered using a previously declared lens. Invirt allows this be defined
-globally and reused using [Default view lens](#default-view-lens).
+## Initialising views
+Invirt uses a custom Pebble extension and a series of other components that must be initialised explicitly via
+`initialiseInvirtViews()` at application startup. Below is the function's full signature and the details of the initialisation
+steps being performed is discussed in following sub-sections.
+
+```kotlin
+fun initialiseInvirtViews(
+    hotReload: Boolean = false,
+    staticAssetsVersion: String? = null,
+    classpathLocation: String = "webapp/views",
+    hotReloadDirectory: String = "src/main/resources/webapp/views",
+    pebbleExtensions: List<Extension> = emptyList()
+)
+```
+
+#### Defining how Pebble templates are loaded
+This is done via the `hotReload`, `classpathLocation` and `hotReloadDirectory` arguments.
+
+When `hotReload` is `true` the specified `hotReloadDirectory` is used to look-up templates and any template edits
+are immediately visible (for example via a browser refresh). This is typically useful in a development
+environment
+
+When `hotReload` is `false` the `classpathLocation` is used with additional caching capabilities
+using http4k's built-in components (no magic, really). Typically used when deploying
+the application in production.
+
+#### Bootstrapping Pebble templates
+Invirt exposes a set of [custom context objects](/docs/api/pebble/pebble-context-objects) and [utility functions](/docs/api/pebble/pebble-functions)
+which are delivered using a custom implementation of template rendering, wired in this call.
+
+#### Setting a global view lens
+Http4k requires that view models are rendered using a previously declared (view) lens. Invirt sets this globally
+so it can be reused across the framework and your application.
+
+#### Defining static assets version
+The `staticAssetsVersion` argument is required when you need to version static resources (JS/CSS/etc), which is a
+common practice in modern web applications. Asset versioning is discussed in detail [here](/docs/framework/static-assets).
+
+#### Additional Pebble extensions
+The `pebbleExtensions` argument allows for wiring your custom [Pebble extensions](https://pebbletemplates.io/wiki/guide/extending-pebble/)
+should you need to expose custom Pebble capabilities to your template rendering.
+
+## Dynamic hot reload
+You can easily configure Invirt to use hot reload locally and caching classpath in production by simply
+using an environment variable to pass as the `hotReload` value to `initialiseInvirtViews()`. This can keep
+the code simple and flexible.
+
+Invirt also provides a built-in for this purpose to make this wiring even easier.
+```kotlin
+val developmentMode = Environment.ENV.developmentMode
+initialiseInvirtViews(hotReload = developmentMode)
+```
+
+`Environment.ENV.developmentMode` reads an environment variable `DEVELOPMENT_MODE` which can be
+set on your local machine when running the application to take advantage of hot reload capabilities
+(browser refresh loads template edits).
+
+`Environment.ENV.developmentMode` defaults to `false` so in a production environment its absence implicitly
+enables the loading of templates from classpath with caching, and no further code changes are required.
 
 
 ## ViewResponse
@@ -17,41 +70,11 @@ globally and reused using [Default view lens](#default-view-lens).
 in http4k and allows passing the template name as a constructor argument, in order to avoid having
 to implement `ViewModel.template()` every time.
 
-```kotlin
-data class ListUsersResponse(
-    val users: List<User>
-): ViewResponse("users/list") // classpath:/webapp/views/users/list.peb
-```
-## Default view lens
-Invirt provides a built-in [Views](https://github.com/resoluteworks/invirt/blob/main/invirt-core/src/main/kotlin/invirt/http4k/views/views.kt#L23)
-component to bootstrap some of the core framework capabilities, enable Pebble templates rendering, and configure how the views are loaded.
-This component can then be wired at application startup using a `setDefaultViewLens()` call.
+To lookup and render the template, the framework will use the settings and components previously bootstrapped
+with `initialiseInvirtViews()`. Together with a few Invirt utility functions, this allows the handler and
+view model code to be kept relatively simple.
 
 ```kotlin
-// Used for hot reload capabilities, useful at development time
-// (browser refresh reloads the Pebble template edits)
-setDefaultViewLens(Views.HotReload(directory = "../views"))
-
-// Used in production to load the views from the classpath, with
-// caching and no hot reload capabilities
-setDefaultViewLens(Views.Classpath(classpathDir = "webapps/views"))
-
-// [RECOMMENDED]
-// Can be used in both production and local development with the value
-// for hotReload read from an env var
-setDefaultViewLens(Views(hotReload = ...))
-```
-
-## ViewResponse to HTTP response
-A set of extension functions make use of the previously configured `setDefaultViewLens()` in order to simplify
-returning an http4k `Response` directly from a `ViewResponse` object.
-
-```kotlin
-setDefaultViewLens(Views(hotReload = ...))
-
-// "users/list" points to
-// - classpath:webapp/views/users/list.peb when hotReload is false
-// - src/main/resources/webapp/views/users/list.peb local directory when hotReload is true
 data class ListUsersResponse(
     val users: List<User>
 ): ViewResponse("users/list")
@@ -59,9 +82,8 @@ data class ListUsersResponse(
 val handler =  routes(
     "/users/list" GET {
         ...
-        ListUsersResponse(users).ok() // Status.OK
+        ListUsersResponse(users).ok()
     },
-
     "/users/create" POST {
         ...
         CreateUserResponse(user).status(Status.ACCEPTED)

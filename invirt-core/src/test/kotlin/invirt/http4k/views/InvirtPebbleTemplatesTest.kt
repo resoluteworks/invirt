@@ -1,7 +1,7 @@
 package invirt.http4k.views
 
 import invirt.http4k.GET
-import invirt.http4k.InvirtRequestContext
+import invirt.http4k.InvirtFilter
 import io.kotest.core.spec.style.StringSpec
 import org.http4k.core.Method
 import org.http4k.core.Request
@@ -13,10 +13,10 @@ import org.http4k.routing.routes
 
 class InvirtPebbleTemplatesTest : StringSpec({
 
-    beforeSpec { setDefaultViewLens(Views.Classpath("webapp/views")) }
+    beforeSpec { initialiseInvirtViews() }
 
     "request object in pebble templates" {
-        val handler = InvirtRequestContext().then(
+        val handler = InvirtFilter().then(
             routes(
                 "/test" GET { renderTemplate("invirt-pebble-filter-request-object") }
             )

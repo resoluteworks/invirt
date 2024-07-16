@@ -15,58 +15,44 @@ import org.http4k.template.viewModel
 private lateinit var defaultViewLens: BiDiBodyLens<ViewModel>
 private val log = KotlinLogging.logger {}
 
-fun setDefaultViewLens(viewLens: BiDiBodyLens<ViewModel>) {
-    defaultViewLens = viewLens
-}
+fun initialiseInvirtViews(
+    hotReload: Boolean = false,
+    staticAssetsVersion: String? = null,
+    classpathLocation: String = "webapp/views",
+    hotReloadDirectory: String = "src/main/resources/webapp/views",
+    pebbleExtensions: List<Extension> = emptyList()
+) {
+    val pebbleTemplates = pebbleTemplates(staticAssetsVersion, pebbleExtensions)
 
-@Suppress("ktlint:standard:function-naming")
-object Views {
-    operator fun invoke(hotReload: Boolean = false, vararg extensions: Extension): BiDiBodyLens<ViewModel> =
-        if (hotReload) {
-            HotReload(extensions = extensions)
-        } else {
-            Classpath(extensions = extensions)
-        }
-
-    fun Classpath(classpathDir: String = "webapp/views", vararg extensions: Extension): BiDiBodyLens<ViewModel> {
-        log.info { "Loading views from classpath $classpathDir" }
-        return Body.viewModel(pebbleTemplates(*extensions).CachingClasspath(classpathDir), TEXT_HTML).toLens()
-    }
-
-    fun HotReload(directory: String = "src/main/resources/webapp/views", vararg extensions: Extension): BiDiBodyLens<ViewModel> {
-        log.info { "Loading views from hot reload directory $directory" }
-        return Body.viewModel(pebbleTemplates(*extensions).HotReload(directory), TEXT_HTML).toLens()
-    }
-
-    private fun pebbleTemplates(vararg extensions: Extension): InvirtPebbleTemplates {
-        return InvirtPebbleTemplates(configure = { builder ->
-            extensions.forEach { builder.extension(it) }
-            builder.extension(InvirtPebbleExtension())
-            builder
-        })
+    defaultViewLens = if (hotReload) {
+        log.info { "Loading views from hot reload directory $hotReloadDirectory" }
+        Body.viewModel(pebbleTemplates.HotReload(hotReloadDirectory), TEXT_HTML).toLens()
+    } else {
+        log.info { "Loading views from classpath $classpathLocation" }
+        Body.viewModel(pebbleTemplates.CachingClasspath(classpathLocation), TEXT_HTML).toLens()
     }
 }
 
-fun renderTemplate(
-    template: String,
-    viewLens: BiDiBodyLens<ViewModel> = defaultViewLens
-): Response {
-    return Response(Status.OK).with(
-        viewLens of
-            object : ViewModel {
-                override fun template() = template
-            }
-    )
-}
+private fun pebbleTemplates(staticAssetsVersion: String? = null, extensions: List<Extension>): InvirtPebbleTemplates =
+    InvirtPebbleTemplates(configure = { builder ->
+        extensions.forEach { builder.extension(it) }
+        builder.extension(
+            InvirtPebbleExtension(
+                staticAssetsVersion = staticAssetsVersion
+            )
+        )
+        builder
+    })
 
-fun ViewModel.ok(viewLens: BiDiBodyLens<ViewModel> = defaultViewLens): Response = this.status(Status.OK, viewLens)
+fun renderTemplate(template: String): Response = Response(Status.OK).with(
+    defaultViewLens of object : ViewModel {
+        override fun template() = template
+    }
+)
 
-fun ViewModel.status(
-    status: Status,
-    viewLens: BiDiBodyLens<ViewModel> = defaultViewLens
-): Response {
-    return Response(status).with(viewLens of this)
-}
+fun ViewModel.ok(): Response = this.status(Status.OK)
+
+fun ViewModel.status(status: Status): Response = Response(status).with(defaultViewLens of this)
 
 open class ViewResponse(private val template: String) : ViewModel {
     override fun template() = template

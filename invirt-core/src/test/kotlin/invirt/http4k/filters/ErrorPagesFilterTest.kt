@@ -1,8 +1,7 @@
 package invirt.http4k.filters
 
 import invirt.http4k.GET
-import invirt.http4k.views.Views
-import invirt.http4k.views.setDefaultViewLens
+import invirt.http4k.views.initialiseInvirtViews
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.http4k.core.Method
@@ -14,7 +13,7 @@ import org.http4k.routing.routes
 
 class ErrorPagesFilterTest : StringSpec({
 
-    beforeSpec { setDefaultViewLens(Views.Classpath("webapp/views")) }
+    beforeSpec { initialiseInvirtViews() }
 
     "404 page" {
         val httpHandler = ErrorPages(Status.NOT_FOUND to "error/404")

@@ -1,9 +1,8 @@
 package invirt.pebble
 
-import invirt.http4k.InvirtRequestContext
-import invirt.http4k.views.Views
+import invirt.http4k.InvirtFilter
 import invirt.http4k.views.errorResponse
-import invirt.http4k.views.setDefaultViewLens
+import invirt.http4k.views.initialiseInvirtViews
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.validk.ValidationError
@@ -17,7 +16,7 @@ import org.http4k.routing.routes
 class ValidationTest : StringSpec() {
 
     init {
-        beforeSpec { setDefaultViewLens(Views.Classpath("webapp/views")) }
+        beforeSpec { initialiseInvirtViews() }
 
         "errors from context" {
             class Form
@@ -27,7 +26,7 @@ class ValidationTest : StringSpec() {
                 ValidationError("email", "Not a valid email"),
                 ValidationError("details.age", "Age must be 18 or over")
             )
-            val httpHandler = InvirtRequestContext().then(InvirtRequestContext())
+            val httpHandler = InvirtFilter().then(InvirtFilter())
                 .then(routes("/test" bind Method.GET to { errorResponse(Form(), errors, "validation/errors-from-context") }))
             val response = httpHandler(Request(Method.GET, "/test"))
             response.bodyString().trimIndent() shouldBe """
@@ -41,7 +40,7 @@ class ValidationTest : StringSpec() {
             class Form
 
             fun testErrors(errors: ValidationErrors, expect: Boolean) {
-                val httpHandler = InvirtRequestContext()
+                val httpHandler = InvirtFilter()
                     .then(routes("/test" bind Method.GET to { errorResponse(Form(), errors, "validation/has-errors") }))
                 val response = httpHandler(Request(Method.GET, "/test"))
                 response.bodyString().trim() shouldBe expect.toString()
@@ -55,7 +54,7 @@ class ValidationTest : StringSpec() {
             class Form
 
             fun testErrors(errors: ValidationErrors, expect: String) {
-                val httpHandler = InvirtRequestContext()
+                val httpHandler = InvirtFilter()
                     .then(routes("/test" bind Method.GET to { errorResponse(Form(), errors, "validation/errors-function-in-macro.peb") }))
                 val response = httpHandler(Request(Method.GET, "/test"))
                 response.bodyString().trim() shouldBe expect

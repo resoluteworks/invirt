@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Quick start
+# Quick Start
 
 ## Dependencies
 Invirt comes as a set of libraries, discussed later in this documentation, and which can be added incrementally
@@ -46,36 +46,31 @@ for template look-ups. For a complete example, please check the [Quickstart proj
 ```
 
 ## Application
-A basic setup for an application using Invirt looks something like the one below. Again, this should be very much
-in line with any other http4k application, except for a couple of Invirt wiring elements.
-
 ```kotlin
-class IndexResponse(val currentUsername: String) : ViewResponse("index")
+class IndexResponse(val currentUsername: String) : ViewResponse("index.peb")
 
 class Application {
 
     fun start() {
-        setDefaultViewLens(Views(hotReload = true))
+        initialiseInvirtViews()
 
-        val appHandler = InvirtRequestContext()
-            .then(
-                routes(
-                    "/" GET {
-                        IndexResponse(currentUsername = "email@test.com").ok()
-                    }
-                )
+        val appHandler = InvirtFilter().then(
+            routes(
+                "/" GET {
+                    IndexResponse(currentUsername = "email@test.com").ok()
+                }
             )
+        )
 
         val server = Netty(8080)
         server.toServer(appHandler).start()
     }
 }
 ```
+`IndexResponse` extends Invirt's `ViewResponse` (a convenience implementation of http4k's [ViewModel](https://www.http4k.org/api/org.http4k.template/-view-model/)).
+This object stores the data to be used in the template (`currentUsername`), and defines the template to be rendered (`index.peb`)
 
-The code above renders the `index.peb` template for the default (`/`) route and sets the template's `model`
-to an instance of `IndexResponse`. Below is an example of rendering the `currentUsername` field within
-this template, which uses http4k's [native constructs](https://www.http4k.org/guide/reference/templating/#notes_for_pebble)
-for accessing view model data in Pebble template.
+`IndexResponse` is available as the `model` object within the template, as per example below.
 ```html
 <div>
     Current user is {{ model.currentUsername }}
@@ -85,22 +80,23 @@ for accessing view model data in Pebble template.
 ## Wiring explained
 In the code above there are two components required to enable Invirt in your http4k application.
 
-#### 1. Setting the default view lens
+#### 1. Initialising Invirt views
 ```kotlin
-setDefaultViewLens(Views(hotReload = true))
+initialiseInvirtViews()
 ```
-This enables a default view lens to be used throughout your application when rendering Pebble template responses.
-By default, it looks up templates in `classpath:/webapp/views`. We recommend reading more about http4k's
-[templating capabilities](https://www.http4k.org/guide/howto/use_a_templating_engine/), most of Invirt
+This sets a default view lens to be used throughout your application when rendering Pebble template responses.
+We recommend reading more about http4k's [templating capabilities](https://www.http4k.org/guide/howto/use_a_templating_engine/), most of Invirt
 is built on top of those.
 
-We discuss Invirt views wiring in detail [here](/docs/framework/views-wiring).
+There are several parameters that can be passed to `initialiseInvirtViews()` to override the default behaviour.
+All of these are discussed in detail in [Pebble Views Wiring](/docs/framework/views-wiring).
 
-#### 2. Wiring the InvirtRequestContext filter
+#### 2. InvirtFilter
 ```kotlin
-val appHandler = InvirtRequestContext()
+val appHandler = InvirtFilter()
     .then(routes(...))
 ```
-`InvirtRequestContext` is a filter responsible for setting the current http4k `Request` on the current thread, as well
-as managing validation errors on a request. These are in turn exposed internally to other Invirt components and your application.
-You can add this filter anywhere before the wiring of your http4k routes.
+`InvirtFilter` handles a few of the framework's internals, including setting the current http4k `Request`
+on the current thread, as well as managing validation errors for a request. These are in turn exposed internally
+to other Invirt components and your application. You can add this filter anywhere in your application's filter chain
+before wiring your http4k routes.

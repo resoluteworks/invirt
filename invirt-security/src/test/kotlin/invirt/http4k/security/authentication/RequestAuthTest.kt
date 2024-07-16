@@ -1,6 +1,6 @@
 package invirt.http4k.security.authentication
 
-import invirt.http4k.InvirtRequestContext
+import invirt.http4k.InvirtFilter
 import invirt.http4k.security.TestPrincipal
 import invirt.utils.uuid7
 import io.kotest.core.spec.style.StringSpec
@@ -16,7 +16,7 @@ class RequestAuthTest : StringSpec({
         val id = UUID.randomUUID()
         val context = RequestContext(id)
         val request = Request(Method.GET, "/").header("x-http4k-context", id.toString())
-        InvirtRequestContext.requestContexts.inject(context, request)
+        InvirtFilter.requestContexts.inject(context, request)
 
         val principal = TestPrincipal(uuid7())
         val tokens = AuthTokens { emptyList() }

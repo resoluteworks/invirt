@@ -2,3 +2,4 @@
 // include("form-validation")
 // include("hotwire")
 include("quickstart")
+include("static-assets")
