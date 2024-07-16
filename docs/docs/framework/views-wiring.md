@@ -51,7 +51,7 @@ setDefaultViewLens(Views(hotReload = ...))
 
 // "users/list" points to
 // - classpath:webapp/views/users/list.peb when hotReload is false
-// - file:src/main/resources/webapp/views/users/list.peb when hotReload is true
+// - src/main/resources/webapp/views/users/list.peb local directory when hotReload is true
 data class ListUsersResponse(
     val users: List<User>
 ): ViewResponse("users/list")
@@ -59,12 +59,12 @@ data class ListUsersResponse(
 val handler =  routes(
     "/users/list" GET {
         ...
-        ListUsersResponse(users).ok() // Returns a response with Status.OK
+        ListUsersResponse(users).ok() // Status.OK
     },
 
     "/users/create" POST {
         ...
-        CreateUserResponse(user).status(Status.ACCEPTED) // Returns a response with Status.ACCEPTED
+        CreateUserResponse(user).status(Status.ACCEPTED)
     }
 )
 ```
