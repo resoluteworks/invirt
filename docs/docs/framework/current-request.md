@@ -8,12 +8,10 @@ handler. This is useful for several scenarios, including the rendering of templa
 current request or URI.
 
 ## In Kotlin
-Invirt uses an http4k filter to store the current `Request` in a thread local and clear it after the
-request completes. This is done automatically when wiring
-[InvirtRequestContext](/docs/framework/quickstart#2-wiring-the-invirtrequestcontext-filter).
-`InvirtRequestContext` then exposes a `currentRequest` property which can be accessed anywhere within the application.
+[InvirtFilter](/docs/framework/quickstart#2-invirtfilter) automatically stores the current http4k request
+on the current thread when wired and exposes a `currentRequest` property which can be accessed anywhere within the application.
 ```kotlin
-println(InvirtRequestContext.currentRequest!!.uri)
+println(InvirtFilter.currentRequest!!.uri)
 ```
 
 ## In Pebble templates
@@ -34,10 +32,10 @@ Pebble function must be used instead (due to the fact that [macros don't have ac
 ## InvirtRequest
 Invirt wraps the core http4k `Request` object in an `InvirtRequest`, which implements http4k's [Request interface](https://www.http4k.org/api/org.http4k.core/-request/).
 `InvirtRequest` delegates to the native http4k `Request` for all interface operations, and adds a set of functions for wiring
-[URI extension](/docs/api/kotlin/uri-extensions) to allow them to be used in Pebble templates.
+[URI extensions](/docs/api/kotlin/uri-extensions).
 
-Within the Kotlin code you don't typically need access to the `InvirtRequest` object. However, in a Pebble template,
-we require this type in order to provide access to above-mentioned extensions, as Pebble can't operate Kotlin extension functions directly.
+You don't typically need access to the `InvirtRequest` object from your applications Kotlin code. However, in a Pebble template,
+this is required in order to provide access to above-mentioned extensions, as Pebble can't operate Kotlin extension functions directly.
 
 ```html
 {% if request.hasQueryValue('type', 'person') %}

@@ -62,11 +62,4 @@ class EnvironmentTest : StringSpec({
             }
         }
     }
-
-    "applicationPort" {
-        Environment.EMPTY.applicationPort() shouldBe 8080
-        Environment.EMPTY.applicationPort(2020) shouldBe 2020
-        Environment.from("APPLICATION_PORT" to "9090").applicationPort() shouldBe 9090
-        Environment.from("APPLICATION_PORT" to "9090").applicationPort(2020) shouldBe 9090
-    }
 })

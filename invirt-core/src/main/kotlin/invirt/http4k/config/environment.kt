@@ -5,7 +5,6 @@ import io.github.cdimascio.dotenv.dotenv
 import org.http4k.cloudnative.env.Environment
 import org.http4k.cloudnative.env.EnvironmentKey
 import org.http4k.lens.boolean
-import org.http4k.lens.int
 
 fun Environment.withDotEnv(dotEnvDirectory: String = "./"): Environment = withDotEnv(
     dotenv {
@@ -29,8 +28,3 @@ val Environment.developmentMode: Boolean get() = EnvironmentKey.boolean().defaul
  * generate a classpath:git.properties with a git.commit.id property
  */
 fun gitCommitId(): String? = EnvironmentKey.optional("git.commit.id")(Environment.fromResource("git.properties"))
-
-/**
- * Application port set via APPLICATION_PORT
- */
-fun Environment.applicationPort(default: Int = 8080): Int = EnvironmentKey.int().defaulted("APPLICATION_PORT", default)(this)
