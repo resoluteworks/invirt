@@ -1,6 +1,7 @@
 package examples.form.validation
 
 import invirt.http4k.*
+import invirt.http4k.config.developmentMode
 import invirt.http4k.views.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.validk.ValidObject
@@ -8,9 +9,7 @@ import io.validk.Validation
 import io.validk.email
 import io.validk.minLength
 import org.http4k.cloudnative.env.Environment
-import org.http4k.cloudnative.env.EnvironmentKey
 import org.http4k.core.then
-import org.http4k.lens.boolean
 import org.http4k.routing.routes
 import org.http4k.server.Netty
 
@@ -19,7 +18,7 @@ private val log = KotlinLogging.logger {}
 data class SignupForm(
     val name: String,
     val email: String,
-    val password: String,
+    val password: String
 ) : ValidObject<SignupForm> {
 
     override val validation = Validation {
@@ -38,10 +37,9 @@ data class SignupForm(
 class Application {
 
     fun start() {
-        val developmentMode = EnvironmentKey.boolean().defaulted("DEVELOPMENT_MODE", false)(Environment.ENV)
-        setDefaultViewLens(Views(hotReload = developmentMode))
+        initialiseInvirtViews(hotReload = Environment.ENV.developmentMode)
 
-        val appHandler = InvirtRequestContext()
+        val appHandler = InvirtFilter()
             .then(
                 routes(
                     "/" GET { renderTemplate("signup") },

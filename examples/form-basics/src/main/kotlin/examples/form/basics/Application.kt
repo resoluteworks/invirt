@@ -1,15 +1,15 @@
 package examples.form.basics
 
 import invirt.http4k.GET
-import invirt.http4k.InvirtRequestContext
+import invirt.http4k.InvirtFilter
 import invirt.http4k.POST
 import invirt.http4k.toForm
-import invirt.http4k.views.*
+import invirt.http4k.views.ViewResponse
+import invirt.http4k.views.initialiseInvirtViews
+import invirt.http4k.views.ok
+import invirt.http4k.views.renderTemplate
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.http4k.cloudnative.env.Environment
-import org.http4k.cloudnative.env.EnvironmentKey
 import org.http4k.core.then
-import org.http4k.lens.boolean
 import org.http4k.routing.routes
 import org.http4k.server.Netty
 import java.time.LocalDate
@@ -48,10 +48,9 @@ class OrderSaved(
 class Application {
 
     fun start() {
-        val developmentMode = EnvironmentKey.boolean().defaulted("DEVELOPMENT_MODE", false)(Environment.ENV)
-        setDefaultViewLens(Views(hotReload = developmentMode))
+        initialiseInvirtViews()
 
-        val appHandler = InvirtRequestContext().then(
+        val appHandler = InvirtFilter().then(
             routes(
                 "/" GET { renderTemplate("create-order") },
 

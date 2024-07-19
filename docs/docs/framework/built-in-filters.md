@@ -36,6 +36,20 @@ The HTTP status of the underlying response is preserved in the final response.
 val httpHandler = ErrorPages(Status.NOT_FOUND to "error/404")
     .then(routes(...))
 ```
+]
+
+## StatusOverride
+Overrides HTTP response status codes. The example below combines the StatusOverride and ErrorPages filter to render a
+"page not found" response when the user attempts to access a secured resource.
+
+```kotlin
+// securityFilter returns a Status.FORBIDDEN when a user
+// tries to access a secure resource/page
+ErrorPages(Status.NOT_FOUND to "error/404")
+.then(StatusOverride(Status.FORBIDDEN to Status.NOT_FOUND))
+.then(securityFilter)
+.then(routes)
+```
 
 ## HttpAccessLog (Experimental)
 By default the filter logs:

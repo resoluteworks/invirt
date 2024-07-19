@@ -51,19 +51,12 @@ You can easily configure Invirt to use hot reload locally and caching classpath 
 using an environment variable to pass as the `hotReload` value to `initialiseInvirtViews()`. This can keep
 the code simple and flexible.
 
-Invirt also provides a built-in for this purpose to make this wiring even easier.
+Invirt also provides a built-in to make this wiring even easier using
+[Environment.developmentMode](/docs/api/kotlin/environment#environmentdevelopmentmode).
 ```kotlin
 val developmentMode = Environment.ENV.developmentMode
 initialiseInvirtViews(hotReload = developmentMode)
 ```
-
-`Environment.ENV.developmentMode` reads an environment variable `DEVELOPMENT_MODE` which can be
-set on your local machine when running the application to take advantage of hot reload capabilities
-(browser refresh loads template edits).
-
-`Environment.ENV.developmentMode` defaults to `false` so in a production environment its absence implicitly
-enables the loading of templates from classpath with caching, and no further code changes are required.
-
 
 ## ViewResponse
 `ViewResponse` implements the [ViewModel](https://www.http4k.org/api/org.http4k.template/-view-model/) interface
