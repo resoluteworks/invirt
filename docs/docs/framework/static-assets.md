@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # Static Assets
 
-:::tip [Example application](https://github.com/resoluteworks/invirt/tree/main/examples/quickstart)
+:::note [Example application](https://github.com/resoluteworks/invirt/tree/main/examples/static-assets)
 :::
 
 

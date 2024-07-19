@@ -4,7 +4,7 @@ sidebar_position: 1
 import formBasics from './assets/form-basics.png';
 
 # Form basics
-:::tip [Example application](https://github.com/resoluteworks/invirt/tree/main/examples/form-basics)
+:::note [Example application](https://github.com/resoluteworks/invirt/tree/main/examples/form-basics)
 :::
 
 Invirt provides a simple `Request.toForm<FormType>()` utility to convert complex HTML form bodies to application model objects,

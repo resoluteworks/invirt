@@ -4,6 +4,9 @@ sidebar_position: 1
 
 # Quick Start
 
+:::note [Example application](https://github.com/resoluteworks/invirt/tree/main/examples/quickstart)
+:::
+
 ## Dependencies
 Invirt comes as a set of libraries, discussed later in this documentation, and which can be added incrementally
 as you expand your application's design. Most of the functionality, however, is contained

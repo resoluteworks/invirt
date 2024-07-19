@@ -19,8 +19,8 @@ val handler = CatchAll(
 
 ## DontCacheErrors
 Disables caching for responses with HTTP error statuses. This is useful to prevent
-a client caching an error response when this would otherwise succeed in a typical scenario. By default, the filter
-only disables caching for `Status.NOT_FOUND` statuses.
+a client caching an error response when this would otherwise succeed in a typical scenario. By default
+(no args), the filter only disables caching for `Status.NOT_FOUND` responses.
 
 ```kotlin
 val handler = DontCacheErrors(Status.NOT_FOUND, Status.INTERNAL_SERVER_ERROR)
