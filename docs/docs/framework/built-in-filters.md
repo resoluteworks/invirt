@@ -1,0 +1,60 @@
+---
+sidebar_position: 5
+---
+
+# Built-in Filters
+
+## CatchAll
+
+Logs all exceptions and enables mapping exception types to HTTP response statuses.
+When an exception is caught that isn't mapped to an HTTP response status a `Status.INTERNAL_SERVER_ERROR`
+is returned.
+
+```kotlin
+val handler = CatchAll(
+    ValidationException::class to Status.BAD_REQUEST,
+    AuthorisationException::class to Status.NOT_FOUND
+).then(routes(...))
+```
+
+## DontCacheErrors
+Disables caching for responses with HTTP error statuses. This is useful to prevent
+a client caching an error response when this would otherwise succeed in a typical scenario. By default, the filter
+only disables caching for `Status.NOT_FOUND` statuses.
+
+```kotlin
+val handler = DontCacheErrors(Status.NOT_FOUND, Status.INTERNAL_SERVER_ERROR)
+    .then(cacheOneYear())
+    .then(routes(...))
+```
+
+## ErrorPages
+Automatically renders a Pebble template for specified HTTP error statuses.
+The HTTP status of the underlying response is preserved in the final response.
+```kotlin
+// Renders the template "error/404.peb"
+val httpHandler = ErrorPages(Status.NOT_FOUND to "error/404")
+    .then(routes(...))
+```
+
+## HttpAccessLog (Experimental)
+By default the filter logs:
+* Only HTTP transactions with error response statuses (4xx, 5xx)
+* All routes/paths
+* All headers
+
+This can be configured to log all HTTP transactions, ignore certain URI paths or exclude headers from being logged.
+You can also log additional data points with each transaction, by providing an `extraFields` lambda
+with an [HttpTransaction](https://www.http4k.org/api/org.http4k.core/-http-transaction/) argument and returning
+a `Map<String, String>`.
+
+```kotlin
+val handler = HttpAccessLog(
+    allStatues = true,
+    ignorePaths = setOf("/admin"),
+    excludeHeaders = setOf("jwt-token"),
+    extraFields = { httpTransaction ->
+        mapOf("remoteIp" to httpTransaction.request.header(...))
+    }
+).then(routes)
+```

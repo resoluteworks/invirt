@@ -4,6 +4,10 @@ sidebar_position: 3
 
 # Static Assets
 
+:::tip [Example application](https://github.com/resoluteworks/invirt/tree/main/examples/quickstart)
+:::
+
+
 Http4k provides out of the box a set of components for [serving static assets](https://www.http4k.org/guide/reference/core/#serving_static_assets)
 and Invirt only adds a few utilities to make caching and versioning easier.
 

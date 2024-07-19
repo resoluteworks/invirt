@@ -7,7 +7,8 @@ import formSignupScreen from './assets/form-validation-signup-screen.png';
 
 # Form validation
 
-[Example application](https://github.com/resoluteworks/invirt/tree/main/examples/form-validation)
+:::tip [Example application](https://github.com/resoluteworks/invirt/tree/main/examples/form-validation)
+:::
 
 ## Design approach
 

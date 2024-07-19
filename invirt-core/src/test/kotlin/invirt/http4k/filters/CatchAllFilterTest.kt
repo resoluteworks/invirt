@@ -13,18 +13,15 @@ class CatchAllFilterTest : StringSpec({
 
     "exception to status" {
         val handler = CatchAll(
-            mapOf(
-                IllegalArgumentException::class to Status.BAD_REQUEST,
-                ClassCastException::class to Status.NOT_FOUND
+            IllegalArgumentException::class to Status.BAD_REQUEST,
+            ClassCastException::class to Status.NOT_FOUND
+        ).then(
+            routes(
+                "/illegal-argument" GET { throw IllegalArgumentException("Error") },
+                "/class-cast" GET { throw ClassCastException("Error") },
+                "/internal" GET { throw RuntimeException("Error") }
             )
         )
-            .then(
-                routes(
-                    "/illegal-argument" GET { throw IllegalArgumentException("Error") },
-                    "/class-cast" GET { throw ClassCastException("Error") },
-                    "/internal" GET { throw RuntimeException("Error") }
-                )
-            )
 
         handler(Request(Method.GET, "/illegal-argument")) shouldHaveStatus Status.BAD_REQUEST
         handler(Request(Method.GET, "/class-cast")) shouldHaveStatus Status.NOT_FOUND
