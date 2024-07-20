@@ -28,28 +28,28 @@ You'd normall do <a class="filter {{ isSelected ? 'selected' : '' }}">
 
                 <div class="flex flex-row items-center gap-2 text-sm">
                     {#
-                    When selecting "All", the filter for the "total" query param must be removed.
+                    When selecting "All", the filter for the "total-order-value" query param must be removed.
                     Equally, to check that the "All" filter is applied, we check for the absence of the "total"
                     query parameter in the request URI.
                     #}
-                    <a href="{{ request.removeQueries(['total']) }}"
-                       class="{{ request.query('total') is empty ? selected : unselected }}">
+                    <a href="{{ request.removeQueries(['total-order-value']) }}"
+                       class="{{ request.query('total-order-value') is empty ? selected : unselected }}">
                         All
                     </a>
 
                     {#
                     We can only select less than or greater than 1000 so we use request.replaceQuery()
-                    to remove any values for &total=... and replace them with the value for this filter
+                    to remove any values for &total-order-value=... and replace them with the value for this filter
                     We then use request.hasQueryValue() to check whether this filter is applied in the URI via
                     &total=less-than-1000, for example
                     #}
-                    <a href="{{ request.replaceQuery('total', 'less-than-1000') }}"
-                       class="{{ request.hasQueryValue('total', 'less-than-1000') ? selected : unselected }}">
+                    <a href="{{ request.replaceQuery('total-order-value', 'less-than-1000') }}"
+                       class="{{ request.hasQueryValue('total-order-value', 'less-than-1000') ? selected : unselected }}">
                         Less than £1000
                     </a>
 
-                    <a href="{{ request.replaceQuery('total', 'more-than-1000') }}"
-                       class="{{ request.hasQueryValue('total', 'more-than-1000') ? selected : unselected }}">
+                    <a href="{{ request.replaceQuery('total-order-value', 'more-than-1000') }}"
+                       class="{{ request.hasQueryValue('total-order-value', 'more-than-1000') ? selected : unselected }}">
                         More than £1000
                     </a>
                 </div>

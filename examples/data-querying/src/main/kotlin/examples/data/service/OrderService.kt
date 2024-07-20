@@ -13,7 +13,7 @@ import java.time.Instant
 import kotlin.random.Random
 
 /**
- * A mock implementation for an order service/repository.
+ * A mock implementation for an order service + repository.
  */
 class OrderService {
 

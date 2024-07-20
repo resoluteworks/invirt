@@ -3,6 +3,7 @@ package examples.data.handlers
 import examples.data.model.Order
 import examples.data.model.OrderStatus
 import examples.data.service.OrderService
+import invirt.data.DataFilter
 import invirt.data.RecordsPage
 import invirt.data.Sort
 import invirt.data.eq
@@ -23,7 +24,7 @@ object OrderHandler {
 
     operator fun invoke(orderService: OrderService): RoutingHttpHandler = routes(
         "/" GET { request ->
-            val filter = filter(request)
+            val filter = ordersFilter(request)
             val sort = request.sort() ?: Sort.desc(Order::createdAt.name)
             val page = request.page()
 
@@ -33,8 +34,8 @@ object OrderHandler {
     )
 }
 
-private val filter = queryValuesFilter {
-    Query.optional("total").filter { value ->
+private val ordersFilter = queryValuesFilter(DataFilter.Compound.Operator.AND) {
+    Query.optional("total-order-value").filter { value ->
         when (value) {
             "less-than-1000" -> Order::totalMinorUnit.lt(1000_00)
             "more-than-1000" -> Order::totalMinorUnit.gt(1000_00)

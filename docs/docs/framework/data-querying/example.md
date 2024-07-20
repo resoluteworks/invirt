@@ -23,7 +23,7 @@ result set.
 
 ## Query parameters
 The query parameter for filtering with the above criteria is defined as follows:
- * A `total` query parameter specifies the filtering to be applied for the total order value
+ * A `total-order-value` query parameter specifies the filtering to be applied for the total order value
     * A value of `less-than-1000` would list orders with a total value less than £1000
     * A value of `more-than-1000` would list orders with a total value greater than £1000
     * A missing parameter indicates no filter should be applied for the total order value
@@ -72,19 +72,12 @@ val sort = request.sort() ?: Sort.desc(Order::createdAt.name)
 val page = request.page()
 ```
 ### Filtering logic
-For filtering we need to first define the handling of the filter query parameters `total` and `status`
+For filtering we need to first define the handling of the filter query parameters `total-order-value` and `status`
 based on the logic described earlier. For this, we will use Invirt's built-in `queryValuesFilter`.
-By default, this function builds an `AND` compound filter based on the individual filters defined
-within its lambda.
 
 ```kotlin
-private val filter = queryValuesFilter {
-   // Only the first "total" param in the query is handled (there should be only one).
-   //
-   // .filter specifies a lambda returning a DataFilter for a given parameter value.
-   //
-   // Returning null indicates that there is no filter to apply.
-   Query.optional("total").filter { value ->
+val ordersFilter = queryValuesFilter {
+   Query.optional("total-order-value").filter { value ->
       when (value) {
          "less-than-1000" -> Order::totalMinorUnit.lt(1000_00)
          "more-than-1000" -> Order::totalMinorUnit.gt(1000_00)
@@ -92,20 +85,59 @@ private val filter = queryValuesFilter {
       }
    }
 
-   // .multi (an http4k built-in) indicates that this parameter can appear
-   // multiple times in a query: &status=DELIVERED&status=IN_TRANSIT
-   //
-   // Because it's a multi-param, we must specify an [.and] or [.or]
-   // to indicate how the multiple values will be combined in the final filter.
-   //
-   // The lambda defines what filter should be produced for each individual value,
-   // and a compound (OR, in this case) filter will be returned based on these
-   // individual value filters.
    Query.enum<OrderStatus>().multi.optional("status").or { status ->
       Order::status.eq(status)
    }
 }
 ```
+
+Several things to unpack here.
+
+The `queryValuesFilter()` function builds a `QueryValuesFilter` object which stores the individual
+lambdas defined with the function's scope for how query parameters should be transformed into
+[DataFilter](/docs/api/invirt-data/data-filter) objects at runtime. This object can then be applied
+to a `Request` to run the defined lambdas against its query parameter values, and produce the final `DataFilter`
+(or `null` if none of the expected parameters are present).
+
+```kotlin
+val ordersFilter = queryValuesFilter {...}
+
+"/" GET { request ->
+   val filter: DataFilter? = ordersFilter(request)
+   ...
+}
+```
+
+By default, this function builds an `AND` compound filter from the individual filters defined within its lambda.
+This can be overridden by passing `DataFilter.Compound.Operator.OR`.
+```kotlin
+queryValuesFilter { ... } // Defaults to DataFilter.Compound.Operator.AND
+queryValuesFilter(DataFilter.Compound.Operator.AND) { ... }
+queryValuesFilter(DataFilter.Compound.Operator.OR) { ... }
+```
+
+#### Handling total-order-value
+`total-order-value` is handled as a query parameter that is only passed (and handled) once,
+i.e. passing:
+```
+&total-order-value=less-than-1000&total-order-value=more-than-1000
+```
+will cause the second value to be ignored.
+
+To handle this the construct starts with an http4k built-in `Query.optional("total-order-value")` and then
+call Invirt's `.filter` extension function which allows us to specify the `DataFilter` to be returned
+for the current value of this parameter. In our case, we have `when` clause explicitly defining
+what filter is produced for each value (or `null` if the passed value doesn't match any of them).
+
+#### Handling status
+Http4k's built-ins are used again to define the handling here, using `Query.enum<OrderStatus>().multi.optional("status")`
+which specify that this parameter can appear multiple times and it should be converted to a collection of `OrderStatus`
+values.
+
+This then allows us to call Invirt's `.or` extension which enables us to specify how each of the individual `OrderStatus`
+values must be converted to a `DataFilter`, as well as specifying how the final filter for `status` should be produced.
+In our case it's an OR as per defined requirements above, but this can be an `.and` if the application requires it.
+
 ### Listing response and view wiring
 
 ### Complete handler code
@@ -125,7 +157,7 @@ object OrderHandler {
 }
 
 private val filter = queryValuesFilter {
-    Query.optional("total").filter { value ->
+    Query.optional("total-order-value").filter { value ->
         when (value) {
             "less-than-1000" -> Order::totalMinorUnit.lt(1000_00)
             "more-than-1000" -> Order::totalMinorUnit.gt(1000_00)
@@ -144,4 +176,8 @@ private class ListOrdersResponse(val ordersPage: RecordsPage<Order>) : ViewRespo
 ```
 
 ## OrderService
-For this
+For the OrderService we've used a mock implementation using a local list of random orders, which we then
+sort, filter and paginate in memory. This is done to avoid wiring a persistence layer for this example,
+and to be able to demonstrate the concept and the separation of concerns in its raw form. Because this isn't
+something that any application would normally do, we won't go into the details of this, but you can check out the complete
+code for it [here](https://github.com/resoluteworks/invirt/blob/main/examples/data-querying/src/main/kotlin/examples/data/service/OrderService.kt).
