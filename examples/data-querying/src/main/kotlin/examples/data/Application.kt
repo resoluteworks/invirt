@@ -1,7 +1,7 @@
-package examples.data.basics
+package examples.data
 
-import examples.data.basics.handlers.OrderHandler
-import examples.data.basics.repository.OrderRepository
+import examples.data.handlers.OrderHandler
+import examples.data.repository.OrderRepository
 import invirt.http4k.InvirtFilter
 import invirt.http4k.config.developmentMode
 import invirt.http4k.views.initialiseInvirtViews

@@ -24,20 +24,25 @@ You'd normall do <a class="filter {{ isSelected ? 'selected' : '' }}">
         <div class="flex flex-col gap-4">
             {# Order value #}
             <div class="flex flex-row gap-4">
-                <div>Order value <span class="text-gray-500">(single select)</span></div>
+                <div>Total value <span class="text-gray-500">(single select)</span></div>
 
-                {#
-                We can only select less than or greater than 1000 so we use request.replaceQuery()
-                to remove any values for &total=<value> and replace them with the value for this filter
-                We then use request.hasQueryValue() to check whether this filter is applied in the URI via
-                &total=less-than-1000, for example
-                #}
                 <div class="flex flex-row items-center gap-2 text-sm">
+                    {#
+                    When selecting "All", the filter for the "total" query param must be removed.
+                    Equally, to check that the "All" filter is applied, we check for the absence of the "total"
+                    query parameter in the request URI.
+                    #}
                     <a href="{{ request.removeQueries(['total']) }}"
-                       class="{{ request.uri.query('total') is empty ? selected : unselected }}">
+                       class="{{ request.query('total') is empty ? selected : unselected }}">
                         All
                     </a>
 
+                    {#
+                    We can only select less than or greater than 1000 so we use request.replaceQuery()
+                    to remove any values for &total=... and replace them with the value for this filter
+                    We then use request.hasQueryValue() to check whether this filter is applied in the URI via
+                    &total=less-than-1000, for example
+                    #}
                     <a href="{{ request.replaceQuery('total', 'less-than-1000') }}"
                        class="{{ request.hasQueryValue('total', 'less-than-1000') ? selected : unselected }}">
                         Less than £1000
@@ -79,18 +84,18 @@ You'd normall do <a class="filter {{ isSelected ? 'selected' : '' }}">
                     <thead>
                         <tr>
                             <th>
-                                <a href="{{ request.revertOrSetSort("createdAt", "DESC", true) }}">
-                                    CreatedAt {{ sortOrderSymbol("createdAt") }}
+                                <a href="{{ request.revertOrSetSort('createdAt', 'DESC', true) }}">
+                                    CreatedAt {{ sortOrderSymbol('createdAt') }}
                                 </a>
                             </th>
                             <th>
-                                <a href="{{ request.revertOrSetSort("status", "ASC", true) }}">
-                                    Order status {{ sortOrderSymbol("status") }}
+                                <a href="{{ request.revertOrSetSort('status', 'ASC', true) }}">
+                                    Order status {{ sortOrderSymbol('status') }}
                                 </a>
                             </th>
                             <th>
-                                <a href="{{ request.revertOrSetSort("totalMinorUnit", "ASC", true) }}">
-                                    Total {{ sortOrderSymbol("totalMinorUnit") }}
+                                <a href="{{ request.revertOrSetSort('totalMinorUnit', 'ASC', true) }}">
+                                    Total {{ sortOrderSymbol('totalMinorUnit') }}
                                 </a>
                             </th>
                         </tr>
@@ -121,7 +126,7 @@ You'd normall do <a class="filter {{ isSelected ? 'selected' : '' }}">
                     {% endif %}
                 {% endfor %}
             </div>
-
         </div>
+
     </div>
 {% endblock %}

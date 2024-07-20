@@ -16,9 +16,8 @@ interface MongoQuery {
     val maxDocuments: Int get() = 1000
 }
 
-fun <E : StoredEntity> MongoCollection<E>.query(searchQuery: MongoQuery): RecordsPage<E> {
-    return this.pagedQuery(searchQuery.filter, searchQuery.page, searchQuery.maxDocuments, *searchQuery.sort.toTypedArray())
-}
+fun <E : StoredEntity> MongoCollection<E>.query(searchQuery: MongoQuery): RecordsPage<E> =
+    this.pagedQuery(searchQuery.filter, searchQuery.page, searchQuery.maxDocuments, *searchQuery.sort.toTypedArray())
 
 fun <E : StoredEntity> MongoCollection<E>.pagedQuery(
     filter: Bson? = null,
@@ -39,8 +38,7 @@ fun <E : StoredEntity> MongoCollection<E>.pagedQuery(
 
     return RecordsPage(
         records = iterable.sort(sorts.mongoSort()).toList(),
-        count = count,
-        page = page,
-        sort = sorts.toList()
+        totalCount = count,
+        page = page
     )
 }

@@ -1,4 +1,4 @@
-package examples.data.basics.model
+package examples.data.model
 
 import invirt.utils.uuid7
 import java.time.Instant

@@ -4,6 +4,11 @@ data class Page(
     val from: Int,
     val size: Int
 ) {
+
+    /**
+     * Returns the index of the current page relative to the beginning of the
+     * pagination (from = 0).
+     */
     val pageIndex: Int = if (size > 0L) {
         from / size
     } else {
@@ -17,6 +22,4 @@ data class Page(
     }
 }
 
-fun <T> List<T>.page(page: Page): List<T> {
-    return subList(page.from, (page.from + page.size).coerceAtMost(size))
-}
+fun <T> List<T>.page(page: Page): List<T> = subList(page.from, (page.from + page.size).coerceAtMost(size))

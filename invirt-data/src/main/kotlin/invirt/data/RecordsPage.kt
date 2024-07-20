@@ -2,15 +2,12 @@ package invirt.data
 
 data class RecordsPage<T : Any>(
     val records: List<T>,
-    val count: Long,
-    val page: Page,
-    val sort: List<Sort> = emptyList()
+    val totalCount: Long,
+    val page: Page
 ) {
-    val pagination = Pagination(page, count)
+    val pagination = Pagination(page, totalCount)
 
-    fun <R : Any> map(map: (T) -> R): RecordsPage<R> {
-        return RecordsPage(records = records.map(map), count, page, sort)
-    }
+    fun <R : Any> map(map: (T) -> R): RecordsPage<R> = RecordsPage(records = records.map(map), totalCount, page)
 
     companion object {
         fun <T : Any> empty() = RecordsPage<T>(emptyList(), 0, Page(0, 1))

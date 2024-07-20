@@ -1,7 +1,7 @@
-package examples.data.basics.repository
+package examples.data.repository
 
-import examples.data.basics.model.Order
-import examples.data.basics.model.OrderStatus
+import examples.data.model.Order
+import examples.data.model.OrderStatus
 import invirt.data.DataFilter
 import invirt.data.Page
 import invirt.data.RecordsPage
@@ -13,7 +13,7 @@ import java.time.Instant
 import kotlin.random.Random
 
 /**
- * A mock implementation for an order repository.
+ * A mock implementation for a persistence repository.
  */
 class OrderRepository {
 
@@ -37,7 +37,11 @@ class OrderRepository {
 
 private fun DataFilter.matches(order: Order): Boolean = when (this) {
     is DataFilter.Field<*> -> this.fieldMatches(order)
-    is DataFilter.Compound -> this.children.all { it.matches(order) }
+    is DataFilter.Compound -> if (this.operator == DataFilter.Compound.Operator.AND) {
+        this.children.all { it.matches(order) }
+    } else {
+        this.children.any { it.matches(order) }
+    }
 }
 
 private fun DataFilter.Field<*>.fieldMatches(order: Order): Boolean {

@@ -1,8 +1,8 @@
-package examples.data.basics.handlers
+package examples.data.handlers
 
-import examples.data.basics.model.Order
-import examples.data.basics.model.OrderStatus
-import examples.data.basics.repository.OrderRepository
+import examples.data.model.Order
+import examples.data.model.OrderStatus
+import examples.data.repository.OrderRepository
 import invirt.data.RecordsPage
 import invirt.data.Sort
 import invirt.data.eq
@@ -25,6 +25,7 @@ object OrderHandler {
         "/" GET { request ->
             val filter = filter(request)
             val sort = request.sort() ?: Sort.desc(Order::createdAt.name)
+            sort.revert()
             val page = request.page()
 
             val ordersPage = orderRepository.searchOrders(filter, sort, page)

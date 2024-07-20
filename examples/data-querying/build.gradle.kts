@@ -3,5 +3,5 @@ plugins {
 }
 
 application {
-    mainClass.set("examples.data.basics.ApplicationKt")
+    mainClass.set("examples.data.ApplicationKt")
 }
