@@ -5,7 +5,7 @@ import kotlin.reflect.KProperty
 
 interface Filter
 
-data class FieldFilter<Value : Any>(
+data class FieldFilter<Value : Any?>(
     val field: String,
     val operation: Operation,
     val value: Value

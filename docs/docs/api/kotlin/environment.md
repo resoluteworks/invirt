@@ -93,9 +93,8 @@ dependency to your project to use this
 Returns the Git commit id, read from a property named `git.commit.id` in a `git.properties` in the classpath.
 The call fails if `git.properties` cannot be found and returns `null` if the file doesn't contain a `git.commit.id` property.
 
-A `git.propreties` can be created by the build step, or more commonly by using a Gradle plugin
-like [gradle-git-properties](https://github.com/n0mer/gradle-git-properties), which you can add to your
-build script.
+A `git.propreties` can be created by your application's build, or more commonly by using a Gradle plugin
+like [gradle-git-properties](https://github.com/n0mer/gradle-git-properties).
 
 ```kotlin
 plugins {

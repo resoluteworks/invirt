@@ -28,7 +28,7 @@ class Mongo(val connectionString: String) {
     }
 
     init {
-        log.info { "MongoDB connection string: ${connectionString.replace("://.*@".toRegex(), "://*****@")}" }
+        log.debug { "MongoDB connection string: ${connectionString.replace("://.*@".toRegex(), "://*****@")}" }
         if (databaseName.isEmpty()) {
             throw IllegalArgumentException("Database missing from connection string")
         }

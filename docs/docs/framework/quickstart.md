@@ -19,7 +19,7 @@ implementation("io.resoluteworks:invirt-core")
 
 You will also need to add the http4k libraries which Invirt relies on. Below is the minimum required
 to get started with an Invirt app. Netty is simply used as an example, you can of course choose your
-preferred http4k server implementation.
+preferred [http4k server backend](https://www.http4k.org/guide/reference/servers/).
 
 ```kotlin
 implementation(platform("org.http4k:http4k-bom:${http4kVersion}"))

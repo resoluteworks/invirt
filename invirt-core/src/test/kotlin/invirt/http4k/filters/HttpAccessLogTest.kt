@@ -41,14 +41,6 @@ class HttpAccessLogTest : StringSpec() {
         }
 
         "ignorePaths" {
-            val handler = HttpAccessLog(
-                allStatues = true,
-                ignorePaths = setOf("/admin"),
-                excludeHeaders = setOf("jwt-token"),
-                extraFields = { httpTransaction ->
-                    mapOf("remoteIp" to httpTransaction.request.header(...))
-                }
-            ).then(routes)
             testLogFilter(HttpAccessLog(true, setOf("/status/200")), Status.OK, false)
             testLogFilter(HttpAccessLog(false, setOf("/status/200")), Status.OK, false)
             testLogFilter(HttpAccessLog(true, setOf("/status/404")), Status.NOT_FOUND, false)
