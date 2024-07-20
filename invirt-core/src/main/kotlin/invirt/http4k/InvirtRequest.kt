@@ -1,6 +1,9 @@
 package invirt.http4k
 
 import invirt.data.Page
+import invirt.data.Sort
+import invirt.data.SortOrder
+import invirt.http4k.data.sort
 import org.http4k.core.Request
 import org.http4k.core.Uri
 
@@ -17,4 +20,16 @@ class InvirtRequest(private val delegate: Request) : Request by delegate {
     fun removeQueryValue(name: String, value: Any): Uri = delegate.uri.removeQueryValue(name, value)
     fun removeQueries(names: Collection<String>): Uri = delegate.uri.removeQueries(names)
     fun removeQueries(names: Array<String>): Uri = delegate.uri.removeQueries(names.toSet())
+    fun replaceSort(field: String, orderStr: String): Uri = delegate.uri.replaceSort(Sort(field, SortOrder.fromString(orderStr)))
+
+    fun revertOrSetSort(field: String, orderStr: String, resetPagination: Boolean = true): Uri {
+        val sort = this.sort()
+        return if (sort == null || sort.field != field) {
+            delegate.uri.replaceSort(Sort(field, SortOrder.fromString(orderStr)), resetPagination)
+        } else {
+            delegate.uri.replaceSort(sort.revert(), resetPagination)
+        }
+    }
+
+    fun sortIs(field: String, orderStr: String): Boolean = Sort(field, SortOrder.fromString(orderStr)) == this.sort()
 }

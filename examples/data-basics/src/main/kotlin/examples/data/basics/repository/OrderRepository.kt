@@ -35,11 +35,9 @@ class OrderRepository {
     }
 }
 
-private fun DataFilter.matches(order: Order): Boolean {
-    return when (this) {
-        is DataFilter.Field<*> -> this.fieldMatches(order)
-        is DataFilter.Compound -> this.children.all { it.matches(order) }
-    }
+private fun DataFilter.matches(order: Order): Boolean = when (this) {
+    is DataFilter.Field<*> -> this.fieldMatches(order)
+    is DataFilter.Compound -> this.children.all { it.matches(order) }
 }
 
 private fun DataFilter.Field<*>.fieldMatches(order: Order): Boolean {
@@ -50,11 +48,11 @@ private fun DataFilter.Field<*>.fieldMatches(order: Order): Boolean {
             else -> throw UnsupportedOperationException("Not implemented for $operation")
         }
 
-        Order::total.name -> return when (operation) {
-            DataFilter.Field.Operation.GTE -> order.total >= value as Long
-            DataFilter.Field.Operation.LTE -> order.total <= value as Long
-            DataFilter.Field.Operation.GT -> order.total > value as Long
-            DataFilter.Field.Operation.LT -> order.total < value as Long
+        Order::totalMinorUnit.name -> return when (operation) {
+            DataFilter.Field.Operation.GTE -> order.totalMinorUnit >= value as Long
+            DataFilter.Field.Operation.LTE -> order.totalMinorUnit <= value as Long
+            DataFilter.Field.Operation.GT -> order.totalMinorUnit > value as Long
+            DataFilter.Field.Operation.LT -> order.totalMinorUnit < value as Long
             else -> throw UnsupportedOperationException("Not implemented for $operation")
         }
 
@@ -64,19 +62,17 @@ private fun DataFilter.Field<*>.fieldMatches(order: Order): Boolean {
     }
 }
 
-private fun Sort.field(order: Order): Comparable<Any> {
-    return when (field) {
-        Order::createdAt.name -> order.createdAt as Comparable<Any>
-        Order::total.name -> order.total as Comparable<Any>
-        Order::status.name -> order.status as Comparable<Any>
-        else -> throw IllegalArgumentException("Unsupported order: $order")
-    }
+private fun Sort.field(order: Order): Comparable<Any> = when (field) {
+    Order::createdAt.name -> order.createdAt as Comparable<Any>
+    Order::totalMinorUnit.name -> order.totalMinorUnit as Comparable<Any>
+    Order::status.name -> order.status as Comparable<Any>
+    else -> throw IllegalArgumentException("Unsupported order: $order")
 }
 
-private fun randomOrders(): List<Order> = (1..1000).map {
+private fun randomOrders(): List<Order> = (1..1235).map {
     Order(
         status = OrderStatus.entries.random(),
-        total = Random.nextDouble(10.0, 1500.0),
-        createdAt = Instant.now().minusDays(Random.nextInt(0, 100))
+        totalMinorUnit = Random.nextLong(1000, 150000),
+        createdAt = Instant.now().minusDays(Random.nextInt(10, 100)).plusSeconds(60 * Random.nextLong(10, 2000))
     )
 }

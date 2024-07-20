@@ -1,24 +1,44 @@
 {% extends "layout.peb" %}
 
 {% block pageContent %}
-    <table class="table border-t border-base-200">
-        <thead>
-            <tr>
-                <th class="w-1/4">CreatedAt</th>
-                <th class="w-1/4">OrderId</th>
-                <th class="w-1/4">Status</th>
-                <th class="w-1/4">Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for order in model.ordersPage.records %}
+    <div class="flex flex-col items-center gap-12 max-w-screen-sm">
+        {# Order listing #}
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>{{ order.createdAt | dateWithDaySuffix("d MMM YYYY HH:mm") }}</td>
-                    <td>{{ order.id }}</td>
-                    <td>{{ order.status }}</td>
-                    <td>{{ order.total }}</td>
+                    <th>
+                        CreatedAt
+                        {{ request.sortIs("createdAt", "asc") ? "↑" : "" }}
+                        {{ request.sortIs("createdAt", "desc") ? "↓" : "" }}
+                    </th>
+                    <th>Status</th>
+                    <th>Total</th>
                 </tr>
+            </thead>
+            <tbody>
+                {% for order in model.ordersPage.records %}
+                    <tr>
+                        <td>{{ order.createdAt | dateWithDaySuffix("d MMM YYYY HH:mm") }}</td>
+                        <td>{{ order.status.label }}</td>
+                        <td>{{ currencyFromMinorUnit(order.totalMinorUnit, "GBP") }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {# Pagination control #}
+        <div class="flex flex-row items-center gap-2">
+            {% set pagination = model.ordersPage.pagination %}
+            {% for pageIndex in pagination.pageIndices %}
+                {% if pageIndex != null %}
+                    <a href="{{ request.replacePage(pagination.getPage(pageIndex)) }}"
+                       class="flex px-4 py-1 rounded-full {{ pageIndex == pagination.currentPageIndex ? 'bg-blue-800 text-white hover:bg-blue-600' : 'bg-blue-100 hover:bg-blue-200' }}">
+                        {{ pageIndex + 1 }}
+                    </a>
+                {% else %}
+                    <div class="px-4">...</div>
+                {% endif %}
             {% endfor %}
-        </tbody>
-    </table>
+        </div>
+    </div>
 {% endblock %}

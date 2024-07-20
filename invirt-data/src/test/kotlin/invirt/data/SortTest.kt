@@ -1,5 +1,6 @@
 package invirt.data
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.throwables.shouldThrowWithMessage
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -15,14 +16,14 @@ class SortTest : StringSpec({
         shouldThrowWithMessage<IllegalArgumentException>("Invalid sort string firstName:asc:desc") {
             Sort("firstName:asc:desc")
         }
-        shouldThrowWithMessage<IllegalArgumentException>("Invalid sort order EITHER") {
+        shouldThrow<IllegalArgumentException> {
             Sort("name:either")
         }
     }
 
     "toString" {
-        Sort("name", SortOrder.ASC).toString() shouldBe "name:ASC"
-        Sort("lastName", SortOrder.DESC).toString() shouldBe "lastName:DESC"
+        Sort("name", SortOrder.ASC).toString() shouldBe "name:asc"
+        Sort("lastName", SortOrder.DESC).toString() shouldBe "lastName:desc"
     }
 
     "sort order revert" {

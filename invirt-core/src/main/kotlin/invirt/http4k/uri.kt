@@ -1,6 +1,7 @@
 package invirt.http4k
 
 import invirt.data.Page
+import invirt.data.Sort
 import org.http4k.core.Uri
 import org.http4k.core.queries
 import org.http4k.core.query
@@ -32,6 +33,15 @@ fun Uri.replacePage(page: Page): Uri = replaceQuery(
     "from" to page.from,
     "size" to page.size
 )
+
+fun Uri.replaceSort(sort: Sort, resetPagination: Boolean = true): Uri {
+    val uri = replaceQuery("sort" to sort.toString())
+    return if (resetPagination) {
+        uri.removeQueries(listOf("from", "size"))
+    } else {
+        uri
+    }
+}
 
 fun Uri.replaceQuery(vararg queryValues: Pair<String, Any>): Uri = replaceQuery(mapOf(*queryValues))
 

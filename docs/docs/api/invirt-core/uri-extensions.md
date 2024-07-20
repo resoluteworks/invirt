@@ -124,3 +124,22 @@ the specified `invirt.data.Page`.
   </TabItem>
 </Tabs>
 
+### replaceSort
+Returns a new `Uri` with the sort query param (`&sort=name:asc`) replaced with a new value matching
+the specified `sort` argument. The function resets pagination by removing the `from` and `size` query parameters. This can be disabled
+by passing `false` for the `resetPagination` argument.
+
+<Tabs>
+  <TabItem value="example" label="Example" default>
+    ```kotlin
+    // Returns "/test?sort=createdAt:desc"
+    Uri.of("/test?sort=name:asc").replaceSort(Sort.desc("createdAt"))
+    ```
+  </TabItem>
+  <TabItem value="declaration" label="Declaration">
+    ```kotlin
+    fun Uri.replaceSort(sort: Sort, resetPagination: Boolean = true): Uri
+    ```
+  </TabItem>
+</Tabs>
+

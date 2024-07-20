@@ -1,6 +1,8 @@
 package invirt.http4k
 
 import invirt.data.Page
+import invirt.data.Sort
+import invirt.data.SortOrder
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.http4k.core.Uri
@@ -28,6 +30,17 @@ class UriTest : StringSpec({
         Uri.of("/test?from=0&size=10").replacePage(Page(10, 5)).toString() shouldBe "/test?from=10&size=5"
         Uri.of("/test?q=john&filter=name").removeQueries(listOf("q", "filter")).toString() shouldBe "/test"
         Uri.of("/test?q=john&filter=name&size=10").removeQueries(listOf("q", "filter")).toString() shouldBe "/test?size=10"
+    }
+
+    "replaceSort" {
+        Uri.of("/test").replaceSort(Sort("name", SortOrder.ASC)).toString() shouldBe "/test?sort=name%3Aasc"
+        Uri.of("/test?sort=name:Asc").replaceSort(Sort("createdAt", SortOrder.DESC)).toString() shouldBe "/test?sort=createdAt%3Adesc"
+
+        Uri.of("/test?sort=name:Asc&from=10&size=10").replaceSort(Sort("createdAt", SortOrder.DESC))
+            .toString() shouldBe "/test?sort=createdAt%3Adesc"
+
+        Uri.of("/test?sort=name:Asc&from=10&size=10").replaceSort(Sort("createdAt", SortOrder.DESC), false)
+            .toString() shouldBe "/test?from=10&size=10&sort=createdAt%3Adesc"
     }
 
     "toggleQuery" {

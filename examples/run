@@ -4,7 +4,7 @@ set -e
 
 if [ $# -ne 1 ]; then
     echo "Usage: $0 <examples-project-name>"
-    echo "Example: $0 hotwire"
+    echo "Example: $0 quickstart"
     exit 1
 fi
 

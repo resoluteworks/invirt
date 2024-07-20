@@ -7,13 +7,9 @@ data class Sort(
     val order: SortOrder
 ) {
 
-    fun revert(): Sort {
-        return Sort(field, order.revert())
-    }
+    fun revert(): Sort = Sort(field, order.revert())
 
-    override fun toString(): String {
-        return "$field:$order"
-    }
+    override fun toString(): String = "$field:${order.name.lowercase()}"
 
     companion object {
         operator fun invoke(sortString: String): Sort {
@@ -21,11 +17,7 @@ data class Sort(
             if (elements.size != 2 || elements.any { it.isBlank() }) {
                 throw IllegalArgumentException("Invalid sort string $sortString")
             }
-            val orderStr = elements[1].uppercase()
-            val order = enumValues<SortOrder>().firstOrNull { it.name == orderStr }
-            if (order == null) {
-                throw IllegalArgumentException("Invalid sort order $orderStr")
-            }
+            val order = SortOrder.fromString(elements[1])
             return Sort(elements[0], order)
         }
 
@@ -39,12 +31,12 @@ enum class SortOrder {
     DESC;
 
     fun revert(): SortOrder = if (this == ASC) DESC else ASC
+
+    companion object {
+        fun fromString(orderString: String): SortOrder = valueOf(orderString.uppercase())
+    }
 }
 
-fun KProperty<*>.sortAsc(): Sort {
-    return Sort(this.name, SortOrder.ASC)
-}
+fun KProperty<*>.sortAsc(): Sort = Sort(this.name, SortOrder.ASC)
 
-fun KProperty<*>.sortDesc(): Sort {
-    return Sort(this.name, SortOrder.DESC)
-}
+fun KProperty<*>.sortDesc(): Sort = Sort(this.name, SortOrder.DESC)

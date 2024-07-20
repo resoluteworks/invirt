@@ -15,7 +15,7 @@ import org.http4k.routing.bind
 import org.http4k.routing.routes
 import org.http4k.template.ViewModel
 
-class InvirtPebbleRequestTest : StringSpec() {
+class InvirtRequestTest : StringSpec() {
 
     init {
         beforeSpec { initialiseInvirtViews() }
@@ -24,6 +24,15 @@ class InvirtPebbleRequestTest : StringSpec() {
             testRequestFunction("replaceQuery", "/test", "/test?from=10")
             testRequestFunction("replaceQuery", "/test?from=5", "/test?from=10")
             testRequestFunction("replaceQuery", "/test?size=100&from=0", "/test?size=100&from=10")
+        }
+
+        "revertOrSetSort" {
+            testRequestFunction("revertOrSetSort", "/test", "/test?sort=createdAt%3Aasc")
+            testRequestFunction("revertOrSetSort", "/test?sort=createdAt:asc", "/test?sort=createdAt%3Adesc")
+            testRequestFunction("revertOrSetSort", "/test?sort=createdAt:desc", "/test?sort=createdAt%3Aasc")
+            testRequestFunction("revertOrSetSort", "/test?sort=name:asc", "/test?sort=createdAt%3Aasc")
+            testRequestFunction("revertOrSetSort", "/test?from=5&sort=name:asc", "/test?sort=createdAt%3Aasc")
+            testRequestFunction("revertOrSetSort", "/test?type=person&sort=name:asc", "/test?type=person&sort=createdAt%3Aasc")
         }
 
         "removeQueryValue" {

@@ -17,7 +17,7 @@ object OrderHandler {
     operator fun invoke(orderRepository: OrderRepository): RoutingHttpHandler = routes(
         "/" GET { request ->
             val sort = request.sort() ?: Sort.desc(Order::createdAt.name)
-            val page = request.page(defaultFrom = 0, defaultSize = 15, maxSize = 15)
+            val page = request.page()
 
             ListOrdersResponse(
                 ordersPage = orderRepository.searchOrders(null, sort, page),
