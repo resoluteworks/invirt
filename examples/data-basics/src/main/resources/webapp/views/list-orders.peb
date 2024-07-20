@@ -1,44 +1,127 @@
 {% extends "layout.peb" %}
 
-{% block pageContent %}
-    <div class="flex flex-col items-center gap-12 max-w-screen-sm">
-        {# Order listing #}
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>
-                        CreatedAt
-                        {{ request.sortIs("createdAt", "asc") ? "↑" : "" }}
-                        {{ request.sortIs("createdAt", "desc") ? "↓" : "" }}
-                    </th>
-                    <th>Status</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for order in model.ordersPage.records %}
-                    <tr>
-                        <td>{{ order.createdAt | dateWithDaySuffix("d MMM YYYY HH:mm") }}</td>
-                        <td>{{ order.status.label }}</td>
-                        <td>{{ currencyFromMinorUnit(order.totalMinorUnit, "GBP") }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+{# Crude way to render sort order #}
+{% macro sortOrderSymbol(field) %}
+    <span class="font-bold text-black">
+    {% if request().sortIs(field, "ASC") %}
+        ↓
+    {% elseif request().sortIs(field, "DESC") %}
+        ↑
+    {% endif %}
+    </span>
+{% endmacro %}
 
-        {# Pagination control #}
-        <div class="flex flex-row items-center gap-2">
-            {% set pagination = model.ordersPage.pagination %}
-            {% for pageIndex in pagination.pageIndices %}
-                {% if pageIndex != null %}
-                    <a href="{{ request.replacePage(pagination.getPage(pageIndex)) }}"
-                       class="flex px-4 py-1 rounded-full {{ pageIndex == pagination.currentPageIndex ? 'bg-blue-800 text-white hover:bg-blue-600' : 'bg-blue-100 hover:bg-blue-200' }}">
-                        {{ pageIndex + 1 }}
+{#
+Don't do this in your app. This only exists because we don't want to wire extra CSS processing in this example.
+You'd normall do <a class="filter {{ isSelected ? 'selected' : '' }}">
+#}
+{% set unselected = "px-4 py-1 rounded-full bg-gray-200 hover:bg-blue-200" %}
+{% set selected = "px-4 py-1 rounded-full bg-blue-800 text-white hover:bg-blue-600" %}
+
+{% block pageContent %}
+    <div class="flex flex-col gap-4">
+        <div class="text-2xl font-bold">Orders</div>
+        <div class="flex flex-col gap-4">
+            {# Order value #}
+            <div class="flex flex-row gap-4">
+                <div>Order value <span class="text-gray-500">(single select)</span></div>
+
+                {#
+                We can only select less than or greater than 1000 so we use request.replaceQuery()
+                to remove any values for &total=<value> and replace them with the value for this filter
+                We then use request.hasQueryValue() to check whether this filter is applied in the URI via
+                &total=less-than-1000, for example
+                #}
+                <div class="flex flex-row items-center gap-2 text-sm">
+                    <a href="{{ request.removeQueries(['total']) }}"
+                       class="{{ request.uri.query('total') is empty ? selected : unselected }}">
+                        All
                     </a>
-                {% else %}
-                    <div class="px-4">...</div>
-                {% endif %}
-            {% endfor %}
+
+                    <a href="{{ request.replaceQuery('total', 'less-than-1000') }}"
+                       class="{{ request.hasQueryValue('total', 'less-than-1000') ? selected : unselected }}">
+                        Less than £1000
+                    </a>
+
+                    <a href="{{ request.replaceQuery('total', 'more-than-1000') }}"
+                       class="{{ request.hasQueryValue('total', 'more-than-1000') ? selected : unselected }}">
+                        More than £1000
+                    </a>
+                </div>
+            </div>
+
+            {# Order status filter #}
+            <div class="flex flex-row gap-4">
+                <div>Order status <span class="text-gray-500">(multi select)</span></div>
+
+                <div class="flex flex-row items-center gap-2 text-sm">
+                    {% for status in model.orderStatusValues %}
+
+                        {#
+                        We can select multiple statuses so we use request.toggleQueryValue() to
+                        only turn this particular status ON/OFF. We then use request.hasQueryValue()
+                        to check whether this filter is applied in the URI via &status=DELIVERED, for example
+                        #}
+                        <a href="{{ request.toggleQueryValue('status', status.name) }}"
+                           class="{{ request.hasQueryValue('status', status.name) ? selected : unselected }}">
+                            {{ status.label }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col items-start gap-4 max-w-lg">
+            <div class="font-bold">{{ model.ordersPage.count }} orders</div>
+            {# Order listing #}
+            <div class="w-full border border-gray-300 rounded-lg">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <a href="{{ request.revertOrSetSort("createdAt", "DESC", true) }}">
+                                    CreatedAt {{ sortOrderSymbol("createdAt") }}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ request.revertOrSetSort("status", "ASC", true) }}">
+                                    Order status {{ sortOrderSymbol("status") }}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ request.revertOrSetSort("totalMinorUnit", "ASC", true) }}">
+                                    Total {{ sortOrderSymbol("totalMinorUnit") }}
+                                </a>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in model.ordersPage.records %}
+                            <tr>
+                                <td>{{ order.createdAt | dateWithDaySuffix("d MMM YYYY HH:mm") }}</td>
+                                <td>{{ order.status.label }}</td>
+                                <td>{{ currencyFromMinorUnit(order.totalMinorUnit, "GBP") }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {# Pagination control #}
+            <div class="flex flex-row items-center gap-2">
+                {% set pagination = model.ordersPage.pagination %}
+                {% for pageIndex in pagination.pageIndices %}
+                    {% if pageIndex != null %}
+                        <a href="{{ request.replacePage(pagination.getPage(pageIndex)) }}"
+                           class="{{ pageIndex == pagination.currentPageIndex ? selected : unselected }}">
+                            {{ pageIndex + 1 }}
+                        </a>
+                    {% else %}
+                        <div class="px-4">...</div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
         </div>
     </div>
 {% endblock %}

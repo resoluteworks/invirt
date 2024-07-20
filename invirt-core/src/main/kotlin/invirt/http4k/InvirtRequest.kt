@@ -13,6 +13,8 @@ import org.http4k.core.Uri
  */
 class InvirtRequest(private val delegate: Request) : Request by delegate {
 
+    val sort: Sort? = delegate.sort()
+
     fun hasQueryValue(name: String, value: String): Boolean = delegate.uri.hasQueryValue(name, value)
     fun toggleQueryValue(name: String, value: Any): Uri = delegate.uri.toggleQueryValue(name, value)
     fun replacePage(page: Page): Uri = delegate.uri.replacePage(page)
@@ -22,7 +24,7 @@ class InvirtRequest(private val delegate: Request) : Request by delegate {
     fun removeQueries(names: Array<String>): Uri = delegate.uri.removeQueries(names.toSet())
     fun replaceSort(field: String, orderStr: String): Uri = delegate.uri.replaceSort(Sort(field, SortOrder.fromString(orderStr)))
 
-    fun revertOrSetSort(field: String, orderStr: String, resetPagination: Boolean = true): Uri {
+    fun revertOrSetSort(field: String, orderStr: String, resetPagination: Boolean): Uri {
         val sort = this.sort()
         return if (sort == null || sort.field != field) {
             delegate.uri.replaceSort(Sort(field, SortOrder.fromString(orderStr)), resetPagination)

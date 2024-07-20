@@ -11,7 +11,6 @@ data class Order(
 )
 
 enum class OrderStatus(val label: String) {
-    PROCESSING("Processing"),
     DISPATCHED("Dispatched"),
     IN_TRANSIT("In Transit"),
     DELIVERED("Delivered")
