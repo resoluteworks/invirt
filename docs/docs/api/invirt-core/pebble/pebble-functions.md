@@ -2,13 +2,13 @@
 sidebar_position: 2
 ---
 
-# Invirt Pebble Functions
+# Pebble Functions
 A set of utility functions that can be used by Pebble templates in an Invirt application.
 
 ### request()
 Returns the current http4k `Request` object (as an [InvirtRequest](/docs/framework/current-request)).
 The function is only required in the context of a macro - but can be used
-anywhere. Outside macros, the [context request object](/docs/api/pebble/pebble-context-objects#request) can be used directly.
+anywhere. Outside macros, the [context request object](/docs/api/invirt-core/pebble/pebble-context-objects#request) can be used directly.
 
 ```html
 {% macro requestSummary() %}

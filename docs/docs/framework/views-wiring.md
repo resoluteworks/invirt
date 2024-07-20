@@ -31,7 +31,7 @@ using http4k's built-in components (no magic, really). Typically used when deplo
 the application in production.
 
 #### Bootstrapping Pebble templates
-Invirt exposes a set of [custom context objects](/docs/api/pebble/pebble-context-objects) and [utility functions](/docs/api/pebble/pebble-functions)
+Invirt exposes a set of [custom context objects](/docs/api/invirt-core/pebble/pebble-context-objects) and [utility functions](/docs/api/pebble/pebble-functions)
 which are delivered using a custom implementation of template rendering, wired in this call.
 
 #### Setting a global view lens
@@ -52,7 +52,7 @@ using an environment variable to pass as the `hotReload` value to `initialiseInv
 the code simple and flexible.
 
 Invirt also provides a built-in to make this wiring even easier using
-[Environment.developmentMode](/docs/api/kotlin/environment#environmentdevelopmentmode).
+[Environment.developmentMode](/docs/api/invirt-core/environment#environmentdevelopmentmode).
 ```kotlin
 val developmentMode = Environment.ENV.developmentMode
 initialiseInvirtViews(hotReload = developmentMode)

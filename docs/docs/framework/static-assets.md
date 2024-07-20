@@ -38,7 +38,7 @@ then allows the Pebble template code to include assets dynamically, as per examp
 value set when calling `initialiseInvirtViews()`
 
 It's possible to use the Git commit id to version static assets, which is achieved by a call to `gitCommitId()`,
-as per example above. This function is discussed in detail [here](/docs/api/kotlin/environment#gitcommitid).
+as per example above. This function is discussed in detail [here](/docs/api/invirt-core/environment#gitcommitid).
 
 ### Caching
 The function `cacheDays(days)` is a simple wrapper over http4k's built-in caching filter and only exists

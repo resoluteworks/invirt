@@ -55,16 +55,16 @@ class QueryValuesFilter(private val operator: CompoundFilter.Operator) {
         }
 
         fun getFilter(request: Request): Filter? {
-            val values = lens(request)
+            val value = lens(request)
             // When there's a missing value filter and params have been provided return null
             return if (missing != null) {
-                if (values == null) {
+                if (value == null) {
                     missing.invoke()
                 } else {
                     null
                 }
             } else {
-                values?.let { filter?.invoke(it) }
+                value?.let { filter?.invoke(it) }
             }
         }
     }
