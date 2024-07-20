@@ -5,9 +5,7 @@ import com.mongodb.client.model.Sorts
 import com.mongodb.client.model.geojson.Polygon
 import com.mongodb.client.model.geojson.Position
 import com.mongodb.kotlin.client.FindIterable
-import invirt.data.CompoundFilter
-import invirt.data.FieldFilter
-import invirt.data.Filter
+import invirt.data.DataFilter
 import invirt.data.Page
 import invirt.data.Sort
 import invirt.data.SortOrder
@@ -43,28 +41,28 @@ fun <T : Any> FindIterable<T>.sort(vararg sort: Sort = emptyArray()): FindIterab
 
 private fun GeoLocation.toPosition(): Position = Position(lng, lat)
 
-private fun <Value : Any> FieldFilter<Value>.mongoFilter(): Bson = when (operation) {
-    FieldFilter.Operation.EQ -> Filters.eq(field, value)
-    FieldFilter.Operation.GT -> Filters.gt(field, value)
-    FieldFilter.Operation.GTE -> Filters.gte(field, value)
-    FieldFilter.Operation.LTE -> Filters.lte(field, value)
-    FieldFilter.Operation.LT -> Filters.lt(field, value)
-    FieldFilter.Operation.NE -> Filters.ne(field, value)
-    FieldFilter.Operation.EXISTS -> Filters.exists(field)
-    FieldFilter.Operation.DOESNT_EXIST -> Filters.exists(field, false)
-    FieldFilter.Operation.WITHIN_GEO_BOUNDS -> {
+private fun DataFilter.Field<*>.fieldFilter(): Bson = when (operation) {
+    DataFilter.Field.Operation.EQ -> Filters.eq(field, value)
+    DataFilter.Field.Operation.GT -> Filters.gt(field, value)
+    DataFilter.Field.Operation.GTE -> Filters.gte(field, value)
+    DataFilter.Field.Operation.LTE -> Filters.lte(field, value)
+    DataFilter.Field.Operation.LT -> Filters.lt(field, value)
+    DataFilter.Field.Operation.NE -> Filters.ne(field, value)
+    DataFilter.Field.Operation.EXISTS -> Filters.exists(field)
+    DataFilter.Field.Operation.DOESNT_EXIST -> Filters.exists(field, false)
+    DataFilter.Field.Operation.WITHIN_GEO_BOUNDS -> {
         val geoBounds = value as GeoBoundingBox
         val positions = geoBounds.points.plus(geoBounds.southWest).map { it.toPosition() }
         Filters.geoWithin(field, Polygon(positions))
     }
 }
 
-fun Filter.mongoFilter(): Bson = when (this) {
-    is FieldFilter<*> -> this.mongoFilter()
-    is CompoundFilter -> {
+fun DataFilter.mongoFilter(): Bson = when (this) {
+    is DataFilter.Field<*> -> this.fieldFilter()
+    is DataFilter.Compound -> {
         when (this.operator) {
-            CompoundFilter.Operator.OR -> Filters.or(this.children.map { it.mongoFilter() })
-            CompoundFilter.Operator.AND -> Filters.and(this.children.map { it.mongoFilter() })
+            DataFilter.Compound.Operator.OR -> Filters.or(this.children.map { it.mongoFilter() })
+            DataFilter.Compound.Operator.AND -> Filters.and(this.children.map { it.mongoFilter() })
         }
     }
 

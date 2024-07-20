@@ -1,33 +1,32 @@
 package invirt.http4k.data
 
-import invirt.data.CompoundFilter
-import invirt.data.Filter
+import invirt.data.DataFilter
 import invirt.data.andFilter
 import invirt.data.orFilter
 import org.http4k.core.Request
 import org.http4k.lens.BiDiLens
 
-class QueryValuesFilter(private val operator: CompoundFilter.Operator) {
+class QueryValuesFilter(private val operator: DataFilter.Compound.Operator) {
 
     private val paramFilters = mutableListOf<QueryParamFilter<*>>()
 
-    operator fun invoke(request: Request): Filter? {
+    operator fun invoke(request: Request): DataFilter? {
         val filters = paramFilters.mapNotNull { it.getFilter(request) }
         if (filters.isEmpty()) {
             return null
         }
-        return CompoundFilter(operator, filters)
+        return DataFilter.Compound(operator, filters)
     }
 
-    infix fun <Value : Any> BiDiLens<Request, Value?>.filter(filter: (Value) -> Filter?) {
+    infix fun <Value : Any> BiDiLens<Request, Value?>.filter(filter: (Value) -> DataFilter?) {
         paramFilters.add(QueryParamFilter(this, null, filter))
     }
 
-    fun <Value : Any> BiDiLens<Request, Value?>.whenMissing(missing: () -> Filter) {
+    fun <Value : Any> BiDiLens<Request, Value?>.whenMissing(missing: () -> DataFilter) {
         paramFilters.add(QueryParamFilter(this, missing, null))
     }
 
-    infix fun <Value : Any> BiDiLens<Request, List<Value>?>.or(filter: (Value) -> Filter) {
+    infix fun <Value : Any> BiDiLens<Request, List<Value>?>.or(filter: (Value) -> DataFilter) {
         paramFilters.add(
             QueryParamFilter(this) { values ->
                 values.map { value -> filter(value) }.orFilter()
@@ -35,7 +34,7 @@ class QueryValuesFilter(private val operator: CompoundFilter.Operator) {
         )
     }
 
-    infix fun <Value : Any> BiDiLens<Request, List<Value>?>.and(filter: (Value) -> Filter) {
+    infix fun <Value : Any> BiDiLens<Request, List<Value>?>.and(filter: (Value) -> DataFilter) {
         paramFilters.add(
             QueryParamFilter(this) { values ->
                 values.map { value -> filter(value) }.andFilter()
@@ -45,8 +44,8 @@ class QueryValuesFilter(private val operator: CompoundFilter.Operator) {
 
     private class QueryParamFilter<Value>(
         val lens: BiDiLens<Request, Value?>,
-        val missing: (() -> Filter)? = null,
-        val filter: ((Value) -> Filter?)? = null
+        val missing: (() -> DataFilter)? = null,
+        val filter: ((Value) -> DataFilter?)? = null
     ) {
         init {
             if (missing == null && filter == null) {
@@ -54,7 +53,7 @@ class QueryValuesFilter(private val operator: CompoundFilter.Operator) {
             }
         }
 
-        fun getFilter(request: Request): Filter? {
+        fun getFilter(request: Request): DataFilter? {
             val value = lens(request)
             // When there's a missing value filter and params have been provided return null
             return if (missing != null) {
@@ -71,7 +70,7 @@ class QueryValuesFilter(private val operator: CompoundFilter.Operator) {
 }
 
 fun queryValuesFilter(
-    operator: CompoundFilter.Operator = CompoundFilter.Operator.AND,
+    operator: DataFilter.Compound.Operator = DataFilter.Compound.Operator.AND,
     build: QueryValuesFilter.() -> Unit
 ): QueryValuesFilter {
     val filter = QueryValuesFilter(operator)

@@ -4,7 +4,7 @@ import invirt.utils.formatWithDaySuffix
 import io.pebbletemplates.pebble.extension.Filter
 import io.pebbletemplates.pebble.template.EvaluationContext
 import io.pebbletemplates.pebble.template.PebbleTemplate
-import java.time.LocalDate
+import java.time.temporal.Temporal
 
 class DateWithDaySuffixFilter : Filter {
 
@@ -18,6 +18,6 @@ class DateWithDaySuffixFilter : Filter {
         lineNumber: Int
     ): Any {
         val format = args["format"] as String
-        return (input as LocalDate).formatWithDaySuffix(format)
+        return (input as Temporal).formatWithDaySuffix(format)
     }
 }

@@ -1,0 +1,24 @@
+{% extends "layout.peb" %}
+
+{% block pageContent %}
+    <table class="table border-t border-base-200">
+        <thead>
+            <tr>
+                <th class="w-1/4">CreatedAt</th>
+                <th class="w-1/4">OrderId</th>
+                <th class="w-1/4">Status</th>
+                <th class="w-1/4">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in model.ordersPage.records %}
+                <tr>
+                    <td>{{ order.createdAt | dateWithDaySuffix("d MMM YYYY HH:mm") }}</td>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.status }}</td>
+                    <td>{{ order.total }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

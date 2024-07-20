@@ -9,93 +9,98 @@ import io.kotest.matchers.shouldBe
 class FilterTest : StringSpec({
 
     "compound filter - or" {
-        CompoundFilter.or(FieldFilter.gte("field", 10), FieldFilter.ne("status", "open")) shouldBe CompoundFilter(
-            CompoundFilter.Operator.OR,
-            listOf(FieldFilter.gte("field", 10), FieldFilter.ne("status", "open"))
-        )
-        CompoundFilter.or(listOf(FieldFilter.gte("field", 10), FieldFilter.ne("status", "open"))) shouldBe CompoundFilter(
-            CompoundFilter.Operator.OR,
-            listOf(FieldFilter.gte("field", 10), FieldFilter.ne("status", "open"))
+        DataFilter.Compound.or(DataFilter.Field.gte("field", 10), DataFilter.Field.ne("status", "open")) shouldBe
+            DataFilter.Compound(
+                DataFilter.Compound.Operator.OR, listOf(DataFilter.Field.gte("field", 10), DataFilter.Field.ne("status", "open"))
+            )
+
+        DataFilter.Compound.or(
+            listOf(
+                DataFilter.Field.gte("field", 10), DataFilter.Field.ne("status", "open")
+            )
+        ) shouldBe DataFilter.Compound(
+            DataFilter.Compound.Operator.OR, listOf(DataFilter.Field.gte("field", 10), DataFilter.Field.ne("status", "open"))
         )
     }
 
     "compound filter - and" {
-        CompoundFilter.and(FieldFilter.gte("field", 10), FieldFilter.ne("status", "open")) shouldBe CompoundFilter(
-            CompoundFilter.Operator.AND,
-            listOf(FieldFilter.gte("field", 10), FieldFilter.ne("status", "open"))
+        DataFilter.Compound.and(DataFilter.Field.gte("field", 10), DataFilter.Field.ne("status", "open")) shouldBe DataFilter.Compound(
+            DataFilter.Compound.Operator.AND, listOf(DataFilter.Field.gte("field", 10), DataFilter.Field.ne("status", "open"))
         )
-        CompoundFilter.and(listOf(FieldFilter.gte("field", 10), FieldFilter.ne("status", "open"))) shouldBe CompoundFilter(
-            CompoundFilter.Operator.AND,
-            listOf(FieldFilter.gte("field", 10), FieldFilter.ne("status", "open"))
+
+        DataFilter.Compound.and(
+            listOf(
+                DataFilter.Field.gte("field", 10), DataFilter.Field.ne("status", "open")
+            )
+        ) shouldBe DataFilter.Compound(
+            DataFilter.Compound.Operator.AND, listOf(DataFilter.Field.gte("field", 10), DataFilter.Field.ne("status", "open"))
         )
     }
 
-    "CompoundFilter empty children" {
+    "DataFilter.Compound empty children" {
         shouldThrowWithMessage<IllegalArgumentException>("children argument cannot be an empty collection") {
-            CompoundFilter(CompoundFilter.Operator.OR, emptySet())
+            DataFilter.Compound(DataFilter.Compound.Operator.OR, emptySet())
         }
         shouldThrowWithMessage<IllegalArgumentException>("children argument cannot be an empty collection") {
-            CompoundFilter(CompoundFilter.Operator.AND, emptySet())
+            DataFilter.Compound(DataFilter.Compound.Operator.AND, emptySet())
         }
         shouldThrowWithMessage<IllegalArgumentException>("children argument cannot be an empty collection") {
-            CompoundFilter.or(emptySet())
+            DataFilter.Compound.or(emptySet())
         }
         shouldThrowWithMessage<IllegalArgumentException>("children argument cannot be an empty collection") {
-            CompoundFilter.and(emptySet())
+            DataFilter.Compound.and(emptySet())
         }
     }
 
     "Filter.flatten" {
-        CompoundFilter.or("status".eq("open"), "size".gt(10)).flatten() shouldBe CompoundFilter.or("status".eq("open"), "size".gt(10))
-
-        CompoundFilter.or("status".eq("open")).flatten() shouldBe "status".eq("open")
-
-        CompoundFilter.and(CompoundFilter.or("status".eq("open"))).flatten() shouldBe "status".eq("open")
-
-        CompoundFilter.and(
-            CompoundFilter.or("status".eq("open"), "size".gt(10)),
-            "active".eq(true)
-        ).flatten() shouldBe CompoundFilter.and(
-            CompoundFilter.or("status".eq("open"), "size".gt(10)),
-            "active".eq(true)
+        DataFilter.Compound.or("status".eq("open"), "size".gt(10)).flatten() shouldBe DataFilter.Compound.or(
+            "status".eq("open"), "size".gt(10)
         )
 
-        CompoundFilter.and(
-            CompoundFilter.or("status".eq("open"), "size".gt(10)),
-            CompoundFilter.or("enabled".eq(false)),
-            "active".eq(true)
-        ).flatten() shouldBe CompoundFilter.and(
-            CompoundFilter.or("status".eq("open"), "size".gt(10)),
-            "enabled".eq(false),
-            "active".eq(true)
+        DataFilter.Compound.or("status".eq("open")).flatten() shouldBe "status".eq("open")
+
+        DataFilter.Compound.and(DataFilter.Compound.or("status".eq("open"))).flatten() shouldBe "status".eq("open")
+
+        DataFilter.Compound.and(
+            DataFilter.Compound.or("status".eq("open"), "size".gt(10)), "active".eq(true)
+        ).flatten() shouldBe DataFilter.Compound.and(
+            DataFilter.Compound.or("status".eq("open"), "size".gt(10)), "active".eq(true)
+        )
+
+        DataFilter.Compound.and(
+            DataFilter.Compound.or("status".eq("open"), "size".gt(10)), DataFilter.Compound.or("enabled".eq(false)), "active".eq(true)
+        ).flatten() shouldBe DataFilter.Compound.and(
+            DataFilter.Compound.or("status".eq("open"), "size".gt(10)), "enabled".eq(false), "active".eq(true)
         )
     }
 
     "Collection.orFilter()" {
-        emptySet<Filter>().orFilter() shouldBe null
+        emptySet<DataFilter>().orFilter() shouldBe null
 
-        listOf("type".eq("person"), "size".gte(10)).orFilter() shouldBe
-            CompoundFilter(CompoundFilter.Operator.OR, listOf("type".eq("person"), "size".gte(10)))
+        listOf("type".eq("person"), "size".gte(10)).orFilter() shouldBe DataFilter.Compound(
+            DataFilter.Compound.Operator.OR, listOf("type".eq("person"), "size".gte(10))
+        )
 
-        listOf("type".eq("person")).orFilter() shouldBe CompoundFilter.or("type".eq("person"))
+        listOf("type".eq("person")).orFilter() shouldBe DataFilter.Compound.or("type".eq("person"))
     }
 
     "Collection.andFilter()" {
-        emptySet<Filter>().andFilter() shouldBe null
+        emptySet<DataFilter>().andFilter() shouldBe null
 
-        listOf("type".eq("person"), "size".gte(10)).andFilter() shouldBe
-            CompoundFilter(CompoundFilter.Operator.AND, listOf("type".eq("person"), "size".gte(10)))
+        listOf("type".eq("person"), "size".gte(10)).andFilter() shouldBe DataFilter.Compound(
+            DataFilter.Compound.Operator.AND, listOf("type".eq("person"), "size".gte(10))
+        )
 
-        listOf("type".eq("person")).andFilter() shouldBe CompoundFilter.and("type".eq("person"))
+        listOf("type".eq("person")).andFilter() shouldBe DataFilter.Compound.and("type".eq("person"))
     }
 
-    "FieldFilter.map" {
+    "DataFilter.Field.map" {
         ("size" eq "10").map { it.toInt() } shouldBe ("size" eq 10)
     }
 
     "exist and doesntExist" {
-        FieldFilter.exists("name.lastName") shouldBe FieldFilter("name.lastName", FieldFilter.Operation.EXISTS, Unit)
-        FieldFilter.doesntExist("name") shouldBe FieldFilter("name", FieldFilter.Operation.DOESNT_EXIST, Unit)
+        DataFilter.Field.exists("name.lastName") shouldBe DataFilter.Field("name.lastName", DataFilter.Field.Operation.EXISTS, Unit)
+        DataFilter.Field.doesntExist("name") shouldBe DataFilter.Field("name", DataFilter.Field.Operation.DOESNT_EXIST, Unit)
     }
     "KProperty" {
         data class Pojo(
@@ -103,34 +108,33 @@ class FilterTest : StringSpec({
             val size: Int,
             val status: Status?
         )
-        Pojo::title.eq("Work in progress") shouldBe FieldFilter.eq("title", "Work in progress")
-        Pojo::status.ne(Status.PUBLISHED) shouldBe FieldFilter.ne("status", Status.PUBLISHED)
-        Pojo::size.gt(20) shouldBe FieldFilter.gt("size", 20)
-        Pojo::size.gte(5) shouldBe FieldFilter.gte("size", 5)
-        Pojo::size.lt(32) shouldBe FieldFilter.lt("size", 32)
-        Pojo::size.lte(45) shouldBe FieldFilter.lte("size", 45)
-        Pojo::status.exists() shouldBe FieldFilter.exists("status")
-        Pojo::status.doesntExist() shouldBe FieldFilter.doesntExist("status")
+        Pojo::title.eq("Work in progress") shouldBe DataFilter.Field.eq("title", "Work in progress")
+        Pojo::status.ne(Status.PUBLISHED) shouldBe DataFilter.Field.ne("status", Status.PUBLISHED)
+        Pojo::size.gt(20) shouldBe DataFilter.Field.gt("size", 20)
+        Pojo::size.gte(5) shouldBe DataFilter.Field.gte("size", 5)
+        Pojo::size.lt(32) shouldBe DataFilter.Field.lt("size", 32)
+        Pojo::size.lte(45) shouldBe DataFilter.Field.lte("size", 45)
+        Pojo::status.exists() shouldBe DataFilter.Field.exists("status")
+        Pojo::status.doesntExist() shouldBe DataFilter.Field.doesntExist("status")
     }
 
     "String" {
-        "title".eq("Work in progress") shouldBe FieldFilter.eq("title", "Work in progress")
-        "status".ne(Status.PUBLISHED) shouldBe FieldFilter.ne("status", Status.PUBLISHED)
-        "size".gt(20) shouldBe FieldFilter.gt("size", 20)
-        "size".gte(5) shouldBe FieldFilter.gte("size", 5)
-        "size".lt(32) shouldBe FieldFilter.lt("size", 32)
-        "size".lte(45) shouldBe FieldFilter.lte("size", 45)
-        "location.lng".exists() shouldBe FieldFilter.exists("location.lng")
-        "location.lat".doesntExist() shouldBe FieldFilter.doesntExist("location.lat")
+        "title".eq("Work in progress") shouldBe DataFilter.Field.eq("title", "Work in progress")
+        "status".ne(Status.PUBLISHED) shouldBe DataFilter.Field.ne("status", Status.PUBLISHED)
+        "size".gt(20) shouldBe DataFilter.Field.gt("size", 20)
+        "size".gte(5) shouldBe DataFilter.Field.gte("size", 5)
+        "size".lt(32) shouldBe DataFilter.Field.lt("size", 32)
+        "size".lte(45) shouldBe DataFilter.Field.lte("size", 45)
+        "location.lng".exists() shouldBe DataFilter.Field.exists("location.lng")
+        "location.lat".doesntExist() shouldBe DataFilter.Field.doesntExist("location.lat")
 
         "location".withinGeoBounds(
             GeoBoundingBox(GeoLocation(lng = -8.596867, lat = 51.348611), GeoLocation(lng = 1.950008, lat = 56.435911))
-        ) shouldBe
-            FieldFilter(
-                "location",
-                FieldFilter.Operation.WITHIN_GEO_BOUNDS,
-                GeoBoundingBox(GeoLocation(lng = -8.596867, lat = 51.348611), GeoLocation(lng = 1.950008, lat = 56.435911))
-            )
+        ) shouldBe DataFilter.Field(
+            "location",
+            DataFilter.Field.Operation.WITHIN_GEO_BOUNDS,
+            GeoBoundingBox(GeoLocation(lng = -8.596867, lat = 51.348611), GeoLocation(lng = 1.950008, lat = 56.435911))
+        )
     }
 }) {
     enum class Status {

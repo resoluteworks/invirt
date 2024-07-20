@@ -30,6 +30,7 @@ dependencies {
     implementation("org.http4k:http4k-template-pebble")
 
     // Additional libraries for specific use cases
+    implementation("io.resoluteworks:invirt-data")
     implementation("io.resoluteworks:validk:${validkVersion}")
 
     // Logging

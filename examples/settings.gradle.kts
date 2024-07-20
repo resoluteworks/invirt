@@ -1,5 +1,6 @@
-include("quickstart")
-include("static-assets")
+include("data-basics")
 include("form-basics")
 include("form-validation")
+include("quickstart")
+include("static-assets")
 // include("hotwire")

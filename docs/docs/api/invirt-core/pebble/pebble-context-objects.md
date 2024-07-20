@@ -14,8 +14,8 @@ The model (object) for the template being rendered. Invirt uses the same naming 
 ```
 
 ### request
-Reference to the current http4k `Request` object. See [Current request in Pebble templates](/docs/framework/current-request#current-request-in-pebble-templates)
-for more details.
+Reference to the current http4k `Request` object. Mode details on accessing the current request in Pebble templates
+[here](/docs/framework/current-request#current-request-in-pebble-templates).
 
 ```html
 {{ request.method }}

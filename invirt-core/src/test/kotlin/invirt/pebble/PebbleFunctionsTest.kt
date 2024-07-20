@@ -16,6 +16,8 @@ import org.http4k.routing.bind
 import org.http4k.routing.routes
 import org.http4k.template.ViewModel
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 class PebbleFunctionsTest : StringSpec() {
 
@@ -38,9 +40,29 @@ class PebbleFunctionsTest : StringSpec() {
             )
         }
 
-        "dateWithDaySuffix" {
-            testFunctionModel("dateWithDaySuffix", "/test", mapOf("date" to LocalDate.of(2024, 5, 17)), "17th May 2024")
-            testFunctionModel("dateWithDaySuffix", "/test", mapOf("date" to LocalDate.of(1905, 12, 2)), "2nd Dec 1905")
+        "dateWithDaySuffix - LocalDate" {
+            testFunctionModel("dateWithDaySuffix-LocalDate", "/test", mapOf("date" to LocalDate.of(2024, 5, 17)), "17th May 2024")
+            testFunctionModel("dateWithDaySuffix-LocalDate", "/test", mapOf("date" to LocalDate.of(1905, 12, 2)), "2nd Dec 1905")
+        }
+
+        "dateWithDaySuffix - LocalDateTime" {
+            testFunctionModel(
+                "dateWithDaySuffix-LocalDateTime", "/test",
+                mapOf(
+                    "date" to LocalDateTime.ofInstant(LocalDateTime.of(2024, 5, 17, 23, 10, 43).toInstant(ZoneOffset.UTC), ZoneOffset.UTC)
+                ),
+                "17th May 2024 23:10:43"
+            )
+        }
+
+        "dateWithDaySuffix - Instant" {
+            testFunctionModel(
+                "dateWithDaySuffix-Instant", "/test",
+                mapOf(
+                    "date" to LocalDateTime.of(2024, 5, 17, 23, 10, 43).toInstant(ZoneOffset.UTC)
+                ),
+                "17th May 2024 23:10:43"
+            )
         }
 
         "json" {

@@ -4,8 +4,7 @@ import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Sorts
 import com.mongodb.client.model.geojson.Polygon
 import com.mongodb.client.model.geojson.Position
-import invirt.data.CompoundFilter
-import invirt.data.FieldFilter
+import invirt.data.DataFilter
 import invirt.data.Page
 import invirt.data.Sort
 import invirt.data.geo.GeoBoundingBox
@@ -70,14 +69,14 @@ class DataTest : StringSpec() {
         }
 
         "Filter.mongoFilter()" {
-            FieldFilter.eq("type", "person").mongoFilter() shouldBe Filters.eq("type", "person")
-            FieldFilter.ne("status", "open").mongoFilter() shouldBe Filters.ne("status", "open")
-            FieldFilter.gt("age", 37).mongoFilter() shouldBe Filters.gt("age", 37)
-            FieldFilter.gte("age", 18).mongoFilter() shouldBe Filters.gte("age", 18)
-            FieldFilter.lt("age", 55).mongoFilter() shouldBe Filters.lt("age", 55)
-            FieldFilter.lte("age", 98).mongoFilter() shouldBe Filters.lte("age", 98)
+            DataFilter.Field.eq("type", "person").mongoFilter() shouldBe Filters.eq("type", "person")
+            DataFilter.Field.ne("status", "open").mongoFilter() shouldBe Filters.ne("status", "open")
+            DataFilter.Field.gt("age", 37).mongoFilter() shouldBe Filters.gt("age", 37)
+            DataFilter.Field.gte("age", 18).mongoFilter() shouldBe Filters.gte("age", 18)
+            DataFilter.Field.lt("age", 55).mongoFilter() shouldBe Filters.lt("age", 55)
+            DataFilter.Field.lte("age", 98).mongoFilter() shouldBe Filters.lte("age", 98)
 
-            FieldFilter.withingGeoBounds(
+            DataFilter.Field.withingGeoBounds(
                 "location",
                 GeoBoundingBox(GeoLocation(lng = -8.596867, lat = 51.348611), GeoLocation(lng = 1.950008, lat = 56.435911))
             ).mongoFilter() shouldBe Filters.geoWithin(
@@ -93,10 +92,10 @@ class DataTest : StringSpec() {
                 )
             )
 
-            CompoundFilter.and(
-                CompoundFilter.or(FieldFilter.eq("status", "married"), FieldFilter.eq("status", "single")),
-                CompoundFilter.and(FieldFilter.gte("age", 18), FieldFilter.lt("age", 100)),
-                FieldFilter.eq("type", "person")
+            DataFilter.Compound.and(
+                DataFilter.Compound.or(DataFilter.Field.eq("status", "married"), DataFilter.Field.eq("status", "single")),
+                DataFilter.Compound.and(DataFilter.Field.gte("age", 18), DataFilter.Field.lt("age", 100)),
+                DataFilter.Field.eq("type", "person")
             ).mongoFilter() shouldBe Filters.and(
                 Filters.or(Filters.eq("status", "married"), Filters.eq("status", "single")),
                 Filters.and(Filters.gte("age", 18), Filters.lt("age", 100)),
