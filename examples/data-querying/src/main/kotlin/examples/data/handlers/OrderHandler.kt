@@ -2,7 +2,7 @@ package examples.data.handlers
 
 import examples.data.model.Order
 import examples.data.model.OrderStatus
-import examples.data.repository.OrderRepository
+import examples.data.service.OrderService
 import invirt.data.RecordsPage
 import invirt.data.Sort
 import invirt.data.eq
@@ -21,34 +21,32 @@ import org.http4k.routing.routes
 
 object OrderHandler {
 
-    operator fun invoke(orderRepository: OrderRepository): RoutingHttpHandler = routes(
+    operator fun invoke(orderService: OrderService): RoutingHttpHandler = routes(
         "/" GET { request ->
             val filter = filter(request)
             val sort = request.sort() ?: Sort.desc(Order::createdAt.name)
-            sort.revert()
             val page = request.page()
 
-            val ordersPage = orderRepository.searchOrders(filter, sort, page)
+            val ordersPage = orderService.searchOrders(filter, sort, page)
             ListOrdersResponse(ordersPage).ok()
         }
     )
 }
 
 private val filter = queryValuesFilter {
-    Query.enum<OrderStatus>().multi.optional("status").or { status ->
-        Order::status.eq(status)
-    }
-
     Query.optional("total").filter { value ->
         when (value) {
-            "less-than-1000" -> Order::totalMinorUnit.lt(100000)
-            "more-than-1000" -> Order::totalMinorUnit.gt(100000)
+            "less-than-1000" -> Order::totalMinorUnit.lt(1000_00)
+            "more-than-1000" -> Order::totalMinorUnit.gt(1000_00)
             else -> null
         }
+    }
+
+    Query.enum<OrderStatus>().multi.optional("status").or { status ->
+        Order::status.eq(status)
     }
 }
 
 private class ListOrdersResponse(val ordersPage: RecordsPage<Order>) : ViewResponse("list-orders") {
-
     val orderStatusValues = OrderStatus.entries
 }

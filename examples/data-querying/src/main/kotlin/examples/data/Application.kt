@@ -1,7 +1,7 @@
 package examples.data
 
 import examples.data.handlers.OrderHandler
-import examples.data.repository.OrderRepository
+import examples.data.service.OrderService
 import invirt.http4k.InvirtFilter
 import invirt.http4k.config.developmentMode
 import invirt.http4k.views.initialiseInvirtViews
@@ -19,10 +19,10 @@ class Application {
         val devMode = Environment.ENV.developmentMode
         initialiseInvirtViews(hotReload = devMode)
 
-        val orderRepository = OrderRepository()
+        val orderService = OrderService()
         val appHandler = InvirtFilter().then(
             routes(
-                OrderHandler(orderRepository)
+                OrderHandler(orderService)
             )
         )
 

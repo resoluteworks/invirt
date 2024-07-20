@@ -8,8 +8,10 @@ package invirt.data
  * For example, when page 12 is selected in a set of 100 pages, we'd have something like this: [1 ... 11 <12> 13 ... 100]
  * (<x> indicates that x the currently selected page)
  *
- * @pageNumbers returns the list of page numbers that should be displayed, using null values for where ellipsis (...) or some other "intermediate pages" symbol
- * should be presented. Please note that these numbers are zero-indexed [0 1 2 ...] so for display purposes these should be converted to 1-indexed values [1 2 3 ...].
+ * [pageIndices] returns the list of page indices that should be displayed, using null values for
+ * where ellipsis (...) or some other "intermediate pages" symbol should be presented.
+ * Please note that these numbers are zero-indexed [0 1 2 ...] so for display purposes these should
+ * be converted to 1-indexed values [1 2 3 ...].
  *
  * When the total number of pages is <=10 the algorithm will return all the pages: [1 2 3 4 5 6 7 8 9 10]
  *
@@ -55,13 +57,11 @@ data class Pagination(
     val nextPage: Page? = nextPageIndex
         ?.let { Page(nextPageIndex * currentPage.size, currentPage.size) }
 
-    fun getPage(index: Int): Page? {
-        return if (index < totalPages) {
-            val from = index * currentPage.size
-            Page(from, currentPage.size)
-        } else {
-            null
-        }
+    fun getPage(index: Int): Page? = if (index < totalPages) {
+        val from = index * currentPage.size
+        Page(from, currentPage.size)
+    } else {
+        null
     }
 
     private fun createPages(): List<Int?> {

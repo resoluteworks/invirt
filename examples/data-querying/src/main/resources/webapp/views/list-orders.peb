@@ -85,7 +85,7 @@ You'd normall do <a class="filter {{ isSelected ? 'selected' : '' }}">
                         <tr>
                             <th>
                                 <a href="{{ request.revertOrSetSort('createdAt', 'DESC', true) }}">
-                                    CreatedAt {{ sortOrderSymbol('createdAt') }}
+                                    Created at {{ sortOrderSymbol('createdAt') }}
                                 </a>
                             </th>
                             <th>
@@ -95,7 +95,7 @@ You'd normall do <a class="filter {{ isSelected ? 'selected' : '' }}">
                             </th>
                             <th>
                                 <a href="{{ request.revertOrSetSort('totalMinorUnit', 'ASC', true) }}">
-                                    Total {{ sortOrderSymbol('totalMinorUnit') }}
+                                    Total value {{ sortOrderSymbol('totalMinorUnit') }}
                                 </a>
                             </th>
                         </tr>

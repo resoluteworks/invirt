@@ -1,5 +1,5 @@
 ---
-sidebar_position: 3
+sidebar_position: 4
 ---
 
 # Pagination
@@ -37,8 +37,14 @@ data class RecordsPage<T : Any>(
     val records: List<T>,
     val totalCount: Long,
     val page: Page
-)
+) {
+    val pagination = Pagination(page, totalCount)
+}
 ```
 
 ## Pagination
-Probably the _most_ opinionated component in this section is `Pagination` which
+The `Pagination` component defines the logic that can be used to render a pagination control for
+a result set. Please check the [component's documentation](https://github.com/resoluteworks/invirt/blob/main/invirt-data/src/main/kotlin/invirt/data/Pagination.kt)
+for full details on how this works.
+
+## Page from query parameters

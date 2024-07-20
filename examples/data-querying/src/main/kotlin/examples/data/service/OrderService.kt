@@ -1,4 +1,4 @@
-package examples.data.repository
+package examples.data.service
 
 import examples.data.model.Order
 import examples.data.model.OrderStatus
@@ -13,9 +13,9 @@ import java.time.Instant
 import kotlin.random.Random
 
 /**
- * A mock implementation for a persistence repository.
+ * A mock implementation for an order service/repository.
  */
-class OrderRepository {
+class OrderService {
 
     private val orders = randomOrders()
 
