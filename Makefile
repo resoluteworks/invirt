@@ -1,7 +1,10 @@
 export OP_ACCOUNT := my.1password.com
-include .env
-export
 include gradle.properties
+
+ifneq (,$(wildcard ./.env))
+    include .env
+    export
+endif
 
 env:
 	rm -f .env
