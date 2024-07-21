@@ -18,7 +18,7 @@ docs-serve:
 	cd docs; npx docusaurus start
 
 docs-build:
-	cd docs; npm run build
+	cd docs; npm install; npm run build
 
 publish:
 	./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
