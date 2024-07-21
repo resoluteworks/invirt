@@ -22,7 +22,7 @@ anywhere. Outside macros, the [context request object](/docs/api/invirt-core/peb
 
 ### errors()
 Returns the validation errors object (`io.validk.ValidationErrors`) or `null` if there are no validation
-errors for the current request. Read more about validation [here](../forms/form-validation).
+errors for the current request. Read more about validation [here](/docs/framework/forms/form-validation).
 
 ```html
 {% if errors().hasErrors("name") %}

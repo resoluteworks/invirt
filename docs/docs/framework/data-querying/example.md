@@ -39,7 +39,7 @@ The query parameter for filtering with the above criteria is defined as follows:
 
 ## Core components definition
 An `OrderService` exposes a function that allows the application to search orders based on a filtering criteria,
-a sort order, and a pagination constraint. This function returns a [RecordsPage](/docs/framework/data-querying/pagination#recordspage).
+a sort order, and a pagination constraint. This function returns a [RecordsPage](/docs/api/invirt-data/page#recordspage).
 ```kotlin
 class OrderService {
     fun searchOrders(filter: DataFilter?, sort: Sort, page: Page): RecordsPage<Order> {
@@ -65,8 +65,8 @@ object OrderHandler {
 ## Handler implementation
 The handler is responsible for reading the query parameters defined above and creating the relevant
 objects to be passed to the `OrderService`. Starting with the easier ones, we can use Invirt's built-in
-extensions to read [sort](/docs/framework/data-querying/sort#sort-in-query-parameters) and
-[page](/docs/framework/data-querying/pagination#page-from-query-parameters) information from the request's query parameters.
+extensions to read [sort](/docs/api/invirt-core/request-extensions#requestsort) and
+[page](/docs/api/invirt-core/request-extensions#requestpage) information from the request's query parameters.
 
 ```kotlin
 val sort = request.sort() ?: Sort.desc(Order::createdAt.name)

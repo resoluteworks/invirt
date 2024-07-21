@@ -31,7 +31,8 @@ using http4k's built-in components (no magic, really). Typically used when deplo
 the application in production.
 
 #### Bootstrapping Pebble templates
-Invirt exposes a set of [custom context objects](/docs/api/invirt-core/pebble/pebble-context-objects) and [utility functions](/docs/api/pebble/pebble-functions)
+Invirt exposes a set of [custom context objects](/docs/api/invirt-core/pebble/pebble-context-objects) and
+[utility functions](/docs/api/invirt-core/pebble/pebble-functions)
 which are delivered using a custom implementation of template rendering, wired in this call.
 
 #### Setting a global view lens

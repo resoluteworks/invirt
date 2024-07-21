@@ -1,0 +1,27 @@
+name: Publish Documentation
+
+permissions:
+  contents: write
+  pages: write
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Generate Documentation
+        run: make docs-build
+      - name: Deploy to GitHub Pages
+        if: success()
+        uses: crazy-max/ghaction-github-pages@v3
+        with:
+          target_branch: gh-pages
+          build_dir: docs/build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
