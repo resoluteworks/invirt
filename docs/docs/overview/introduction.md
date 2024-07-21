@@ -58,22 +58,21 @@ This means pushing all underlying frameworks and components towards this goal an
 natively with all of them, in order to minimise the need for customisation, particularly when dealing
 with trivial or common use cases (like form binding, pagination, etc).
 
-We believe that having a _bring your own templating engine_ approach would've moved us away from these
+We believe that having a _bring-your-own-templating-engine_ approach would've moved us away from these
 goals, and would've made it harder to support the ecosystem. With that in mind, we wanted to choose a
 JVM templating engine and go "all in", by building native Invirt integrations and utilities for it,
 and expose those to the application.
 
-When it came to choosing a templating engine for the JVM (of which there are many), the criteria we applied
-was:
+The criteria we applied when choosing a JVM templating framework was:
  * It had to be actively maintained.
- * It had to have reasonable performance in comparison with other JVM frameworks.
- * It had to be hot-reloadable so that editing a template would mean the changes were immediately visible by a browser refresh.
-This is a crucial criteria for a fluent developer experience in writing web applications, which comes for free in the JavaScript / SPA
-world.
- * It had to be non-HTML-intrusive: we felt that custom HTML tags/elements are unnecessary, and they make reasoning about
+ * It had to have reasonable performance compared to other JVM templating frameworks.
+ * It had to be hot-reloadable: editing a template would make the changes immediately visible via a browser refresh.
+  This is an important contributor to the developer experience when writing web applications, and one that comes (almost)
+  for free in JavaScript/SPA ecosystems, but not so much on the JVM.
+ * It had to be non-HTML-intrusive: we feel that custom HTML tags/elements are unnecessary, and they make reasoning about
 the HTML structure harder.
  * It had to be easily extensible and allow the client code (or Invirt, in this case) to add custom functionality
-that integrates natively in the HTML templating logic.
+that integrates easily in the HTML templating logic.
 
 Pebble ticked all these boxes for us. While it's not unlikely for us to consider expanding Invirt to support
 other templating engines, what's certain is that we won't be doing that until we see arguments against Pebble that
