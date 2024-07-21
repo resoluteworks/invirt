@@ -8,7 +8,7 @@ handler. This is useful for several scenarios, including the rendering of templa
 current request or URI.
 
 ## In Kotlin
-[InvirtFilter](/docs/framework/quickstart#2-invirtfilter) automatically stores the current http4k request
+[InvirtFilter](/docs/overview/quickstart#2-invirtfilter) automatically stores the current http4k request
 on the current thread when wired and exposes a `currentRequest` property which can be accessed anywhere within the application.
 ```kotlin
 println(InvirtFilter.currentRequest!!.uri)
