@@ -61,8 +61,8 @@ fun DataFilter.mongoFilter(): Bson = when (this) {
     is DataFilter.Field<*> -> this.fieldFilter()
     is DataFilter.Compound -> {
         when (this.operator) {
-            DataFilter.Compound.Operator.OR -> Filters.or(this.children.map { it.mongoFilter() })
-            DataFilter.Compound.Operator.AND -> Filters.and(this.children.map { it.mongoFilter() })
+            DataFilter.Compound.Operator.OR -> Filters.or(this.subFilters.map { it.mongoFilter() })
+            DataFilter.Compound.Operator.AND -> Filters.and(this.subFilters.map { it.mongoFilter() })
         }
     }
 

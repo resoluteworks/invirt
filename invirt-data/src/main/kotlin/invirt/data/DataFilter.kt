@@ -5,7 +5,7 @@ import kotlin.reflect.KProperty
 
 sealed class DataFilter {
 
-    data class Field<Value : Any?>(
+    data class Field<Value : Any>(
         val field: String,
         val operation: Operation,
         val value: Value
@@ -46,11 +46,11 @@ sealed class DataFilter {
 
     data class Compound(
         val operator: Operator,
-        val children: Collection<DataFilter>
+        val subFilters: Collection<DataFilter>
     ) : DataFilter() {
 
         init {
-            if (children.isEmpty()) {
+            if (subFilters.isEmpty()) {
                 throw IllegalArgumentException("children argument cannot be an empty collection")
             }
         }
@@ -72,14 +72,17 @@ sealed class DataFilter {
     }
 }
 
-fun Collection<DataFilter>.orFilter(): DataFilter? = if (isEmpty()) {
-    null
+fun andFilter(vararg filters: DataFilter): DataFilter = filters.toList().andFilter()
+fun orFilter(vararg filters: DataFilter): DataFilter = filters.toList().orFilter()
+
+fun Collection<DataFilter>.orFilter(): DataFilter = if (isEmpty()) {
+    throw IllegalArgumentException("Filter colletion cannot be empty for an OR filter")
 } else {
     DataFilter.Compound.or(this)
 }
 
-fun Collection<DataFilter>.andFilter(): DataFilter? = if (isEmpty()) {
-    null
+fun Collection<DataFilter>.andFilter(): DataFilter = if (isEmpty()) {
+    throw IllegalArgumentException("Filter colletion cannot be empty for an AND filter")
 } else {
     DataFilter.Compound.and(this)
 }
@@ -107,10 +110,10 @@ fun KProperty<*>.doesntExist(): DataFilter.Field<Unit> = DataFilter.Field.doesnt
  * Returns the underlying filter when the or/and clause contains a single filter
  */
 fun DataFilter.flatten(): DataFilter = if (this is DataFilter.Compound) {
-    if (children.size == 1) {
-        children.first().flatten()
+    if (subFilters.size == 1) {
+        subFilters.first().flatten()
     } else {
-        DataFilter.Compound(this.operator, children.map { it.flatten() })
+        DataFilter.Compound(this.operator, subFilters.map { it.flatten() })
     }
 } else {
     this

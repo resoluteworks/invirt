@@ -1,8 +1,8 @@
 ---
-sidebar_position: 4
+sidebar_position: 3
 ---
 
-# Pagination
+# Pagination components
 
 Invirt takes a somewhat opinionated approach for the design of pagination components, but
 an approach that's in line with certain user experience constraints in many applications:
@@ -11,9 +11,12 @@ an approach that's in line with certain user experience constraints in many appl
  * The user needs to know the total number of results in the current query.
 
 
-# Page
+## Page
 
-To that effect, the core pagination component is kept very simple.
+To that effect, the core pagination component is kept very simple. To read a `Page` object from
+a `Request` object's query parameters use the [Request.page()](/docs/api/invirt-core/request-extensions#requestpage)
+extension.
+
 ```kotlin
 data class Page(
     val from: Int,
@@ -46,5 +49,3 @@ data class RecordsPage<T : Any>(
 The `Pagination` component defines the logic that can be used to render a pagination control for
 a result set. Please check the [component's documentation](https://github.com/resoluteworks/invirt/blob/main/invirt-data/src/main/kotlin/invirt/data/Pagination.kt)
 for full details on how this works.
-
-## Page from query parameters

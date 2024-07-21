@@ -48,6 +48,9 @@ private val ordersFilter = queryValuesFilter(DataFilter.Compound.Operator.AND) {
     }
 }
 
-private class ListOrdersResponse(val ordersPage: RecordsPage<Order>) : ViewResponse("list-orders") {
+private class ListOrdersResponse(
+    val ordersPage: RecordsPage<Order>
+) : ViewResponse("list-orders") {
+
     val orderStatusValues = OrderStatus.entries
 }

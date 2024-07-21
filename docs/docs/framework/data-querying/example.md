@@ -3,6 +3,7 @@ sidebar_position: 2
 ---
 
 import image1 from './assets/example-app-1.png';
+import image2 from './assets/example-app-2.png';
 
 # Example application
 
@@ -91,13 +92,11 @@ val ordersFilter = queryValuesFilter {
 }
 ```
 
-Several things to unpack here.
-
-The `queryValuesFilter()` function builds a `QueryValuesFilter` object which stores the individual
-lambdas defined with the function's scope for how query parameters should be transformed into
-[DataFilter](/docs/api/invirt-data/data-filter) objects at runtime. This object can then be applied
-to a `Request` to run the defined lambdas against its query parameter values, and produce the final `DataFilter`
-(or `null` if none of the expected parameters are present).
+Several things to unpack here, so let's start with `queryValuesFilter()` itself.
+This function builds a `QueryValuesFilter` object which stores the configuration
+(lambdas) how to transform query parameters into[DataFilter](/docs/api/invirt-data/data-filter)
+objects at runtime. This object can then be applied to a `Request` to produce the final
+`DataFilter`, or `null` if none of the expected parameters are present.
 
 ```kotlin
 val ordersFilter = queryValuesFilter {...}
@@ -108,7 +107,10 @@ val ordersFilter = queryValuesFilter {...}
 }
 ```
 
-By default, this function builds an `AND` compound filter from the individual filters defined within its lambda.
+The constructs inside the lambda will use http4k's built-in [parameter lensing](https://www.http4k.org/guide/howto/typesafe_your_api_with_lenses/)
+to start defining an expression for processing a parameter, hence the `Query.` chained calls.
+
+By default, `queryValuesFilter` builds an `AND` compound filter from the individual parameter filters defined in its lambda.
 This can be overridden by passing `DataFilter.Compound.Operator.OR`.
 ```kotlin
 queryValuesFilter { ... } // Defaults to DataFilter.Compound.Operator.AND
@@ -117,28 +119,47 @@ queryValuesFilter(DataFilter.Compound.Operator.OR) { ... }
 ```
 
 #### Handling total-order-value
-`total-order-value` is handled as a query parameter that is only passed (and handled) once,
-i.e. passing:
+`total-order-value` is handled as a query parameter that is only passed (and handled) once, i.e. passing the query
+below will cause the second value to be ignored, which is what we want in this case.
 ```
 &total-order-value=less-than-1000&total-order-value=more-than-1000
 ```
-will cause the second value to be ignored.
 
-To handle this the construct starts with an http4k built-in `Query.optional("total-order-value")` and then
-call Invirt's `.filter` extension function which allows us to specify the `DataFilter` to be returned
-for the current value of this parameter. In our case, we have `when` clause explicitly defining
-what filter is produced for each value (or `null` if the passed value doesn't match any of them).
+To convert `total-order-value` to a `DataFilter` we start with http4k built-in `Query.optional("total-order-value")`
+and then call Invirt's `.filter` to specify the lambda returning a `DataFilter` for the current value of this parameter.
+In our case, we have `when` clause defining explicitly what filter is produced for each value
+(or `null` if the passed value doesn't match any of them).
 
 #### Handling status
-Http4k's built-ins are used again to define the handling here, using `Query.enum<OrderStatus>().multi.optional("status")`
-which specify that this parameter can appear multiple times and it should be converted to a collection of `OrderStatus`
-values.
+Http4k's built-ins lensing is used again to convert the parameter to `OrderStatus` enum values and specify that it can
+appear multiple times in the query (`.multi`).
+```kotlin
+Query.enum<OrderStatus>().multi.optional("status")
+```
 
-This then allows us to call Invirt's `.or` extension which enables us to specify how each of the individual `OrderStatus`
-values must be converted to a `DataFilter`, as well as specifying how the final filter for `status` should be produced.
-In our case it's an OR as per defined requirements above, but this can be an `.and` if the application requires it.
+This then allows us to call an Invirt extension (`.or` in this case) to specify
+ * How the individual `DataFilters` must be combined when there are multiple values which: OR or AND (`.or` / `.and`). For our
+   requirements we need an OR for the order status filter.
+ * How each of the individual `OrderStatus` convert to a `DataFilter`, a simple equals filter, in this case, via `Order::status.eq(status)`
 
 ### Listing response and view wiring
+To render the orders we will use [ViewResponse](/docs/framework/views-wiring#viewresponse), which will store
+the `RecordsPage<Order>` returned by `OrderService.searchOrders()`, to be consumed directly by the template.
+
+We also want to provide the `OrderStatus` enum values to render the possible options for the order status
+filter (see image below), so we don't hardcode these in the template which can cause them to drift from the internal enum definition.
+
+<img src={image2} width="600"/>
+
+The code for this component would then be fairly straightforward.
+```kotlin
+private class ListOrdersResponse(
+    val ordersPage: RecordsPage<Order>
+) : ViewResponse("list-orders") {
+
+    val orderStatusValues = OrderStatus.entries
+}
+```
 
 ### Complete handler code
 ```kotlin

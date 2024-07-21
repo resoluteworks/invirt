@@ -6,7 +6,7 @@ import io.kotest.assertions.throwables.shouldThrowWithMessage
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 
-class FilterTest : StringSpec({
+class DataFilterTest : StringSpec({
 
     "compound filter - or" {
         DataFilter.Compound.or(DataFilter.Field.gte("field", 10), DataFilter.Field.ne("status", "open")) shouldBe
@@ -103,19 +103,27 @@ class FilterTest : StringSpec({
         DataFilter.Field.doesntExist("name") shouldBe DataFilter.Field("name", DataFilter.Field.Operation.DOESNT_EXIST, Unit)
     }
     "KProperty" {
-        data class Pojo(
+        data class Document(
             val title: String,
             val size: Int,
             val status: Status?
         )
-        Pojo::title.eq("Work in progress") shouldBe DataFilter.Field.eq("title", "Work in progress")
-        Pojo::status.ne(Status.PUBLISHED) shouldBe DataFilter.Field.ne("status", Status.PUBLISHED)
-        Pojo::size.gt(20) shouldBe DataFilter.Field.gt("size", 20)
-        Pojo::size.gte(5) shouldBe DataFilter.Field.gte("size", 5)
-        Pojo::size.lt(32) shouldBe DataFilter.Field.lt("size", 32)
-        Pojo::size.lte(45) shouldBe DataFilter.Field.lte("size", 45)
-        Pojo::status.exists() shouldBe DataFilter.Field.exists("status")
-        Pojo::status.doesntExist() shouldBe DataFilter.Field.doesntExist("status")
+        Document::title.eq("Work in progress") shouldBe DataFilter.Field.eq("title", "Work in progress")
+        Document::status.ne(Status.PUBLISHED) shouldBe DataFilter.Field.ne("status", Status.PUBLISHED)
+        Document::size.gt(20) shouldBe DataFilter.Field.gt("size", 20)
+        Document::size.gte(5) shouldBe DataFilter.Field.gte("size", 5)
+        Document::size.lt(32) shouldBe DataFilter.Field.lt("size", 32)
+        Document::size.lte(45) shouldBe DataFilter.Field.lte("size", 45)
+        Document::status.exists() shouldBe DataFilter.Field.exists("status")
+        Document::status.doesntExist() shouldBe DataFilter.Field.doesntExist("status")
+
+        val filter = orFilter(
+            Document::status.ne(Status.PUBLISHED),
+            andFilter(
+                Document::status.eq(Status.PUBLISHED),
+                Document::size.gte(200000)
+            )
+        )
     }
 
     "String" {
