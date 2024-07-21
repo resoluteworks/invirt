@@ -19,7 +19,7 @@ implementation("io.resoluteworks:invirt-data")
 ```
 
 ## Rationale
-It's important to note that Invirt doesn't provide implementations of these abstractions
+It's important to note that Invirt doesn't provide implementations of [these abstractions](/docs/api/invirt-data/data-filter)
 for specific databases, and that would be out of scope for the foreseeable future.
 
 The main reason for this is because we wanted to provide greater flexibility of query building,

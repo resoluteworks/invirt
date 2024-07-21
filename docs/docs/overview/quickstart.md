@@ -5,7 +5,7 @@ sidebar_position: 2
 # Quick Start
 
 For in-depth documentation please check:
- * [Framework documentation](/docs/framework/introduction)
+ * [Framework documentation](/docs/framework/views-wiring)
  * [API documentation](/docs/api/invirt-core/route-binding)
 
 ## Quick Start Application

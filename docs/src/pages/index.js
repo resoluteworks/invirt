@@ -12,11 +12,10 @@ function HomepageHeader() {
   return (
     <header className={clsx('hero hero--primary', styles.heroBanner)}>
       <div className="container">
-        <Heading as="h1" className="hero__title">
-          {siteConfig.title}
-        </Heading>
-        <p className="hero__subtitle">{siteConfig.tagline}</p>
-        <div className={styles.buttons}>
+          <Heading as="h1" className="hero__title">
+              Invirt is a framework for building web applications with <span className="title-inline-ref">Kotlin</span>, <span className="title-inline-ref">Http4k</span> and <span className="title-inline-ref">Pebble</span> templates.
+          </Heading>
+          <div className={styles.buttons}>
           <Link
             className="button button--secondary button--lg"
             to="/docs/overview/quickstart">
