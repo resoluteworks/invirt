@@ -2,6 +2,7 @@ package invirt.data
 
 import invirt.data.geo.GeoBoundingBox
 import invirt.data.geo.GeoLocation
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.throwables.shouldThrowWithMessage
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -75,7 +76,9 @@ class DataFilterTest : StringSpec({
     }
 
     "Collection.orFilter()" {
-        emptySet<DataFilter>().orFilter() shouldBe null
+        shouldThrow<IllegalArgumentException> {
+            emptySet<DataFilter>().orFilter()
+        }
 
         listOf("type".eq("person"), "size".gte(10)).orFilter() shouldBe DataFilter.Compound(
             DataFilter.Compound.Operator.OR, listOf("type".eq("person"), "size".gte(10))
@@ -85,7 +88,9 @@ class DataFilterTest : StringSpec({
     }
 
     "Collection.andFilter()" {
-        emptySet<DataFilter>().andFilter() shouldBe null
+        shouldThrow<IllegalArgumentException> {
+            emptySet<DataFilter>().andFilter()
+        }
 
         listOf("type".eq("person"), "size".gte(10)).andFilter() shouldBe DataFilter.Compound(
             DataFilter.Compound.Operator.AND, listOf("type".eq("person"), "size".gte(10))
