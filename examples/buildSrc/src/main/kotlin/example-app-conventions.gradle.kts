@@ -47,3 +47,10 @@ dependencies {
     testImplementation("io.mockk:mockk:${mockkVersion}")
     testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
 }
+
+tasks.named<JavaExec>("run") {
+    debugOptions {
+        enabled = true
+        suspend = false
+    }
+}

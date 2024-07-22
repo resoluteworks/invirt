@@ -1,14 +1,11 @@
 package invirt.http4k.views
 
 import invirt.http4k.GET
-import invirt.pebble.functions.NoArgsPebbleFunction
+import invirt.pebble.functions.pebbleFunction
+import invirt.pebble.pebbleFunctions
 import invirt.utils.uuid7
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
-import io.pebbletemplates.pebble.extension.AbstractExtension
-import io.pebbletemplates.pebble.extension.Function
-import io.pebbletemplates.pebble.template.EvaluationContext
-import io.pebbletemplates.pebble.template.PebbleTemplate
 import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.routing.bind
@@ -73,7 +70,13 @@ class ViewsTest : StringSpec() {
             initialiseInvirtViews(
                 hotReload = false,
                 classpathLocation = "webapp/views",
-                pebbleExtensions = listOf(CustomExtension())
+                pebbleExtensions = listOf(
+                    pebbleFunctions(
+                        pebbleFunction("currentUsername") {
+                            "John Smith"
+                        }
+                    )
+                )
             )
             val httpHandler = routes(
                 "/test" bind Method.GET to {
@@ -85,20 +88,4 @@ class ViewsTest : StringSpec() {
             response.bodyString().trim() shouldBe "John Smith"
         }
     }
-}
-
-private class CurrentUsernameFunction : NoArgsPebbleFunction("currentUsername") {
-
-    override fun execute(
-        args: MutableMap<String, Any>?,
-        self: PebbleTemplate?,
-        context: EvaluationContext?,
-        lineNumber: Int
-    ): Any = "John Smith"
-}
-
-private class CustomExtension : AbstractExtension() {
-    override fun getFunctions(): Map<String, Function> = listOf(
-        CurrentUsernameFunction()
-    ).associateBy { it.name }
 }

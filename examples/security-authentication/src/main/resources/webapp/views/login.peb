@@ -1,0 +1,22 @@
+{% extends "layout.peb" %}
+
+{% block pageContent %}
+    <div class="flex flex-col gap-4">
+        <div class="text-2xl font-bold">Login</div>
+
+        <form action="/login" method="POST" class="flex flex-col items-start gap-4 max-w-96">
+            <div class="flex flex-col gap-2 w-full">
+                <input type="text" name="email" placeholder="Email" class="input input-bordered w-full"/>
+                <input type="password" name="password" placeholder="Password" class="input input-bordered w-full"/>
+            </div>
+
+            {% if errors != null and errors.hasErrors("credentials") %}
+                <div class="text-error">{{ errors.error("credentials") }}</div>
+            {% endif %}
+
+
+            <button type="submit" class="mt-4 btn btn-neutral">Log in</button>
+        </form>
+
+    </div>
+{% endblock %}
