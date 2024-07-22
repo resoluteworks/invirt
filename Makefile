@@ -24,7 +24,7 @@ publish:
 	./gradlew publishAllPublicationsToCentralPortal
 
 publish-local:
-	./gradlew publish -x initializeSonatypeStagingRepository -x publishMavenJavaPublicationToSonatypeRepository
+	./gradlew publish
 
 release: test publish-local publish
 	@echo $(invirtVersion)
