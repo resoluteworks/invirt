@@ -20,21 +20,20 @@ class AuthenticationFilterTest : StringSpec({
         InvirtFilter()
             .then(AuthenticationFilter(failingAuthenticator))
             .authTestRoute()
-            .shouldBeNull()
+            .shouldHaveNullPrincipal()
             .response.cookies().shouldBeEmpty() // No cookies set
     }
 
-    "principal present and cookies set when authenticated" {
+    "principal present when authenticated" {
         val principal = TestPrincipal(uuid7())
         val authenticator = successAuthenticator(principal)
         InvirtFilter()
             .then(AuthenticationFilter(authenticator))
             .authTestRoute()
-            .shouldBePrincipal(principal)
-            .response shouldHaveSetCookie Cookie("test-cookie", "value") // Cookies set when authenticated
+            .shouldHavePrincipal(principal)
 
         // Authentication always cleared after request finishes
-        Principal.present shouldBe false
+        Principal.isPresent shouldBe false
     }
 
     "newCookies updates cookies" {
@@ -44,7 +43,7 @@ class AuthenticationFilterTest : StringSpec({
         InvirtFilter()
             .then(AuthenticationFilter(authenticator))
             .authTestRoute()
-            .shouldBePrincipal(principal)
+            .shouldHavePrincipal(principal)
             .response shouldHaveSetCookie Cookie("test-cookie", "refreshed-value")
     }
 })

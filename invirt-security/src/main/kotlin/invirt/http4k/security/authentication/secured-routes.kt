@@ -16,7 +16,7 @@ fun securedRoutes(
     val filter =
         Filter { next ->
             { request ->
-                if (Principal.present && check(Principal.current)) {
+                if (Principal.isPresent && check(Principal.current)) {
                     next(request)
                 } else {
                     Response(Status.FORBIDDEN)
@@ -33,7 +33,7 @@ fun authenticatedRoutes(route: RoutingHttpHandler): RoutingHttpHandler {
     val filter =
         Filter { next ->
             { request ->
-                if (Principal.present) {
+                if (Principal.isPresent) {
                     next(request)
                 } else {
                     Response(Status.FORBIDDEN)

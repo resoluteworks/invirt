@@ -31,15 +31,17 @@ class SecuredRoutesTest : StringSpec({
     }
 
     "not allowed" {
-        val handler = routes(
-            securedRoutes(
-                { "ADMIN" in it.roles },
-                routes(
-                    "/admin" GET { Response(Status.OK) },
-                    "/admin/test" GET { Response(Status.OK) }
-                )
+        val permissionChecker: (Principal) -> Boolean = { principal ->
+            "ADMIN" in principal.roles
+        }
+        val handler = securedRoutes(
+            permissionChecker,
+            routes(
+                "/admin" GET { Response(Status.OK) },
+                "/admin/test" GET { Response(Status.OK) }
             )
         )
+
         withRoles("USER") {
             handler(Request(Method.GET, "/admin")) shouldHaveStatus Status.FORBIDDEN
             handler(Request(Method.GET, "/admin/test")) shouldHaveStatus Status.FORBIDDEN

@@ -11,10 +11,23 @@ internal val principalContextKey = RequestContextKey.optional<Principal>(InvirtF
 interface Principal {
 
     companion object {
+        /**
+         * Returns the [Principal] on the current thread if present, fails otherwise
+         */
+        val current: Principal
+            get() {
+                return currentSafe ?: throw IllegalStateException("No Principal found on current threads")
+            }
+
+        /**
+         * Returns the [Principal] on the current thread if present, `null` otherwise
+         */
         val currentSafe: Principal? get() = principalThreadLocal.get()
-        val current: Principal get() = currentSafe!!
-        val present: Boolean get() = principalThreadLocal.get() != null
-        inline fun <reified P : Principal> current(): P = current as P
+
+        /**
+         * Checks if a [Principal] is present on the current thread.
+         */
+        val isPresent: Boolean get() = principalThreadLocal.get() != null
     }
 }
 

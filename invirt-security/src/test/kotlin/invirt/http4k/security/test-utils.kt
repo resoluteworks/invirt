@@ -22,7 +22,11 @@ val failingAuthenticator: Authenticator = object : Authenticator {
 }
 
 fun successAuthenticator(principal: Principal, newCookies: List<Cookie> = emptyList()): Authenticator = object : Authenticator {
-    override fun authenticate(request: Request) = AuthenticationResponse.Authenticated(principal, newCookies)
+    override fun authenticate(request: Request): AuthenticationResponse.Authenticated<Principal> = if (newCookies.isNotEmpty()) {
+        AuthenticationResponse.Authenticated(principal, newCookies)
+    } else {
+        AuthenticationResponse.Authenticated(principal)
+    }
 }
 
 data class TestPrincipal(
@@ -60,13 +64,13 @@ data class AuthTestResult(
     val requestPrincipal: Principal?,
     val response: Response
 ) {
-    infix fun shouldBePrincipal(principal: Principal): AuthTestResult {
+    infix fun shouldHavePrincipal(principal: Principal): AuthTestResult {
         this.threadPrincipal shouldBe principal
         this.requestPrincipal shouldBe principal
         return this
     }
 
-    fun shouldBeNull(): AuthTestResult {
+    fun shouldHaveNullPrincipal(): AuthTestResult {
         this.threadPrincipal shouldBe null
         this.requestPrincipal shouldBe null
         return this

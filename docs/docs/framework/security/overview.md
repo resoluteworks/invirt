@@ -2,10 +2,12 @@
 sidebar_position: 1
 ---
 
+import happyFlow from './assets/authentication-happy-flow.png';
+
 # Overview
 
-Invirt's security module focuses exclusively on authentication (not authorisation) and it provides
-a set of components for transparently authenticating HTTP requests via custom [http4k filters](https://www.http4k.org/guide/reference/core/#filters).
+Invirt's security module focuses exclusively on authentication and it provides
+a set of components for transparently authenticating HTTP requests via a custom [http4k filter](https://www.http4k.org/guide/reference/core/#filters).
 
 ## Dependency
 ```kotlin
@@ -14,45 +16,51 @@ implementation("io.resoluteworks:invirt-security")
 ```
 
 ## Use case
-The first problem we aim to solve with this module is to provide an application with context for the currently
-authenticated user transparently, and allowing for that to be checked anywhere within the stack.
+The first problem we aim to solve is to provide an application with context for the currently
+authenticated user (Principal) transparently, and allowing for that to be checked anywhere within the stack.
+We use a ThreadLocal for this purpose, and request context.
 
-Second, we want to allow the application to decide what authentication solution it wants to use, and simply
-provide the scaffolding to wire that in and secure the application's routes.
+Second, we want to allow the application to decide what authentication solution it wants to use, with Invirt simply
+providing the scaffolding to wire that in, and secure certain application routes.
 
 Lastly, we wanted to make the tooling as un-intrusive as possible, and allow the application to define
-the concepts of user or principal according to its requirements, without the heavy constraints from the framework
-on how these must be implemented.
+the concepts of user or principal according to its requirements, without heavy constraints from the framework
+on how these must be implemented and handled.
 
-In other words, we wanted to provide a way to easily reason about a browser's authentication context (like cookies)
-and the system's requirements to secure certain routes against those credentials.
+Below is a high level view of a happy flow for authenticating a request using request cookies.
 
-## Core concepts
+<img src={happyFlow}/>
 
-### Principal
-Invirt's definition of Principal is similar to the one in other MVC and server frameworks, in the sense
-that it refers to the currently authenticated entity or user operating the system.
+## What Invirt Security doesn't do
 
-An essential difference, however, is that Invirt doesn't have a native concept of "anonymous"
-Principal (i.e. not authenticated user) as we felt this would add a layer of complexity that doesn't
-benefit the framework's objectives. That being said, it shouldn't be hard for an application to handle this should it require to.
+#### Login/Logout
+As these operations are usually heavy coupled to the authentication provider being used and the application
+design, we left this to the developer to wire according to the system requirements.
 
-In Invirt, the Principal object is defined as a marker interface with no properties or functions, and only
-a companion object with some utilities for exposing the entity to the rest of the application.
+#### Authorisation
+Invirt doesn't implement authorisation semantics, as we felt that this is an area where the application
+must be allowed flexibility. We didn't want to make any assumptions about the applications authorisation requirements
+and whether it should use RBAC (Role Based Access Control) or ABAC (Attribute-Based Access), for example.
 
+#### Path-based access control
+Some frameworks provide utilities to define paths and regular expressions to secure certain routes and
+resources based on a Principal's role or attributes. For example `/admin/*` can only be accessed by Role.ADMIN.
+This is a practice that has a lot of limitations which we wanted to avoid. It also falls in the realm
+of authorisation, which we discussed above.
+
+That being said, Invirt provides a basic utility to wire custom authorisation checks via a filter, allowing the application
+to implement custom checks for specific application routes and resources in a functional style.
 ```kotlin
-interface Principal {
-
-    companion object {
-        val current: Principal ...
-        ...
-    }
+val permissionChecker: (Principal) -> Boolean = { principal ->
+    "ADMIN" in principal.roles
 }
+
+val handler = securedRoutes(
+    permissionChecker,
+    routes(
+        "/admin" GET { Response(Status.OK) },
+        "/admin/test" GET { Response(Status.OK) }
+    )
+)
 ```
 
-An Invirt application must implement this interface in a "user" class to define its properties and behaviour
-and to allow that component to interact with the rest of the Invirt Security mini-framework. Again, we didn't
-want to prescribe the attributes and features of a Principal, and we leave it to the application to do so.
-
-## Authentication
-This component defines
