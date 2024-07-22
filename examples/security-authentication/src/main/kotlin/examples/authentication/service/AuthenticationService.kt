@@ -20,6 +20,9 @@ import org.http4k.core.cookie.invalidate
 import java.time.Clock
 import java.time.Instant
 
+/**
+ * A mock implementation of user persistence, session persistence and authentication provider, all in one.
+ */
 class AuthenticationService(
     // Mainly used for testing
     private val clock: Clock = Clock.systemUTC()
