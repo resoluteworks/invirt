@@ -68,9 +68,16 @@ sealed class AuthenticationResponse {
 ```
 
 ## AuthenticationFilter
-The AuthenticationFilter is the main component responsible for calling `Authenticator` above and storing
+`AuthenticationFilter` is the main component responsible for calling `Authenticator` above and storing
 the principal (if authentication is successful) on the current Request (context), and on a ThreadLocal.
 
 When `AuthenticationResponse.Authenticated` contains a non-empty `newCookies`, `AuthenticationFilter`
 will set these on the response, once the request completes. This is useful for both login scenarios, but also
 for refreshing authentication credentials stored in cookies (like JWT tokens).
+
+It's important to note that `AuthenticationFilter` doesn't act as a gateway to prevent requests from proceeding
+when a principal isn't present, or if the Principal doesn't match certain criteria for accessing the resource.
+It's within the remit of the application to handle that.
+
+The filter's responsibility is simply to extract a `Principal` object from the request, via the `Authenticator`
+component, set it on the current thread and request context, and clear these after the request completes.
