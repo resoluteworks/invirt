@@ -16,7 +16,6 @@ class PrincipalTest : StringSpec({
         shouldThrow<IllegalStateException> {
             principal.useOnThisThread {
                 fromThread = Principal.current
-                fromThreadSafe = Principal.currentSafe
                 fromThreadTyped = Principal.current<TestPrincipal>()
                 throw IllegalStateException("Error")
             }
@@ -26,7 +25,7 @@ class PrincipalTest : StringSpec({
         fromThreadSafe shouldBe principal
         fromThreadTyped shouldBe principal
 
-        Principal.currentSafe shouldBe null
+        Principal.present shouldBe false
         shouldThrow<NullPointerException> {
             Principal.current
         }

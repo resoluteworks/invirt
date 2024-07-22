@@ -1,6 +1,8 @@
 package invirt.http4k.security
 
 import invirt.http4k.GET
+import invirt.http4k.security.authentication.authenticatedRoutes
+import invirt.http4k.security.authentication.useOnThisThread
 import invirt.utils.uuid7
 import io.kotest.core.spec.style.StringSpec
 import org.http4k.core.Method

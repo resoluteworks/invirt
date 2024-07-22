@@ -1,6 +1,5 @@
-package invirt.http4k.security
+package invirt.http4k.security.authentication
 
-import invirt.http4k.security.authentication.Principal
 import org.http4k.core.Filter
 import org.http4k.core.Response
 import org.http4k.core.Status

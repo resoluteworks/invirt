@@ -2,6 +2,7 @@ package invirt.http4k.security
 
 import invirt.http4k.GET
 import invirt.http4k.security.authentication.Principal
+import invirt.http4k.security.authentication.securedRoutes
 import io.kotest.core.spec.style.StringSpec
 import org.http4k.core.Method
 import org.http4k.core.Request
