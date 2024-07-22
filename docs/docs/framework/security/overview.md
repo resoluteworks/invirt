@@ -27,7 +27,7 @@ Lastly, we wanted to make the tooling as un-intrusive as possible, and allow the
 the concepts of user or principal according to its requirements, without heavy constraints from the framework
 on how these must be implemented and handled.
 
-Below is a high level view of a happy flow for authenticating a request using request cookies.
+Below is a high level view of a happy flow for authenticating a request using cookies.
 We discuss [these concepts](/docs/framework/security/core-concepts) in detail and
 there is also an [example application](/docs/framework/security/example) to explore them.
 
@@ -37,21 +37,22 @@ there is also an [example application](/docs/framework/security/example) to expl
 
 #### Login/Logout
 As these operations are usually heavy coupled to the authentication provider being used and the application
-design, we left this to the developer to wire according to the system requirements.
+design, we left this to the developer to wire according to the system requirements. Handling magic links, MFA
+and other authentication options is not something that Invirt wants to or can prescribe.
 
 #### Authorisation
 Invirt doesn't implement authorisation semantics, as we felt that this is an area where the application
 must be allowed flexibility. We didn't want to make any assumptions about the applications authorisation requirements
-and whether it should use RBAC (Role Based Access Control) or ABAC (Attribute-Based Access), for example.
+and whether, for example, it should use RBAC (Role Based Access Control) or ABAC (Attribute-Based Access).
 
 #### Path-based access control
 Some frameworks provide utilities to define paths and regular expressions to secure certain routes and
 resources based on a Principal's role or attributes. For example `/admin/*` can only be accessed by Role.ADMIN, etc.
 This is a practice that has a lot of limitations and it leads to a code base that is hard to maintain.
-It also falls in the realm of authorisation, which we discussed above.
+It also falls in the realm of authorisation, which we discarded above.
 
-That being said, should you require something along these lines, Invirt does provide a basic utility to wire
-custom Principal checks via a filter in a functional style.
+That being said, should you require something along these lines, Invirt provides a basic utility to wire
+custom Principal checks via a filter, but using a functional style.
 ```kotlin
 val permissionChecker: (Principal) -> Boolean = { principal ->
     "ADMIN" in principal.roles
@@ -66,3 +67,12 @@ val handler = securedRoutes(
 )
 ```
 
+More commonly though, at this level, you'd want to secure certain routes from being accessible
+without a Principal present on the request. This can be done with `authenticatedRoutes()`.
+
+```kotlin
+val handler = authenticatedRoutes(
+    DashboardHandler(),
+    LogoutHandler()
+)
+```
