@@ -17,9 +17,13 @@ import org.http4k.core.cookie.Cookie
 import org.http4k.core.cookie.SameSite
 import org.http4k.core.cookie.cookie
 import org.http4k.core.cookie.invalidate
+import java.time.Clock
 import java.time.Instant
 
-class AuthenticationService : Authenticator {
+class AuthenticationService(
+    // Mainly used for testing
+    private val clock: Clock = Clock.systemUTC()
+) : Authenticator {
     private val users = listOf(
         User("user@test.com", "test", "USER"),
         User("admin@test.com", "test", "ADMIN")
@@ -28,7 +32,7 @@ class AuthenticationService : Authenticator {
     private val usersById = users.associateBy { it.id }
     private val usersByEmail = users.associateBy { it.email }
 
-    private val sessions = mutableMapOf<String, Session>()
+    internal val sessions = mutableMapOf<String, Session>()
 
     fun login(email: String, password: String): Tokens? {
         val user = usersByEmail[email]
@@ -41,14 +45,12 @@ class AuthenticationService : Authenticator {
         return Tokens(accessToken(user.email, user.role, JWT_EXPIRY_MINUTES), session.id)
     }
 
-    fun invalidateCookies(response: Response): Response {
-        return response.withCookies(
-            listOf(
-                jwtCookie("").invalidate(),
-                sessionCookie("").invalidate()
-            )
+    fun invalidateCookies(response: Response): Response = response.withCookies(
+        listOf(
+            jwtCookie("").invalidate(),
+            sessionCookie("").invalidate()
         )
-    }
+    )
 
     override fun authenticate(request: Request): AuthenticationResponse {
         val sessionId = request.cookie(COOKIE_SESSION_ID)?.value
@@ -57,7 +59,7 @@ class AuthenticationService : Authenticator {
         val jwt = request.cookie(COOKIE_JWT)?.value
 
         if (jwt != null) {
-            val jwtVerification = verifyJwt(jwt)
+            val jwtVerification = verifyJwt(jwt, clock)
             if (jwtVerification is TokenVerification.Success) {
                 // The access JWT token is still valid, return a Principal (User)
                 return AuthenticationResponse.Authenticated(usersByEmail[jwtVerification.jwt.subject]!!)
@@ -74,9 +76,9 @@ class AuthenticationService : Authenticator {
 
     private fun getUser(sessionId: String): User? {
         val session = sessions[sessionId] ?: return null
-        val user = usersById[sessionId] ?: return null
+        val user = usersById[session.userId] ?: return null
 
-        if (session.isExpired()) {
+        if (session.isExpired(clock)) {
             // If the session is expired remove it
             sessions.remove(sessionId)
             return null
@@ -96,7 +98,7 @@ data class Tokens(
     fun cookies(): List<Cookie> = listOf(jwtCookie(jwt), sessionCookie(sessionId))
 
     companion object {
-        internal const val JWT_EXPIRY_MINUTES = 1L
+        internal const val JWT_EXPIRY_MINUTES = 5L
         internal const val SESSION_EXPIRY_MINUTES = 60L
 
         internal const val COOKIE_JWT = "auth-jwt"
@@ -111,9 +113,9 @@ data class Tokens(
             path = "/"
         )
 
-        internal fun sessionCookie(jwt: String) = Cookie(
+        internal fun sessionCookie(sessionId: String) = Cookie(
             name = COOKIE_SESSION_ID,
-            value = jwt,
+            value = sessionId,
             httpOnly = true,
             sameSite = SameSite.Strict,
             expires = Instant.now().plusSeconds(SESSION_EXPIRY_MINUTES * 60),
@@ -132,7 +134,7 @@ data class Session(
         expiresAt = Instant.now().plusSeconds(60 * sessionExpiryMinutes)
     )
 
-    fun isExpired(): Boolean = Instant.now().isAfter(expiresAt)
+    fun isExpired(clock: Clock): Boolean = Instant.now(clock).isAfter(expiresAt)
 
     fun touch(sessionExpiryMinutes: Long): Session =
         this.copy(

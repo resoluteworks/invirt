@@ -29,7 +29,7 @@ class OrderService {
         val filteredOrders = sortedOrders.filter { filter?.matches(it) ?: true }
         return RecordsPage(
             records = filteredOrders.page(page),
-            count = filteredOrders.size.toLong(),
+            totalCount = filteredOrders.size.toLong(),
             page = page
         )
     }
@@ -38,9 +38,9 @@ class OrderService {
 private fun DataFilter.matches(order: Order): Boolean = when (this) {
     is DataFilter.Field<*> -> this.fieldMatches(order)
     is DataFilter.Compound -> if (this.operator == DataFilter.Compound.Operator.AND) {
-        this.children.all { it.matches(order) }
+        this.subFilters.all { it.matches(order) }
     } else {
-        this.children.any { it.matches(order) }
+        this.subFilters.any { it.matches(order) }
     }
 }
 

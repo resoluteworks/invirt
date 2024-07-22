@@ -40,9 +40,10 @@ dependencies {
     // Testing
     val kotestVersion: String by project
     val mockkVersion: String by project
-
+    testImplementation("io.resoluteworks:invirt-test")
     testImplementation("io.kotest:kotest-assertions-core:${kotestVersion}")
     testImplementation("io.kotest:kotest-property:${kotestVersion}")
+    testImplementation("io.kotest.extensions:kotest-extensions-clock:1.0.0")
     testImplementation("io.kotest:kotest-runner-junit5-jvm:${kotestVersion}")
     testImplementation("io.mockk:mockk:${mockkVersion}")
     testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
