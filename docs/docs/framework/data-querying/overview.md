@@ -9,7 +9,7 @@ sidebar_position: 1
 
 Invirt provides the wiring for an application to derive filtering, pagination and sorting logic
 from a request's query parameters. A set of abstractions for these components are define
-by invirt-data, a small library that you can add to your application in order to leverage these
+by invirt-data, a small library that you can add to your application to leverage these
 capabilities.
 
 ## Dependency
@@ -40,6 +40,6 @@ taking applications). In this case, the system might want to provide a compound 
 (openingDate >= TODAY) AND (TODAY < deadline)
 ```
 
-While all of these have workarounds and alternatives, all of those invariably end up coupling the user interface
+While all of these have workarounds and alternatives, all of them invariably end up coupling the user interface
 to the underlying model of the database. It's this separation of concerns that we aim to solve with Invirt and the
 abstractions we've defined.

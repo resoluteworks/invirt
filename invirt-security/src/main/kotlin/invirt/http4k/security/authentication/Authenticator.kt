@@ -1,6 +1,7 @@
 package invirt.http4k.security.authentication
 
 import org.http4k.core.Request
+import org.http4k.core.cookie.Cookie
 
 interface Authenticator {
     /**
@@ -19,5 +20,8 @@ sealed class AuthenticationResponse {
 
     data object Unauthenticated : AuthenticationResponse()
 
-    data class Authenticated<P : Principal, T : AuthTokens>(val authentication: Authentication<P, T>) : AuthenticationResponse()
+    data class Authenticated<P : Principal>(
+        val principal: P,
+        val newCookies: List<Cookie> = emptyList()
+    ) : AuthenticationResponse()
 }

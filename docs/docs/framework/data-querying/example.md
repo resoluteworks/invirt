@@ -14,7 +14,7 @@ is a (very crude) screen to review online orders with the following requirements
 Only one of the three can be applied as they are mutually exclusive. By default, all orders are listed ("All").
 * The user can filter orders by their status (Dispatched, Delivered, etc). Any or all of these can be
 selected for filtering and the page will present the combined result set (in essence an `OR`).
-* Filtering will apply an `AND` between the order value criteria and the order status criteria, i.e. the orders
+* Filtering will apply an `AND` between the total order value criteria and the order status criteria, i.e. the orders
 returned must match the selected total value, as well as matching any selected order statuses.
 * The user can sort the result set ascending and descending by clicking the listing column headers (Created at, Order status, Total value)
 * The results are paginated (page size 10) and a pagination control allows the user to navigate the complete

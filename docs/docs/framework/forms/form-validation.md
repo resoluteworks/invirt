@@ -191,8 +191,6 @@ validation errors within a macro, simply use the `error()` function instead.
 {% endif %}
 ```
 
-For a working example of this flow, please check the [example application](https://github.com/resoluteworks/invirt/tree/main/examples/form-validation)
-
 ## A note on error messages
 By default, the Validk framework stops after the first validation error for a field, and returns
 only that error message for it (fail-fast). This can be turned off
