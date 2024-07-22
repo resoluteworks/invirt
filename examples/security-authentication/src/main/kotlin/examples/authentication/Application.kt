@@ -24,6 +24,9 @@ class Application {
 
     fun start() {
         val devMode = Environment.ENV.developmentMode
+
+        // A custom Pebble extension with nothing else than a currentUser() function
+        // to display this information on the dashboard
         val pebbleExtensions = listOf(
             pebbleFunctions(
                 pebbleFunction("currentUser") { Principal.current }
@@ -33,10 +36,12 @@ class Application {
         initialiseInvirtViews(hotReload = devMode, pebbleExtensions = pebbleExtensions)
 
         val authService = AuthenticationService()
+
         val appHandler = InvirtFilter()
             .then(AuthenticationFilter(authService))
             .then(
                 routes(
+                    // These routes are public and anyone can access them
                     IndexHandler(),
                     LoginHandler(authService),
 
