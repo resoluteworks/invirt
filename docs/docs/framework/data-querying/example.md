@@ -16,7 +16,7 @@ Only one of the three can be applied as they are mutually exclusive. By default,
 selected for filtering and the page will present the combined result set (in essence an `OR`).
 * Filtering will apply an `AND` between the total order value criteria and the order status criteria, i.e. the orders
 returned must match the selected total value, as well as matching any selected order statuses.
-* The user can sort the result set ascending and descending by clicking the listing column headers (Created at, Order status, Total value)
+* The user can sort the result set ascending and descending by clicking the listing column headers (Created at, Order status, Total value).
 * The results are paginated (page size 10) and a pagination control allows the user to navigate the complete
 result set.
 
@@ -25,16 +25,17 @@ result set.
 ## Query parameters
 The query parameter for filtering with the above criteria is defined as follows:
  * A `total-order-value` query parameter specifies the filtering to be applied for the total order value
-    * A value of `less-than-1000` would list orders with a total value less than £1000
-    * A value of `more-than-1000` would list orders with a total value greater than £1000
-    * A missing parameter indicates no filter should be applied for the total order value
+    * `total-order-value=less-than-1000` would list orders with a total value less than £1000
+    * `total-order-value=more-than-1000` would list orders with a total value greater than £1000
+    * A missing `total-order-value` parameters indicates no filter should be applied for the total order value
  * A `status` query parameter specifies the statuses of the orders to return. This can be combined
    by passing the parameter multiple times: `?status=DELIVERED&status=IN_TRANSIT`
  * A `sort` query parameter specifies the sort order.
-   * `createdAt:ASC|DESC` - sort orders by their creation timestamp
-   * `status:ASC|DESC` - sort orders by their current status
-   * `totalMinorUnit:ASC|DESC` - sort orders by their current total value in minor currency units (pence for GBP, cents for USD, etc)
-   * When the `sort` parameter is missing, the search defaults to `createdAt:DESC`
+   * `sort=createdAt:ASC|DESC` - sort orders by their creation timestamp
+   * `sort=status:ASC|DESC` - sort orders by their current status
+   * `sort=totalMinorUnit:ASC|DESC` - sort orders by their current total value in minor currency units
+   (pence for GBP, cents for USD, etc, a convenience for modeling this example application more than anything else)
+   * When the `sort` parameter is missing, the sort defaults to `createdAt:DESC`
  * Pagination information is passed using the `from` and `size` query parameters: `&from=0&size=10`
 
 ## Core components definition
@@ -94,7 +95,7 @@ val ordersFilter = queryValuesFilter {
 
 Several things to unpack here, so let's start with `queryValuesFilter()` itself.
 This function builds a `QueryValuesFilter` object which stores the configuration
-(lambdas) how to transform query parameters into[DataFilter](/docs/api/invirt-data/data-filter)
+(lambdas) for how query parameters are converted to [DataFilter](/docs/api/invirt-data/data-filter)
 objects at runtime. This object can then be applied to a `Request` to produce the final
 `DataFilter`, or `null` if none of the expected parameters are present.
 
@@ -127,8 +128,8 @@ below will cause the second value to be ignored, which is what we want in this c
 
 To convert `total-order-value` to a `DataFilter` we start with http4k built-in `Query.optional("total-order-value")`
 and then call Invirt's `.filter` to specify the lambda returning a `DataFilter` for the current value of this parameter.
-In our case, we have `when` clause defining explicitly what filter is produced for each value
-(or `null` if the passed value doesn't match any of them).
+In our case, we have a `when` clause defining explicitly what filter is produced for each value, or `null` if
+the passed value doesn't match any of them.
 
 #### Handling status
 Http4k's built-ins lensing is used again to convert the parameter to `OrderStatus` enum values and specify that it can
@@ -138,7 +139,7 @@ Query.enum<OrderStatus>().multi.optional("status")
 ```
 
 This then allows us to call an Invirt extension (`.or` in this case) to specify
- * How the individual `DataFilters` must be combined when there are multiple values which: OR or AND (`.or` / `.and`). For our
+ * How the individual `DataFilters` must be combined when there are multiple values: OR or AND (`.or` vs `.and`). For our
    requirements we need an OR for the order status filter.
  * How each of the individual `OrderStatus` convert to a `DataFilter`, a simple equals filter, in this case, via `Order::status.eq(status)`
 
@@ -149,9 +150,14 @@ the `RecordsPage<Order>` returned by `OrderService.searchOrders()`, to be consum
 We also want to provide the `OrderStatus` enum values to render the possible options for the order status
 filter (see image below), so we don't hardcode these in the template which can cause them to drift from the internal enum definition.
 
+<br/>
+
 <img src={image2} width="600"/>
 
-The code for this component would then be fairly straightforward.
+<br/>
+<br/>
+
+The code for this response component would then be fairly straightforward.
 ```kotlin
 private class ListOrdersResponse(
     val ordersPage: RecordsPage<Order>
@@ -199,6 +205,6 @@ private class ListOrdersResponse(val ordersPage: RecordsPage<Order>) : ViewRespo
 ## OrderService
 For the OrderService we've used a mock implementation using a local list of random orders, which we then
 sort, filter and paginate in memory. This is done to avoid wiring a persistence layer for this example,
-and to be able to demonstrate the concept and the separation of concerns in its raw form. Because this isn't
+and to demonstrate the concept and the separation of concerns in its raw form. Because in-memory query processing isn't
 something that any application would normally do, we won't go into the details of this, but you can check out the complete
 code for it [here](https://github.com/resoluteworks/invirt/blob/main/examples/data-querying/src/main/kotlin/examples/data/service/OrderService.kt).

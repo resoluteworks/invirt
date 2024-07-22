@@ -36,7 +36,6 @@ The HTTP status of the underlying response is preserved in the final response.
 val httpHandler = ErrorPages(Status.NOT_FOUND to "error/404")
     .then(routes(...))
 ```
-]
 
 ## StatusOverride
 Overrides HTTP response status codes. The example below combines the StatusOverride and ErrorPages filter to render a

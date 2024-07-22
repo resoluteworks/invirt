@@ -17,16 +17,15 @@ should work, and common UX principles. Below are some of the constraints
 and guiding principles for how Invirt implements these on top of http4k.
 
 #### Explicit, server-side validation
-Validation is an explicit step performed by the http4k handler, there's no "magic" and no annotations
-(nothing implicit, that is).
+Validation is an explicit step performed by the http4k handler, there's no "magic" and no annotations.
 Based on the validation result, the handler has to make an explicit decision about the outcome:
 respond with the success state or re-render the form to allow the user to correct the input.
 
 #### Retaining input is (often) important
-It's often that an application needs to retain the incorrectly entered values after a validation failure.
+It's common for an application to need to retain the incorrectly entered values after a validation failure.
 This is essential in making sure the user doesn't have to re-key all the inputs.
 
-When validation is performed server side, the approach is slightly different to a single page application.
+When validation is performed server side, the approach is different to a single page application.
 The handler needs to re-render the form on a validation error _and_ present the previously entered values.
 Invirt tries to make this process as frictionless as possible, but also gives the developer plenty of latitude
 for customisation.
@@ -48,12 +47,12 @@ library. But it's under the tutelage of the same maintainers as Invirt.
 ## Submission flow
 Below is a very basic example of a form collecting signup details for a user. The form
 validation has the following requirements:
-* Name is required and must be at least 5 characters long
-* Email is required and must be a valid email
+* Name is required and must be at least 5 characters long.
+* Email is required and must be a valid email address.
 * Password is required and must be at least 8 characters long.
 
 We want to display the relevant validation error messages for each field, but we also
-want to present a "Please correct the errors below" message at the top when the input doesn't
+want to present a "Please correct the errors below" message at the top, when the input doesn't
 pass validation.
 
 <img src={formSignupScreen} width="800"/>
@@ -67,7 +66,7 @@ Name and Email, to avoid the user having to re-key these, but we don't want to s
 previously entered invalid password.
 
 ### Form and model
-Below are the (stripped down) HTML form and the respective Kotlin object for handling the form above.
+Below are the (stripped down) HTML form and respective Kotlin object for handling the form above.
 
 ```html
 <form action="/signup" method="POST">
@@ -120,7 +119,7 @@ Because `SignupForm` implements Validk's `ValidObject` interface it means we can
 `.validate` on this directly, which in turn allows us to provide custom handling
 logic for success and failure scenarios.
 
-In both cases, we want to return an httpk `Response`. For the success scenario
+In both cases, we want to return an http4k `Response`. For the success scenario
 we simply return an HTTP 303 using Invirt's `httpSeeOther` utility.
 
 For the error scenario, we want to return a view response, which renders the form again via
@@ -141,7 +140,8 @@ internal class ErrorResponseView(
 
 When returning `errorResponse(form, errors, "signup.peb")`, Invirt's custom Pebble rendering detects
 that we're trying to render an error response and exposes the passed `errors` argument into the
-template context, and the form as the `model`.
+template context, and the form as the `model`. You can read more about accessing errors in your template
+[here](/docs/api/invirt-core/pebble/pebble-context-objects#errors).
 
 ### Displaying error messages
 
