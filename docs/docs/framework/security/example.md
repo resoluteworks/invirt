@@ -26,4 +26,4 @@ to run and reason about, we've implemented a mock in-memory user and session man
 component.
 
 We recommend having a look at the [complete example](https://github.com/resoluteworks/invirt/tree/main/examples/security-authentication)
-and [running it](/docs/overview/examples) to understand on how all of this is wired.
+and [running it](/docs/overview/examples) to understand how all of this is wired.

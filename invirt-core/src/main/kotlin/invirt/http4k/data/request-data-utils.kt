@@ -20,7 +20,11 @@ internal val sortQuery = Query.optional("sort")
  * @param maxSize Maximum size allowed to be passed via the `size` query parameter. Any value greater
  * than this will return a [Page.size] of [maxSize]. Defaults to 10.
  */
-fun Request.page(defaultFrom: Int = 0, defaultSize: Int = 10, maxSize: Int = defaultSize): Page {
+fun Request.page(
+    defaultFrom: Int = 0,
+    defaultSize: Int = 10,
+    maxSize: Int = defaultSize
+): Page {
     val from = fromQuery(this)
     val size = sizeQuery(this)
     return Page(
