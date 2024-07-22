@@ -44,12 +44,12 @@ and whether it should use RBAC (Role Based Access Control) or ABAC (Attribute-Ba
 
 #### Path-based access control
 Some frameworks provide utilities to define paths and regular expressions to secure certain routes and
-resources based on a Principal's role or attributes. For example `/admin/*` can only be accessed by Role.ADMIN.
-This is a practice that has a lot of limitations which we wanted to avoid. It also falls in the realm
-of authorisation, which we discussed above.
+resources based on a Principal's role or attributes. For example `/admin/*` can only be accessed by Role.ADMIN, etc.
+This is a practice that has a lot of limitations and it leads to a code base that is hard to maintain.
+It also falls in the realm of authorisation, which we discussed above.
 
-That being said, Invirt provides a basic utility to wire custom authorisation checks via a filter, allowing the application
-to implement custom checks for specific application routes and resources in a functional style.
+That being said, should you require something along these lines, Invirt does provide a basic utility to wire
+custom Principal checks via a filter in a functional style.
 ```kotlin
 val permissionChecker: (Principal) -> Boolean = { principal ->
     "ADMIN" in principal.roles

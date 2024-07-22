@@ -19,9 +19,10 @@ jobs:
         run: make docs-build
       - name: Deploy to GitHub Pages
         if: success()
-        uses: crazy-max/ghaction-github-pages@v3
+        uses: crazy-max/ghaction-github-pages@v4.0.0
         with:
           target_branch: gh-pages
           build_dir: docs/build
+          keep_history: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

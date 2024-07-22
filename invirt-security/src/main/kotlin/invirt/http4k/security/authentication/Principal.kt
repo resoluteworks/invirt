@@ -12,17 +12,14 @@ interface Principal {
 
     companion object {
         /**
-         * Returns the [Principal] on the current thread if present, fails otherwise
-         */
-        val current: Principal
-            get() {
-                return currentSafe ?: throw IllegalStateException("No Principal found on current threads")
-            }
-
-        /**
          * Returns the [Principal] on the current thread if present, `null` otherwise
          */
         val currentSafe: Principal? get() = principalThreadLocal.get()
+
+        /**
+         * Returns the [Principal] on the current thread if present, fails otherwise
+         */
+        val current: Principal get() = currentSafe ?: throw IllegalStateException("No Principal found on current threads")
 
         /**
          * Checks if a [Principal] is present on the current thread.
