@@ -51,22 +51,22 @@ Last, but not least, http4k has a very good startup time compared to other JVM f
 in this space.
 
 ## Why Pebble Templates
-Firstly, it's important to note that onve Invirt's objective is to provide out of the box
+Firstly, it's important to note that one of Invirt's objectives is to provide, out of the box,
 scaffolding and support to make developing web applications with Kotlin as easy as possible.
 
-This means pushing all underlying frameworks and components towards this goal and integrating
-natively with all of them, in order to minimise the need for customisation, particularly when dealing
-with trivial or common use cases (like form binding, pagination, etc).
+This means pushing the underlying frameworks and components towards this goal and integrating
+natively with all of them. And minimising the need for customisation, particularly when dealing
+with trivial and common use cases (like form binding, pagination, etc).
 
 We believe that having a _bring-your-own-templating-engine_ approach would've moved us away from these
 goals, and would've made it harder to support the ecosystem. With that in mind, we wanted to choose a
 JVM templating engine and go "all in", by building native Invirt integrations and utilities for it,
 and expose those to the application.
 
-The criteria we applied when choosing a JVM templating framework was:
+The criteria we applied for choosing a JVM templating framework was:
  * It had to be actively maintained.
  * It had to have reasonable performance compared to other JVM templating frameworks.
- * It had to be hot-reloadable: editing a template would make the changes immediately visible via a browser refresh.
+ * It had to have options for hot-reload: editing a template would make the changes immediately visible via a browser refresh.
   This is an important contributor to the developer experience when writing web applications, and one that comes (almost)
   for free in JavaScript/SPA ecosystems, but not so much on the JVM.
  * It had to be non-HTML-intrusive: we feel that custom HTML tags/elements are unnecessary, and they make reasoning about
