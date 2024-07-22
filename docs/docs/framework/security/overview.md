@@ -28,6 +28,8 @@ the concepts of user or principal according to its requirements, without heavy c
 on how these must be implemented and handled.
 
 Below is a high level view of a happy flow for authenticating a request using request cookies.
+We discuss [these concepts](/docs/framework/security/core-concepts) in detail and
+there is also an [example application](/docs/framework/security/example) to explore them.
 
 <img src={happyFlow}/>
 

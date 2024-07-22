@@ -5,11 +5,11 @@ import org.http4k.core.Status
 import org.http4k.core.Uri
 import org.http4k.core.cookie.Cookie
 import org.http4k.core.cookie.cookie
+import org.http4k.core.cookie.invalidate
 import org.http4k.core.cookie.replaceCookie
 import org.http4k.core.with
 import org.http4k.lens.BiDiBodyLens
 import org.http4k.lens.Header
-import java.time.Instant
 
 fun <T : Any> BiDiBodyLens<T>.ok(message: T): Response = Response(Status.OK).with(this of message)
 
@@ -24,7 +24,7 @@ fun Response.withCookies(cookies: Collection<Cookie>): Response {
 fun Response.invalidateCookies(cookies: Collection<Cookie>): Response {
     var response = this
     cookies.forEach {
-        response = response.replaceCookie(it.copy(value = "deleted", expires = Instant.EPOCH))
+        response = response.replaceCookie(it.invalidate())
     }
     return response
 }

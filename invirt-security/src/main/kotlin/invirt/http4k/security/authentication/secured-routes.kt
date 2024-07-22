@@ -5,6 +5,7 @@ import org.http4k.core.Response
 import org.http4k.core.Status
 import org.http4k.core.then
 import org.http4k.routing.RoutingHttpHandler
+import org.http4k.routing.routes
 
 /**
  * Used to secure routes with authentication/authorisation checks
@@ -29,7 +30,7 @@ fun securedRoutes(
 /**
  * Used for routes where a principal is required, but no other principal checks are required
  */
-fun authenticatedRoutes(route: RoutingHttpHandler): RoutingHttpHandler {
+fun authenticatedRoutes(vararg routes: RoutingHttpHandler): RoutingHttpHandler {
     val filter =
         Filter { next ->
             { request ->
@@ -40,5 +41,5 @@ fun authenticatedRoutes(route: RoutingHttpHandler): RoutingHttpHandler {
                 }
             }
         }
-    return filter.then(route)
+    return filter.then(routes(routes.toList()))
 }

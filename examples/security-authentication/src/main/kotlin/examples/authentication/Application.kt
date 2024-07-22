@@ -3,9 +3,12 @@ package examples.authentication
 import examples.authentication.handlers.DashboardHandler
 import examples.authentication.handlers.IndexHandler
 import examples.authentication.handlers.LoginHandler
+import examples.authentication.handlers.LogoutHandler
 import examples.authentication.service.AuthenticationService
 import invirt.http4k.InvirtFilter
 import invirt.http4k.config.developmentMode
+import invirt.http4k.filters.ErrorPages
+import invirt.http4k.filters.StatusOverride
 import invirt.http4k.security.authentication.AuthenticationFilter
 import invirt.http4k.security.authentication.Principal
 import invirt.http4k.security.authentication.authenticatedRoutes
@@ -14,6 +17,7 @@ import invirt.pebble.functions.pebbleFunction
 import invirt.pebble.pebbleFunctions
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.http4k.cloudnative.env.Environment
+import org.http4k.core.Status
 import org.http4k.core.then
 import org.http4k.routing.routes
 import org.http4k.server.Netty
@@ -39,6 +43,8 @@ class Application {
 
         val appHandler = InvirtFilter()
             .then(AuthenticationFilter(authService))
+            .then(ErrorPages(Status.NOT_FOUND to "error/404"))
+            .then(StatusOverride(Status.FORBIDDEN to Status.NOT_FOUND))
             .then(
                 routes(
                     // These routes are public and anyone can access them
@@ -47,7 +53,8 @@ class Application {
 
                     // These routes require a valid Principal to be accessed
                     authenticatedRoutes(
-                        DashboardHandler()
+                        DashboardHandler(),
+                        LogoutHandler(authService)
                     )
                 )
             )

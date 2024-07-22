@@ -71,15 +71,17 @@ class ResponseTest : StringSpec({
 
         response shouldHaveSetCookie Cookie(
             name = "one",
-            value = "deleted",
+            value = "",
             expires = Instant.EPOCH,
+            maxAge = 0,
             secure = true,
             httpOnly = true
         )
         response shouldHaveSetCookie Cookie(
             name = "two",
-            value = "deleted",
+            value = "",
             expires = Instant.EPOCH,
+            maxAge = 0,
             secure = false,
             httpOnly = false
         )

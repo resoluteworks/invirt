@@ -4,20 +4,25 @@ import examples.authentication.service.Tokens.Companion.COOKIE_JWT
 import examples.authentication.service.Tokens.Companion.COOKIE_SESSION_ID
 import examples.authentication.service.Tokens.Companion.JWT_EXPIRY_MINUTES
 import examples.authentication.service.Tokens.Companion.SESSION_EXPIRY_MINUTES
+import examples.authentication.service.Tokens.Companion.jwtCookie
+import examples.authentication.service.Tokens.Companion.sessionCookie
 import invirt.http4k.security.authentication.AuthenticationResponse
 import invirt.http4k.security.authentication.Authenticator
 import invirt.http4k.security.authentication.Principal
+import invirt.http4k.withCookies
 import invirt.utils.uuid7
 import org.http4k.core.Request
+import org.http4k.core.Response
 import org.http4k.core.cookie.Cookie
 import org.http4k.core.cookie.SameSite
 import org.http4k.core.cookie.cookie
+import org.http4k.core.cookie.invalidate
 import java.time.Instant
 
 class AuthenticationService : Authenticator {
     private val users = listOf(
-        User("user@test.com", "UserPassword123!", "USER"),
-        User("admin@test.com", "AdminPassword123!", "ADMIN")
+        User("user@test.com", "test", "USER"),
+        User("admin@test.com", "test", "ADMIN")
     )
 
     private val usersById = users.associateBy { it.id }
@@ -34,6 +39,15 @@ class AuthenticationService : Authenticator {
         val session = Session(user.id, SESSION_EXPIRY_MINUTES)
         sessions[session.id] = session
         return Tokens(accessToken(user.email, user.role, JWT_EXPIRY_MINUTES), session.id)
+    }
+
+    fun invalidateCookies(response: Response): Response {
+        return response.withCookies(
+            listOf(
+                jwtCookie("").invalidate(),
+                sessionCookie("").invalidate()
+            )
+        )
     }
 
     override fun authenticate(request: Request): AuthenticationResponse {

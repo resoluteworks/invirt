@@ -19,12 +19,18 @@ class AuthenticatedRoutesTest : StringSpec({
             authenticatedRoutes(
                 routes(
                     "/test" GET { Response(Status.OK) }
+                ),
+                routes(
+                    "/dashboard" GET { Response(Status.ACCEPTED) }
                 )
             )
         )
 
         TestPrincipal(uuid7()).useOnThisThread {
             handler(Request(Method.GET, "/test")) shouldHaveStatus Status.OK
+        }
+        TestPrincipal(uuid7()).useOnThisThread {
+            handler(Request(Method.GET, "/dashboard")) shouldHaveStatus Status.ACCEPTED
         }
     }
 
