@@ -39,13 +39,14 @@ In our case, that audience are the Kotlin developers who want to build web appli
 
 ## Why Http4k
 While http4k hasn't been designed exclusively for web applications, it provides
-the essential scaffolding for developing them. Http4k makes the most of language capabilities
-in Kotlin, and allows us to move away from the annotation-heavy MVC frameworks available
+the essential scaffolding for developing them. Http4k makes the most of Kotlin's
+capabilities, and allows us to move away from the annotation-heavy MVC frameworks available
 today on the JVM.
 
 Http4k provides native support for wiring various [templating engines](https://www.http4k.org/guide/reference/templating/)
 which Invirt leverages throughout the framework. We add a few conveniences here and there,
-but the existing http4k wiring for template rendering is more than sufficient for most applications.
+but the existing http4k templating support is more than sufficient for most applications, and doesn't
+need reinventing.
 
 Last, but not least, http4k has a very good startup time compared to other JVM frameworks
 in this space.
@@ -55,24 +56,24 @@ Firstly, it's important to note that one of Invirt's objectives is to provide, o
 scaffolding and support to make developing web applications with Kotlin as easy as possible.
 
 This means pushing the underlying frameworks and components towards this goal and integrating
-natively with all of them. And minimising the need for customisation, particularly when dealing
+Invirt natively with all of them. As well as minimising the need for customisation, particularly when dealing
 with trivial and common use cases (like form binding, pagination, etc).
 
 We believe that having a _bring-your-own-templating-engine_ approach would've moved us away from these
-goals, and would've made it harder to support the ecosystem. With that in mind, we wanted to choose a
-JVM templating engine and go "all in", by building native Invirt integrations and utilities for it,
+goals, and would've made it harder to support the ecosystem, for a marginal benefit. With that in mind,
+we wanted to choose a JVM templating engine and go "all in", by building native Invirt integrations and utilities for it,
 and expose those to the application.
 
 The criteria we applied for choosing a JVM templating framework was:
  * It had to be actively maintained.
  * It had to have reasonable performance compared to other JVM templating frameworks.
- * It had to have options for hot-reload: editing a template would make the changes immediately visible via a browser refresh.
+ * It had to provide support for hot-reload: editing a template would make the changes immediately visible via a browser refresh.
   This is an important contributor to the developer experience when writing web applications, and one that comes (almost)
   for free in JavaScript/SPA ecosystems, but not so much on the JVM.
- * It had to be non-HTML-intrusive: we feel that custom HTML tags/elements are unnecessary, and they make reasoning about
+ * It had to be non-HTML-intrusive: we feel that custom HTML tags/elements are unnecessary these days, and they make reasoning about
 the HTML structure harder.
  * It had to be easily extensible and allow the client code (or Invirt, in this case) to add custom functionality
-that integrates easily in the HTML templating logic.
+that integrates easily into the HTML templating logic.
 
 Pebble ticked all these boxes for us. While it's not unlikely for us to consider expanding Invirt to support
 other templating engines, what's certain is that we won't be doing that until we see arguments against Pebble that
