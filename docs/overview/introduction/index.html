@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.4.0">
 <title data-rh="true">Introduction | Invirt</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://your-docusaurus-site.example.com/img/docusaurus-social-card.jpg"><meta data-rh="true" name="twitter:image" content="https://your-docusaurus-site.example.com/img/docusaurus-social-card.jpg"><meta data-rh="true" property="og:url" content="https://your-docusaurus-site.example.com/docs/overview/introduction"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Introduction | Invirt"><meta data-rh="true" name="description" content="Invirt is a framework for building web applications with Kotlin, http4k"><meta data-rh="true" property="og:description" content="Invirt is a framework for building web applications with Kotlin, http4k"><link data-rh="true" rel="icon" href="/img/logo.svg"><link data-rh="true" rel="canonical" href="https://your-docusaurus-site.example.com/docs/overview/introduction"><link data-rh="true" rel="alternate" href="https://your-docusaurus-site.example.com/docs/overview/introduction" hreflang="en"><link data-rh="true" rel="alternate" href="https://your-docusaurus-site.example.com/docs/overview/introduction" hreflang="x-default"><link rel="stylesheet" href="/assets/css/styles.c0561ef6.css">
-<script src="/assets/js/runtime~main.26e7e02c.js" defer="defer"></script>
+<script src="/assets/js/runtime~main.f4f78c73.js" defer="defer"></script>
 <script src="/assets/js/main.66dabeb4.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
@@ -36,35 +36,36 @@ alternatives to all audiences.</p>
 <p>In our case, that audience are the Kotlin developers who want to build web applications.</p>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="why-http4k">Why Http4k<a class="hash-link" aria-label="Direct link to Why Http4k" title="Direct link to Why Http4k" href="/docs/overview/introduction#why-http4k">​</a></h2>
 <p>While http4k hasn&#x27;t been designed exclusively for web applications, it provides
-the essential scaffolding for developing them. Http4k makes the most of language capabilities
-in Kotlin, and allows us to move away from the annotation-heavy MVC frameworks available
+the essential scaffolding for developing them. Http4k makes the most of Kotlin&#x27;s
+capabilities, and allows us to move away from the annotation-heavy MVC frameworks available
 today on the JVM.</p>
 <p>Http4k provides native support for wiring various <a href="https://www.http4k.org/guide/reference/templating/" target="_blank" rel="noopener noreferrer">templating engines</a>
 which Invirt leverages throughout the framework. We add a few conveniences here and there,
-but the existing http4k wiring for template rendering is more than sufficient for most applications.</p>
+but the existing http4k templating support is more than sufficient for most applications, and doesn&#x27;t
+need reinventing.</p>
 <p>Last, but not least, http4k has a very good startup time compared to other JVM frameworks
 in this space.</p>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="why-pebble-templates">Why Pebble Templates<a class="hash-link" aria-label="Direct link to Why Pebble Templates" title="Direct link to Why Pebble Templates" href="/docs/overview/introduction#why-pebble-templates">​</a></h2>
 <p>Firstly, it&#x27;s important to note that one of Invirt&#x27;s objectives is to provide, out of the box,
 scaffolding and support to make developing web applications with Kotlin as easy as possible.</p>
 <p>This means pushing the underlying frameworks and components towards this goal and integrating
-natively with all of them. And minimising the need for customisation, particularly when dealing
+Invirt natively with all of them. As well as minimising the need for customisation, particularly when dealing
 with trivial and common use cases (like form binding, pagination, etc).</p>
 <p>We believe that having a <em>bring-your-own-templating-engine</em> approach would&#x27;ve moved us away from these
-goals, and would&#x27;ve made it harder to support the ecosystem. With that in mind, we wanted to choose a
-JVM templating engine and go &quot;all in&quot;, by building native Invirt integrations and utilities for it,
+goals, and would&#x27;ve made it harder to support the ecosystem, for a marginal benefit. With that in mind,
+we wanted to choose a JVM templating engine and go &quot;all in&quot;, by building native Invirt integrations and utilities for it,
 and expose those to the application.</p>
 <p>The criteria we applied for choosing a JVM templating framework was:</p>
 <ul>
 <li>It had to be actively maintained.</li>
 <li>It had to have reasonable performance compared to other JVM templating frameworks.</li>
-<li>It had to have options for hot-reload: editing a template would make the changes immediately visible via a browser refresh.
+<li>It had to provide support for hot-reload: editing a template would make the changes immediately visible via a browser refresh.
 This is an important contributor to the developer experience when writing web applications, and one that comes (almost)
 for free in JavaScript/SPA ecosystems, but not so much on the JVM.</li>
-<li>It had to be non-HTML-intrusive: we feel that custom HTML tags/elements are unnecessary, and they make reasoning about
+<li>It had to be non-HTML-intrusive: we feel that custom HTML tags/elements are unnecessary these days, and they make reasoning about
 the HTML structure harder.</li>
 <li>It had to be easily extensible and allow the client code (or Invirt, in this case) to add custom functionality
-that integrates easily in the HTML templating logic.</li>
+that integrates easily into the HTML templating logic.</li>
 </ul>
 <p>Pebble ticked all these boxes for us. While it&#x27;s not unlikely for us to consider expanding Invirt to support
 other templating engines, what&#x27;s certain is that we won&#x27;t be doing that until we see arguments against Pebble that
