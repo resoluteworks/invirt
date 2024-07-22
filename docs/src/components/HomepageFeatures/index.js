@@ -56,7 +56,7 @@ export default function HomepageFeatures() {
         <section className={styles.features}>
             <div className="container">
                 <div>
-                    <img class="no-img-styling" src="https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Frepo1.maven.org%2Fmaven2%2Fio%2Fresoluteworks%2Finvirt-core%2Fmaven-metadata.xml&style=for-the-badge&label=RELEASE&color=%23008899"/>
+                    <img class="no-img-styling" src="https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Frepo1.maven.org%2Fmaven2%2Fdev%2Finvirt%2Finvirt-core%2Fmaven-metadata.xml&style=for-the-badge&label=RELEASE&color=%23008899"/>
                 </div>
                 <div className="row">
                     {FeatureList.map((props, idx) => (

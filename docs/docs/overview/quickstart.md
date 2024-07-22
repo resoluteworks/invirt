@@ -17,8 +17,8 @@ as you expand your application's design. Most of the functionality, however, is 
 in the core library which can be added as per Gradle example below.
 
 ```kotlin
-implementation(platform("io.resoluteworks:invirt-bom:${invirtVersion}"))
-implementation("io.resoluteworks:invirt-core")
+implementation(platform("dev.invirt:invirt-bom:${invirtVersion}"))
+implementation("dev.invirt:invirt-core")
 ```
 
 You will also need to add the http4k libraries which Invirt relies on. Below is the minimum required

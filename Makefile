@@ -21,7 +21,7 @@ docs-build:
 	cd docs; npm install; npm run build
 
 publish:
-	./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
+	./gradlew publishAllPublicationsToCentralPortal
 
 publish-local:
 	./gradlew publish -x initializeSonatypeStagingRepository -x publishMavenJavaPublicationToSonatypeRepository

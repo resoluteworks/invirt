@@ -1,3 +1,3 @@
 val invirtVersion: String by project
-group = "io.resoluteworks"
+group = "dev.invirt"
 version = invirtVersion

@@ -11,8 +11,8 @@ a set of components for transparently authenticating HTTP requests via a custom 
 
 ## Dependency
 ```kotlin
-implementation(platform("io.resoluteworks:invirt-bom:${invirtVersion}"))
-implementation("io.resoluteworks:invirt-security")
+implementation(platform("dev.invirt:invirt-bom:${invirtVersion}"))
+implementation("dev.invirt:invirt-security")
 ```
 
 ## Use case

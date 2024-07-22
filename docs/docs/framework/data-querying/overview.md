@@ -14,8 +14,8 @@ capabilities.
 
 ## Dependency
 ```kotlin
-implementation(platform("io.resoluteworks:invirt-bom:${invirtVersion}"))
-implementation("io.resoluteworks:invirt-data")
+implementation(platform("dev.invirt:invirt-bom:${invirtVersion}"))
+implementation("dev.invirt:invirt-data")
 ```
 
 ## Rationale

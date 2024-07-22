@@ -5,7 +5,6 @@ plugins {
 }
 
 repositories {
-    mavenLocal()
     mavenCentral()
 }
 
@@ -20,9 +19,9 @@ dependencies {
     val validkVersion: String by project
 
     // Core, minimal dependencies
-    implementation(platform("io.resoluteworks:invirt-bom:${invirtVersion}"))
-    implementation("io.resoluteworks:invirt-core")
-    implementation("io.resoluteworks:invirt-utils")
+    implementation(platform("dev.invirt:invirt-bom:${invirtVersion}"))
+    implementation("dev.invirt:invirt-core")
+    implementation("dev.invirt:invirt-utils")
     implementation(platform("org.http4k:http4k-bom:${http4kVersion}"))
     implementation("org.http4k:http4k-core")
     implementation("org.http4k:http4k-server-netty")
@@ -30,8 +29,8 @@ dependencies {
     implementation("org.http4k:http4k-template-pebble")
 
     // Additional libraries for specific use cases
-    implementation("io.resoluteworks:invirt-data")
-    implementation("io.resoluteworks:invirt-security")
+    implementation("dev.invirt:invirt-data")
+    implementation("dev.invirt:invirt-security")
     implementation("io.resoluteworks:validk:${validkVersion}")
 
     // Logging
@@ -40,7 +39,7 @@ dependencies {
     // Testing
     val kotestVersion: String by project
     val mockkVersion: String by project
-    testImplementation("io.resoluteworks:invirt-test")
+    testImplementation("dev.invirt:invirt-test")
     testImplementation("io.kotest:kotest-assertions-core:${kotestVersion}")
     testImplementation("io.kotest:kotest-property:${kotestVersion}")
     testImplementation("io.kotest.extensions:kotest-extensions-clock:1.0.0")
