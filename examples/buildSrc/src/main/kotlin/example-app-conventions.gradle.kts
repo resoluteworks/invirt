@@ -31,8 +31,19 @@ dependencies {
 
     // Additional libraries for specific use cases
     implementation("io.resoluteworks:invirt-data")
+    implementation("io.resoluteworks:invirt-security")
     implementation("io.resoluteworks:validk:${validkVersion}")
 
     // Logging
     implementation("io.github.oshai:kotlin-logging-jvm:6.0.9")
+
+    // Testing
+    val kotestVersion: String by project
+    val mockkVersion: String by project
+
+    testImplementation("io.kotest:kotest-assertions-core:${kotestVersion}")
+    testImplementation("io.kotest:kotest-property:${kotestVersion}")
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:${kotestVersion}")
+    testImplementation("io.mockk:mockk:${mockkVersion}")
+    testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
 }
