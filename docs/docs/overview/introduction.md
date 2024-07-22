@@ -6,7 +6,7 @@ sidebar_position: 1
 Invirt is a framework for building web applications with [Kotlin](https://kotlinlang.org/), [http4k](https://www.http4k.org/)
 and [Pebble templates](https://pebbletemplates.io/).
 
-Invirt doesn't re-invent the wheel, we simply add utility and convenience
+Invirt doesn't re-invent the wheel, it simply adds utility and convenience
 on top of proven and mature solutions, in order to deliver a better developer experience
 for those who want to write web applications in Kotlin.
 
