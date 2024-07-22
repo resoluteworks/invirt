@@ -3,6 +3,9 @@
 {% block pageContent %}
     <div class="flex flex-col gap-4">
         <div class="text-2xl font-bold">Dashboard</div>
-        <div class="text-lg font-semibold">Welcome</div>
+        <div>
+            Your email is <span class="font-bold">{{ currentUser().email }}</span>
+            and your role is <span class="font-bold">{{ currentUser().role }}</span>
+        </div>
     </div>
 {% endblock %}

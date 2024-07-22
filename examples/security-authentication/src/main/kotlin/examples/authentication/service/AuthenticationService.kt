@@ -1,9 +1,9 @@
-package examples.authentication
+package examples.authentication.service
 
-import examples.authentication.Tokens.Companion.COOKIE_JWT
-import examples.authentication.Tokens.Companion.COOKIE_SESSION_ID
-import examples.authentication.Tokens.Companion.JWT_EXPIRY_MINUTES
-import examples.authentication.Tokens.Companion.SESSION_EXPIRY_MINUTES
+import examples.authentication.service.Tokens.Companion.COOKIE_JWT
+import examples.authentication.service.Tokens.Companion.COOKIE_SESSION_ID
+import examples.authentication.service.Tokens.Companion.JWT_EXPIRY_MINUTES
+import examples.authentication.service.Tokens.Companion.SESSION_EXPIRY_MINUTES
 import invirt.http4k.security.authentication.AuthenticationResponse
 import invirt.http4k.security.authentication.Authenticator
 import invirt.http4k.security.authentication.Principal

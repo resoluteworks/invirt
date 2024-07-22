@@ -8,6 +8,10 @@ import org.http4k.routing.routes
 
 object IndexHandler {
 
+    /**
+     * When accessing the default route (/) redirect to /dashboard if there's a user
+     * present on the request, otherwise redirect to /login
+     */
     operator fun invoke(): RoutingHttpHandler = routes(
         "/" GET { request ->
             if (request.principal != null) {

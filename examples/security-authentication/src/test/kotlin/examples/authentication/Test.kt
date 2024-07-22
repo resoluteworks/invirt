@@ -1,5 +1,7 @@
 package examples.authentication
 
+import examples.authentication.service.jwtAccessToken
+import examples.authentication.service.verifyJwt
 import io.kotest.core.spec.style.StringSpec
 import java.time.Instant
 

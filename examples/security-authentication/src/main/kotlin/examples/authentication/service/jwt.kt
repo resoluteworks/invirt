@@ -1,4 +1,4 @@
-package examples.authentication
+package examples.authentication.service
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier.BaseVerification

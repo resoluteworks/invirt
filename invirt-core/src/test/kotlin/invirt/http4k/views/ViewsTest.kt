@@ -33,8 +33,6 @@ class ViewsTest : StringSpec() {
         }
 
         "classpath views" {
-            val templateFile = File("src/test/resources/hot-reload-views/hot-reload-template.peb")
-            val initialContent = templateFile.readText()
             initialiseInvirtViews(hotReload = false, classpathLocation = "classpath-views")
 
             val httpHandler = routes("/test" GET { renderTemplate("classpath-view") })

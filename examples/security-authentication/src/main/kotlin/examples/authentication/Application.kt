@@ -3,11 +3,15 @@ package examples.authentication
 import examples.authentication.handlers.DashboardHandler
 import examples.authentication.handlers.IndexHandler
 import examples.authentication.handlers.LoginHandler
+import examples.authentication.service.AuthenticationService
 import invirt.http4k.InvirtFilter
 import invirt.http4k.config.developmentMode
 import invirt.http4k.security.authentication.AuthenticationFilter
+import invirt.http4k.security.authentication.Principal
 import invirt.http4k.security.authentication.authenticatedRoutes
 import invirt.http4k.views.initialiseInvirtViews
+import invirt.pebble.functions.pebbleFunction
+import invirt.pebble.pebbleFunctions
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.http4k.cloudnative.env.Environment
 import org.http4k.core.then
@@ -20,7 +24,13 @@ class Application {
 
     fun start() {
         val devMode = Environment.ENV.developmentMode
-        initialiseInvirtViews(hotReload = devMode)
+        val pebbleExtensions = listOf(
+            pebbleFunctions(
+                pebbleFunction("currentUser") { Principal.current }
+            )
+        )
+
+        initialiseInvirtViews(hotReload = devMode, pebbleExtensions = pebbleExtensions)
 
         val authService = AuthenticationService()
         val appHandler = InvirtFilter()

@@ -1,6 +1,6 @@
 package examples.authentication.handlers
 
-import examples.authentication.AuthenticationService
+import examples.authentication.service.AuthenticationService
 import invirt.http4k.GET
 import invirt.http4k.POST
 import invirt.http4k.httpSeeOther
@@ -19,9 +19,17 @@ object LoginHandler {
         "/login" POST { request ->
             val loginForm = request.toForm<LoginForm>()
             val tokens = authService.login(loginForm.email, loginForm.password)
-            tokens
-                ?.let { httpSeeOther("/dashboard").withCookies(tokens.cookies()) }
-                ?: errorResponse("login", "credentials" to "We could not find these credentials")
+            if (tokens != null) {
+                // Successfully logged in, so redirect to dashboard
+                httpSeeOther("/dashboard")
+                    .withCookies(tokens.cookies())
+            } else {
+                // Login failed so return to login and display an error message
+                errorResponse(
+                    "login",
+                    "credentials" to "We could not find these credentials"
+                )
+            }
         }
     )
 }
