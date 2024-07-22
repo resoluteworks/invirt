@@ -5,9 +5,9 @@ sidebar_position: 2
 # Pagination components
 
 Invirt takes a somewhat opinionated approach for the design of pagination components, but
-an approach that's in line with certain user experience constraints in many applications:
- * The user needs to know the total number of pages for the result set (paging to unknown is not an option)
- * There is a concept of a first page, current page, and last page
+one that's in line with certain user experience constraints in many applications:
+ * The user needs to know the total number of pages for the result set (paging to unknown is not an option).
+ * There is a concept of a first page, current page, and last page.
  * The user needs to know the total number of results in the current query.
 
 
@@ -33,8 +33,8 @@ data class Page(
 
 ## RecordsPage
 The `RecordsPage` component is an abstract representation of a page of records for a result set.
-This can be used to serve complete information about a results page, including the total count
-for the query, the [Page](#page) reference that it was queried with.
+This can be used to serve complete information about the results, including the total count
+for the query and the [Page](#page) reference that it was queried with.
 ```kotlin
 data class RecordsPage<T : Any>(
     val records: List<T>,

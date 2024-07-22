@@ -11,11 +11,11 @@ This is an abstract and `sealed` component for defining data querying logic sepa
 database semantics. The rationale for this is discussed [here](/docs/framework/data-querying/overview#rationale).
 
 The component has two subclasses `DataFilter.Field` and `DataFilter.Compound`, which represent definitions
-for direct field filtering criteria and compound (OR/AND) queries, respectively
+for direct field filtering criteria and compound (OR/AND) queries, respectively.
 
 ## DataFilter.Field
 Defines a data querying criteria in the form of `<fieldName> <operation> [optional <value>]`. This is typically
-used to define equals, greater than, less than, contains, etc filtering criteria.
+used to define equals, greater than, less than, contains, etc.
 
 ```kotlin
 data class Field<Value : Any>(
@@ -26,7 +26,7 @@ data class Field<Value : Any>(
 ```
 
 A set of utilities and extension functions can be used to construct field filters for various types
-of matching criteria.
+of field matching criteria.
 
 ```kotlin
 // Filter records where "size" is greater than 20

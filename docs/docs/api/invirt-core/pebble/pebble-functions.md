@@ -6,7 +6,7 @@ sidebar_position: 2
 A set of utility functions that can be used by Pebble templates in an Invirt application.
 
 ### request()
-Returns the current http4k `Request` object (as an [InvirtRequest](/docs/framework/current-request)).
+Returns the current http4k `Request` object (as an [InvirtRequest](/docs/framework/current-request#invirtrequest)).
 The function is only required in the context of a macro - but can be used
 anywhere. Outside macros, the [context request object](/docs/api/invirt-core/pebble/pebble-context-objects#request) can be used directly.
 
@@ -32,7 +32,7 @@ errors for the current request. Read more about validation [here](/docs/framewor
 
 ### json(object)
 Renders the specified model object as a JSON string. Typically used when you need to render a JSON
-object consumed via JavaScript.
+object consumed by JavaScript.
 
 ```html
 <div id="map" data-map-place='{{ json(model.place) | raw }}'></div>

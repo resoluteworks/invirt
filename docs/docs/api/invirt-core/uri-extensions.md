@@ -28,8 +28,8 @@ Checks whether this Uri has a query parameter with the specified `name` and `val
 
 
 ### removeQueryValue
-Returns a new `Uri` based on this Uri and without the specified `name` parameter, if the parameter's value matches
-the specified `value`.
+Returns a new `Uri` without the specified `name` parameter, if the parameter's value matches
+the specified `value`. All other query params are left unchanged.
 
 <Tabs>
   <TabItem value="example" label="Example" default>
@@ -50,9 +50,11 @@ the specified `value`.
 
 
 ### toggleQueryValue
-Returns a new `Uri` based on this Uri and:
+Returns a new `Uri` and:
  * Adds a query parameter with the specified `name` and `value` when one isn't already present
  * Removes the query parameter with the specified `name` and `value` when present
+
+All other query params are left unchanged.
 
 <Tabs>
   <TabItem value="example" label="Example" default>
@@ -73,6 +75,7 @@ Returns a new `Uri` based on this Uri and:
 
 ### removeQueries
 Removes all query parameters with the specified `names` (immaterial of their values).
+All other query params are left unchanged.
 
 <Tabs>
   <TabItem value="example" label="Example" default>
@@ -90,6 +93,9 @@ Removes all query parameters with the specified `names` (immaterial of their val
 
 
 ### replaceQuery
+Replaces the specified query parameters with the given values and returns a new `Uri`.
+All other query params are left unchanged.
+
 <Tabs>
   <TabItem value="example" label="Example" default>
     ```kotlin
