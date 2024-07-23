@@ -34,7 +34,7 @@ then allows the Pebble template code to include assets dynamically, as per examp
 ```html
 <script src="/static/{{ staticAssetsVersion }}/app.js"></script>
 ```
-`staticAssetsVersion` is a global Pebble templates variable exposed by Invirt, and is read from the
+`staticAssetsVersion` is a global Pebble variable exposed by Invirt, and is read from the
 value set when calling `initialiseInvirtViews()`
 
 It's possible to use the Git commit id to version static assets, which is achieved by a call to `gitCommitId()`,

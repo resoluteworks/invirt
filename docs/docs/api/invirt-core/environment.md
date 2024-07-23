@@ -65,7 +65,7 @@ next section for customising Dotenv loading.
 
 ### Environment.withDotEnv(Dotenv)
 Allows overriding the settings the dotenv-kotlin uses to load .env files. You must add the [dotenv-kotlin](https://github.com/cdimascio/dotenv-kotlin)
-dependency to your project to use this
+dependency to your project to use this.
 
 <Tabs>
   <TabItem value="example" label="Example" default>
@@ -90,7 +90,7 @@ dependency to your project to use this
 </Tabs>
 
 ### gitCommitId()
-Returns the Git commit id, read from a property named `git.commit.id` in a `git.properties` in the classpath.
+Returns the Git commit id, read from a property named `git.commit.id` in a `git.properties` file in the classpath.
 The call fails if `git.properties` cannot be found and returns `null` if the file exists but doesn't contain
 a `git.commit.id` property.
 

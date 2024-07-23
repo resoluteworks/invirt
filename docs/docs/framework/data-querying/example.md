@@ -9,7 +9,7 @@ import image2 from './assets/example-app-2.png';
 
 This [example](https://github.com/resoluteworks/invirt/tree/main/examples/data-querying)
 combines capabilities for filters, sorting and pagination in one Invirt application. The setup
-is a (very crude) screen to review online orders with the following requirements:
+is a fairly basic screen to review online orders, and has the following requirements:
 * The user can filter orders by their total value: less than £1000, greater than £1000, or "All" (no filtering applied).
 Only one of the three can be applied as they are mutually exclusive. By default, all orders are listed ("All").
 * The user can filter orders by their status (Dispatched, Delivered, etc). Any or all of these can be

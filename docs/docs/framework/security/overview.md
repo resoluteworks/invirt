@@ -18,7 +18,7 @@ implementation("dev.invirt:invirt-security")
 ## Use case
 The first problem we aim to solve is to provide an application with context for the currently
 authenticated user (Principal) transparently, and allowing for that to be checked anywhere within the stack.
-We use a ThreadLocal for this purpose, and request context.
+We use request context and a ThreadLocal for this purpose.
 
 Second, we want to allow the application to decide what authentication solution it wants to use, with Invirt simply
 providing the scaffolding to wire that in, and secure certain application routes.
@@ -67,7 +67,7 @@ val handler = securedRoutes(
 )
 ```
 
-More commonly though, at this level, you'd want to secure certain routes from being accessible
+More commonly though, at this level, you'd want to secure certain routes from being accessed
 without a Principal present on the request. This can be done with `authenticatedRoutes()`.
 
 ```kotlin
