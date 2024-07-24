@@ -1,5 +1,6 @@
 package invirt.http4k
 
+import invirt.test.shouldBeRedirectTo
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.http4k.core.Method
@@ -8,6 +9,7 @@ import org.http4k.core.Response
 import org.http4k.core.Status
 import org.http4k.core.cookie.Cookie
 import org.http4k.kotest.shouldHaveSetCookie
+import org.http4k.kotest.shouldHaveStatus
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 import java.time.Instant
@@ -98,6 +100,16 @@ class ResponseTest : StringSpec({
     "turboStream" {
         val httpHandler = routes("/test" GET { Response(Status.OK).turboStream() })
         httpHandler(Request(Method.GET, "/test")).header("Content-Type") shouldBe "text/vnd.turbo-stream.html"
+    }
+
+    "httpSeeOther" {
+        val httpHandler = routes("/test" GET { httpSeeOther("/something/else") })
+        httpHandler(Request(Method.GET, "/test")).shouldBeRedirectTo("/something/else")
+    }
+
+    "httpNotFound" {
+        val httpHandler = routes("/test" GET { httpNotFound() })
+        httpHandler(Request(Method.GET, "/test")) shouldHaveStatus Status.NOT_FOUND
     }
 
     "turboStreamRefresh" {

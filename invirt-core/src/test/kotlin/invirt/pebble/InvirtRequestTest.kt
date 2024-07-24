@@ -35,6 +35,21 @@ class InvirtRequestTest : StringSpec() {
             testRequestFunction("revertOrSetSort", "/test?type=person&sort=name:asc", "/test?type=person&sort=createdAt%3Aasc")
         }
 
+        "replaceSort" {
+            val expectedSort = "createdAt%3Adesc"
+            testRequestFunction("replaceSort", "/test", "/test?sort=${expectedSort}")
+            testRequestFunction("replaceSort", "/test?sort=createdAt:asc", "/test?sort=${expectedSort}")
+            testRequestFunction("replaceSort", "/test?from=5&sort=name:asc", "/test?sort=$expectedSort")
+            testRequestFunction("replaceSort", "/test?type=person&sort=name:asc", "/test?type=person&sort=${expectedSort}")
+        }
+
+        "sortIs" {
+            testRequestFunction("sortIs", "/test", "false")
+            testRequestFunction("sortIs", "/test?sort=createdAt:asc", "false")
+            testRequestFunction("sortIs", "/test?sort=dob:asc", "false")
+            testRequestFunction("sortIs", "/test?sort=dob:Desc", "true")
+        }
+
         "removeQueryValue" {
             testRequestFunction("removeQueryValue", "/test", "/test")
             testRequestFunction("removeQueryValue", "/test?filter=individual", "/test")

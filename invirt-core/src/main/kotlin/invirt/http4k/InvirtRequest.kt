@@ -21,7 +21,7 @@ class InvirtRequest(private val delegate: Request) : Request by delegate {
     fun replaceQuery(name: String, value: Any): Uri = delegate.uri.replaceQuery(name to value)
     fun removeQueryValue(name: String, value: Any): Uri = delegate.uri.removeQueryValue(name, value)
     fun removeQueries(names: Collection<String>): Uri = delegate.uri.removeQueries(names)
-    fun removeQueries(names: Array<String>): Uri = delegate.uri.removeQueries(names.toSet())
+
     fun replaceSort(field: String, orderStr: String, resetPagination: Boolean): Uri =
         delegate.uri.replaceSort(Sort(field, SortOrder.fromString(orderStr)), resetPagination)
 

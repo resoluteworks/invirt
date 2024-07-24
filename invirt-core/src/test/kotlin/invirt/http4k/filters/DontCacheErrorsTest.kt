@@ -12,7 +12,7 @@ import org.http4k.kotest.shouldHaveHeader
 import org.http4k.kotest.shouldHaveStatus
 import org.http4k.routing.routes
 
-class DontCacheErrorsFilterTest : StringSpec({
+class DontCacheErrorsTest : StringSpec({
 
     "errors don't allow cache" {
         val handler = DontCacheErrors()
