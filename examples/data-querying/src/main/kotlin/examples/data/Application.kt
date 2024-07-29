@@ -6,7 +6,7 @@ import invirt.http4k.InvirtFilter
 import invirt.http4k.config.developmentMode
 import invirt.http4k.views.initialiseInvirtViews
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.http4k.cloudnative.env.Environment
+import org.http4k.config.Environment
 import org.http4k.core.then
 import org.http4k.routing.routes
 import org.http4k.server.Netty

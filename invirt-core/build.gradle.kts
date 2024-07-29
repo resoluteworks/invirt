@@ -14,7 +14,7 @@ dependencies {
 
     implementation(platform("org.http4k:http4k-bom:${http4kVersion}"))
     implementation("org.http4k:http4k-client-okhttp")
-    implementation("org.http4k:http4k-cloudnative")
+    implementation("org.http4k:http4k-config")
     implementation("org.http4k:http4k-core")
     implementation("org.http4k:http4k-format-jackson")
     implementation("org.http4k:http4k-multipart")

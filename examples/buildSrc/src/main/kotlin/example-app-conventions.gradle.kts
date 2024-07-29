@@ -5,6 +5,7 @@ plugins {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
@@ -25,7 +26,7 @@ dependencies {
     implementation(platform("org.http4k:http4k-bom:${http4kVersion}"))
     implementation("org.http4k:http4k-core")
     implementation("org.http4k:http4k-server-netty")
-    implementation("org.http4k:http4k-cloudnative")
+    implementation("org.http4k:http4k-config")
     implementation("org.http4k:http4k-template-pebble")
 
     // Additional libraries for specific use cases

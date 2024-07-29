@@ -9,7 +9,7 @@ import invirt.http4k.handlers.staticAssets
 import invirt.http4k.views.initialiseInvirtViews
 import invirt.http4k.views.renderTemplate
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.http4k.cloudnative.env.Environment
+import org.http4k.config.Environment
 import org.http4k.core.then
 import org.http4k.routing.bind
 import org.http4k.routing.routes

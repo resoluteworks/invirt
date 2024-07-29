@@ -16,7 +16,7 @@ import invirt.http4k.views.initialiseInvirtViews
 import invirt.pebble.functions.pebbleFunction
 import invirt.pebble.pebbleFunctions
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.http4k.cloudnative.env.Environment
+import org.http4k.config.Environment
 import org.http4k.core.Status
 import org.http4k.core.then
 import org.http4k.routing.routes
