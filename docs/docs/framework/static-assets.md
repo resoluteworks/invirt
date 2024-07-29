@@ -44,7 +44,7 @@ as per example above. This function is discussed in detail [here](/docs/api/invi
 The function `cacheDays(days)` is a simple wrapper over http4k's built-in caching filter and only exists
 as a convenience over the construct below.
 ```kotlin
-CachingFilters.Response.MaxAge(Clock.systemUTC(), Duration.ofDays(days.toLong()))
+CachingFilters.CacheResponse.MaxAge(Duration.ofDays(days.toLong()))
 ```
 
 ### Hot reload vs classpath loading

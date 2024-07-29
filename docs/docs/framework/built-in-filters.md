@@ -17,17 +17,6 @@ val handler = CatchAll(
 ).then(routes(...))
 ```
 
-## DontCacheErrors
-Disables caching for responses with HTTP error statuses. This is useful to prevent
-a client caching an error response when this would otherwise succeed in a typical scenario. By default
-(no args), the filter only disables caching for `Status.NOT_FOUND` responses.
-
-```kotlin
-val handler = DontCacheErrors(Status.NOT_FOUND, Status.INTERNAL_SERVER_ERROR)
-    .then(cacheOneYear())
-    .then(routes(...))
-```
-
 ## ErrorPages
 Automatically renders a Pebble template for specified HTTP error statuses.
 The HTTP status of the underlying response is preserved in the final response.
