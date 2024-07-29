@@ -1,6 +1,7 @@
 include("data-querying")
 include("form-basics")
 include("form-validation")
+include("hotwire")
 include("quickstart")
 include("security-authentication")
 include("static-assets")

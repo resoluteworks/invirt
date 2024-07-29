@@ -1,0 +1,14 @@
+{% extends "layout.peb" %}
+
+{% import "macros.peb" %}
+
+{% block pageContent %}
+    <div class="flex flex-row w-full h-full">
+        <div class="flex flex-col w-1/4 h-full gap-8 px-8 py-12 bg-blue-700 text-white">
+            {{ wizzardStep(name = "Details", selected = false, completed = true) }}
+            {{ wizzardStep(name = "Collecting", selected = true, completed = false) }}
+{#            {{ wizzardStep(name = "Others", selected = true, completed = true) }}#}
+            {{ wizzardStep(name = "Sending to", selected = false, completed = false) }}
+        </div>
+    </div>
+{% endblock %}
