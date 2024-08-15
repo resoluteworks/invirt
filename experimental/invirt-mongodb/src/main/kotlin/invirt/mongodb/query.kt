@@ -17,9 +17,9 @@ interface MongoQuery {
 }
 
 fun <E : StoredEntity> MongoCollection<E>.query(searchQuery: MongoQuery): RecordsPage<E> =
-    this.pagedQuery(searchQuery.filter, searchQuery.page, searchQuery.maxDocuments, *searchQuery.sort.toTypedArray())
+    this.query(searchQuery.filter, searchQuery.page, searchQuery.maxDocuments, *searchQuery.sort.toTypedArray())
 
-fun <E : StoredEntity> MongoCollection<E>.pagedQuery(
+fun <E : StoredEntity> MongoCollection<E>.query(
     filter: Bson? = null,
     page: Page = Page(0, 10),
     maxDocuments: Int = 1000,

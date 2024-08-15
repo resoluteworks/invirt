@@ -32,7 +32,7 @@ class QueryTest : StringSpec() {
             collection.insertMany((0 until 34).map { Entity("company") })
             collection.insertMany((0 until 23).map { Entity("individual") })
 
-            val result = collection.pagedQuery()
+            val result = collection.query()
             result.totalCount shouldBe 57
             result.records.size shouldBe 10
         }
@@ -51,7 +51,7 @@ class QueryTest : StringSpec() {
             collection.insertMany((0 until 10).map { Entity("company") })
             collection.insertMany((0 until 10).map { Entity("individual") })
 
-            val result = collection.pagedQuery(Entity::type.mongoEq("something-else"), Page(0, 10))
+            val result = collection.query(Entity::type.mongoEq("something-else"), Page(0, 10))
             result.totalCount shouldBe 0
             result.records.size shouldBe 0
         }
@@ -72,19 +72,19 @@ class QueryTest : StringSpec() {
             collection.insertMany((0 until companyCount).map { Entity("company", it) })
             collection.insertMany((0 until 100).map { Entity("individual", it) })
 
-            val result1 = collection.pagedQuery(Entity::type.mongoEq("company"), Page(0, 10))
+            val result1 = collection.query(Entity::type.mongoEq("company"), Page(0, 10))
             result1.totalCount shouldBe companyCount
             result1.records.size shouldBe 10
             result1.records.map { it.type }.toSet() shouldBe setOf("company")
             result1.records.map { it.index } shouldBe (0..9).toList()
 
-            val result2 = collection.pagedQuery(Entity::type.mongoEq("company"), Page(10, 10))
+            val result2 = collection.query(Entity::type.mongoEq("company"), Page(10, 10))
             result2.totalCount shouldBe companyCount
             result2.records.size shouldBe 10
             result2.records.map { it.type }.toSet() shouldBe setOf("company")
             result2.records.map { it.index } shouldBe (10..19).toList()
 
-            val result3 = collection.pagedQuery(Entity::type.mongoEq("company"), Page(90, 10))
+            val result3 = collection.query(Entity::type.mongoEq("company"), Page(90, 10))
             result3.totalCount shouldBe companyCount
             result3.records.size shouldBe 5
             result3.records.map { it.type }.toSet() shouldBe setOf("company")
@@ -107,13 +107,13 @@ class QueryTest : StringSpec() {
             val docCount = 95
             collection.insertMany((0 until docCount).map { Entity("company", it) })
 
-            val result1 = collection.pagedQuery(Entity::type.mongoEq("company"), Page(0, 10), 1000, Entity::index.sortAsc())
+            val result1 = collection.query(Entity::type.mongoEq("company"), Page(0, 10), 1000, Entity::index.sortAsc())
             result1.totalCount shouldBe docCount
             result1.records.size shouldBe 10
             result1.records.map { it.type }.toSet() shouldBe setOf("company")
             result1.records.map { it.index } shouldBe (0..9).toList()
 
-            val result2 = collection.pagedQuery(Entity::type.mongoEq("company"), Page(0, 10), 1000, Entity::index.sortDesc())
+            val result2 = collection.query(Entity::type.mongoEq("company"), Page(0, 10), 1000, Entity::index.sortDesc())
             result2.totalCount shouldBe docCount
             result2.records.size shouldBe 10
             result2.records.map { it.type }.toSet() shouldBe setOf("company")
@@ -137,7 +137,7 @@ class QueryTest : StringSpec() {
             collection.insertMany((1..docCount).map { Entity("company", it) })
             collection.insertMany((1..docCount).map { Entity("individual", it) })
 
-            val result = collection.pagedQuery(null, Page(0, 10), 1000, Entity::index.sortAsc(), Entity::type.sortDesc())
+            val result = collection.query(null, Page(0, 10), 1000, Entity::index.sortAsc(), Entity::type.sortDesc())
             result.totalCount shouldBe docCount * 2
             result.records.size shouldBe 10
             result.records.count { it.type == "company" } shouldBe 5
@@ -212,7 +212,7 @@ class QueryTest : StringSpec() {
             val individualCount = 100
             collection.insertMany((0 until companyCount).map { Entity("company") })
             collection.insertMany((0 until individualCount).map { Entity("individual") })
-            val result = collection.pagedQuery(null, Page(0, 10))
+            val result = collection.query(null, Page(0, 10))
             result.totalCount shouldBe companyCount + individualCount
         }
 
@@ -238,10 +238,10 @@ class QueryTest : StringSpec() {
             collection.save(doc1)
             collection.save(doc2)
 
-            collection.pagedQuery(mongoTextSearch("dogs")).records.sortedBy { it.id } shouldBe listOf(doc1, doc2).sortedBy { it.id }
-            collection.pagedQuery(mongoTextSearch("dog")).records.sortedBy { it.id } shouldBe listOf(doc1, doc2).sortedBy { it.id }
-            collection.pagedQuery(mongoTextSearch("barking")).records shouldBe listOf(doc1)
-            collection.pagedQuery(mongoTextSearch("cat")).records shouldBe listOf(doc2)
+            collection.query(mongoTextSearch("dogs")).records.sortedBy { it.id } shouldBe listOf(doc1, doc2).sortedBy { it.id }
+            collection.query(mongoTextSearch("dog")).records.sortedBy { it.id } shouldBe listOf(doc1, doc2).sortedBy { it.id }
+            collection.query(mongoTextSearch("barking")).records shouldBe listOf(doc1)
+            collection.query(mongoTextSearch("cat")).records shouldBe listOf(doc2)
         }
 
         "collection.query with maxDocuments" {
@@ -256,7 +256,7 @@ class QueryTest : StringSpec() {
             val collection = database.collection<Entity>()
             collection.insertMany((0 until 100).map { Entity() })
 
-            val result = collection.pagedQuery(null, Page(0, 10), 30)
+            val result = collection.query(null, Page(0, 10), 30)
             result.totalCount shouldBe 30
             result.records.size shouldBe 10
         }
