@@ -23,7 +23,7 @@ fun <E : StoredEntity> MongoCollection<E>.query(
     filter: Bson? = null,
     page: Page = Page(0, 10),
     maxDocuments: Int = 1000,
-    sorts: List<Bson> = emptyList()
+    sort: List<Bson> = emptyList()
 ): RecordsPage<E> {
     val countOptions = CountOptions().limit(maxDocuments)
 
@@ -37,7 +37,7 @@ fun <E : StoredEntity> MongoCollection<E>.query(
         }
 
     return RecordsPage(
-        records = iterable.sort(Sorts.orderBy(sorts)).toList(),
+        records = iterable.sort(Sorts.orderBy(sort)).toList(),
         totalCount = count,
         page = page
     )
