@@ -102,7 +102,7 @@ class IndexesBuilder {
         desc(*properties.map { it.name }.toTypedArray(), caseInsensitive = caseInsensitive)
     }
 
-    fun <E : StoredEntity> text(vararg properties: KProperty1<E, String>) {
+    fun <E : StoredEntity> text(vararg properties: KProperty1<E, String?>) {
         text(*properties.map { it.name }.toTypedArray())
     }
 }
