@@ -1,29 +1,29 @@
 package invirt.mongodb
 
 import com.mongodb.client.model.CountOptions
+import com.mongodb.client.model.Sorts
 import com.mongodb.kotlin.client.FindIterable
 import com.mongodb.kotlin.client.MongoCollection
 import invirt.data.Page
 import invirt.data.RecordsPage
-import invirt.data.Sort
 import org.bson.BsonDocument
 import org.bson.conversions.Bson
 
 interface MongoQuery {
     val page: Page
-    val sort: List<Sort>
+    val sort: List<Bson>
     val filter: Bson?
     val maxDocuments: Int get() = 1000
 }
 
 fun <E : StoredEntity> MongoCollection<E>.query(searchQuery: MongoQuery): RecordsPage<E> =
-    this.query(searchQuery.filter, searchQuery.page, searchQuery.maxDocuments, *searchQuery.sort.toTypedArray())
+    this.query(searchQuery.filter, searchQuery.page, searchQuery.maxDocuments, searchQuery.sort)
 
 fun <E : StoredEntity> MongoCollection<E>.query(
     filter: Bson? = null,
     page: Page = Page(0, 10),
     maxDocuments: Int = 1000,
-    vararg sorts: Sort = emptyArray()
+    sorts: List<Bson> = emptyList()
 ): RecordsPage<E> {
     val countOptions = CountOptions().limit(maxDocuments)
 
@@ -37,7 +37,7 @@ fun <E : StoredEntity> MongoCollection<E>.query(
         }
 
     return RecordsPage(
-        records = iterable.sort(sorts.mongoSort()).toList(),
+        records = iterable.sort(Sorts.orderBy(sorts)).toList(),
         totalCount = count,
         page = page
     )

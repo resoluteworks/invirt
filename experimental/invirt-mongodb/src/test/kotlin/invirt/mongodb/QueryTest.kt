@@ -1,7 +1,6 @@
 package invirt.mongodb
 
 import invirt.data.Page
-import invirt.data.Sort
 import invirt.data.sortAsc
 import invirt.data.sortDesc
 import invirt.testMongo
@@ -107,13 +106,13 @@ class QueryTest : StringSpec() {
             val docCount = 95
             collection.insertMany((0 until docCount).map { Entity("company", it) })
 
-            val result1 = collection.query(Entity::type.mongoEq("company"), Page(0, 10), 1000, Entity::index.sortAsc())
+            val result1 = collection.query(Entity::type.mongoEq("company"), Page(0, 10), 1000, listOf(Entity::index.sortAsc().mongoSort()))
             result1.totalCount shouldBe docCount
             result1.records.size shouldBe 10
             result1.records.map { it.type }.toSet() shouldBe setOf("company")
             result1.records.map { it.index } shouldBe (0..9).toList()
 
-            val result2 = collection.query(Entity::type.mongoEq("company"), Page(0, 10), 1000, Entity::index.sortDesc())
+            val result2 = collection.query(Entity::type.mongoEq("company"), Page(0, 10), 1000, listOf(Entity::index.sortDesc().mongoSort()))
             result2.totalCount shouldBe docCount
             result2.records.size shouldBe 10
             result2.records.map { it.type }.toSet() shouldBe setOf("company")
@@ -137,7 +136,10 @@ class QueryTest : StringSpec() {
             collection.insertMany((1..docCount).map { Entity("company", it) })
             collection.insertMany((1..docCount).map { Entity("individual", it) })
 
-            val result = collection.query(null, Page(0, 10), 1000, Entity::index.sortAsc(), Entity::type.sortDesc())
+            val result = collection.query(
+                null, Page(0, 10), 1000,
+                listOf(Entity::index.sortAsc().mongoSort(), Entity::type.sortDesc().mongoSort())
+            )
             result.totalCount shouldBe docCount * 2
             result.records.size shouldBe 10
             result.records.count { it.type == "company" } shouldBe 5
@@ -162,7 +164,7 @@ class QueryTest : StringSpec() {
                 override var updatedAt: Instant = mongoNow()
             ) : StoredEntity
 
-            data class SimpleMongoQuery(override val filter: Bson?, override val page: Page, override val sort: List<Sort>) : MongoQuery
+            data class SimpleMongoQuery(override val filter: Bson?, override val page: Page, override val sort: List<Bson>) : MongoQuery
 
             val collection = database.collection<Entity>()
             val companyCount = 95
@@ -175,7 +177,7 @@ class QueryTest : StringSpec() {
                     SimpleMongoQuery(
                         Entity::type.mongoEq("company"),
                         Page(0, 10),
-                        listOf(Entity::index.sortAsc())
+                        listOf(Entity::index.sortAsc().mongoSort())
                     )
                 )
             result1.totalCount shouldBe companyCount
@@ -187,7 +189,7 @@ class QueryTest : StringSpec() {
                 SimpleMongoQuery(
                     Entity::type.mongoEq("company"),
                     Page(0, 10),
-                    listOf(Entity::index.sortDesc())
+                    listOf(Entity::index.sortDesc().mongoSort())
                 )
             )
             result2.totalCount shouldBe companyCount
@@ -276,7 +278,7 @@ class QueryTest : StringSpec() {
                 override val filter: Bson?,
                 override val page: Page,
                 override val maxDocuments: Int,
-                override val sort: List<Sort> = emptyList()
+                override val sort: List<Bson> = emptyList()
             ) : MongoQuery
 
             val result = collection.query(SimpleMongoQuery(filter = null, page = Page(0, 10), maxDocuments = 25))
