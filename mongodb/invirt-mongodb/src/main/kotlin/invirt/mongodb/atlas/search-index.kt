@@ -9,14 +9,6 @@ import java.time.Duration
 private val log = KotlinLogging.logger {}
 
 /**
- * Creates a search index with the specified [indexName] from the [definition] represented as a JSON string.
- */
-fun MongoCollection<*>.createSearchIndex(indexName: String, definition: String) {
-    createSearchIndex(indexName, Document.parse(definition))
-    log.info { "Created Mongo search index $indexName" }
-}
-
-/**
  * Creates the default search index from the [definition] represented as a JSON string.
  * Atlas Search uses the `default` name when no index name is provided: https://www.mongodb.com/docs/atlas/atlas-search/create-index/
  */

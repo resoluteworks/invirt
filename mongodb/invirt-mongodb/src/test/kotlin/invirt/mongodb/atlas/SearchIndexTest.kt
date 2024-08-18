@@ -11,6 +11,7 @@ import invirt.utils.uuid7
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import org.bson.Document
 import org.bson.codecs.pojo.annotations.BsonId
 import java.time.Instant
 
@@ -34,21 +35,23 @@ class SearchIndexTest : StringSpec() {
             val indexName = "test-index"
             collection.createSearchIndex(
                 indexName,
-                """
-                {
-                    "mappings": {
-                        "dynamic": false,
-                        "fields": {
-                            "title": {
-                                "type": "autocomplete",
-                                "analyzer": "lucene.standard",
-                                "tokenization": "edgeGram",
-                                "foldDiacritics": true
+                Document.parse(
+                    """
+                        {
+                            "mappings": {
+                                "dynamic": false,
+                                "fields": {
+                                    "title": {
+                                        "type": "autocomplete",
+                                        "analyzer": "lucene.standard",
+                                        "tokenization": "edgeGram",
+                                        "foldDiacritics": true
+                                    }
+                                }
                             }
                         }
-                    }
-                }
-                """.trimIndent()
+                    """.trimIndent()
+                )
             )
 
             collection.waitForSearchIndexReady(indexName)
