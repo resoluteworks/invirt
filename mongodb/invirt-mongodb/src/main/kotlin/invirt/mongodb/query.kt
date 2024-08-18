@@ -14,8 +14,8 @@ import org.bson.conversions.Bson
 fun <Doc : Any> MongoCollection<Doc>.query(
     filter: Bson? = null,
     page: Page = Page(0, 10),
-    maxDocuments: Int = 1000,
-    sort: List<Bson> = emptyList()
+    sort: List<Bson> = emptyList(),
+    maxDocuments: Int = 0
 ): RecordsPage<Doc> {
     val docFilter = filter ?: Filters.empty()
 

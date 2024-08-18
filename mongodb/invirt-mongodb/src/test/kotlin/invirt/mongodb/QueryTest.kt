@@ -92,10 +92,9 @@ class QueryTest : StringSpec() {
             collection.insertMany((0 until docCount).map { TestDocument("company", it) })
 
             val result1 = collection.query(
-                TestDocument::type.mongoEq("company"),
-                Page(0, 10),
-                1000,
-                listOf(TestDocument::index.sortAsc().mongoSort())
+                filter = TestDocument::type.mongoEq("company"),
+                page = Page(0, 10),
+                sort = listOf(TestDocument::index.sortAsc().mongoSort())
             )
             result1.totalCount shouldBe docCount
             result1.records.size shouldBe 10
@@ -103,10 +102,9 @@ class QueryTest : StringSpec() {
             result1.records.map { it.index } shouldBe (0..9).toList()
 
             val result2 = collection.query(
-                TestDocument::type.mongoEq("company"),
-                Page(0, 10),
-                1000,
-                listOf(TestDocument::index.sortDesc().mongoSort())
+                filter = TestDocument::type.mongoEq("company"),
+                page = Page(0, 10),
+                sort = listOf(TestDocument::index.sortDesc().mongoSort())
             )
             result2.totalCount shouldBe docCount
             result2.records.size shouldBe 10
@@ -128,8 +126,9 @@ class QueryTest : StringSpec() {
             collection.insertMany((1..docCount).map { TestDocument("individual", it) })
 
             val result = collection.query(
-                null, Page(0, 10), 1000,
-                listOf(TestDocument::index.sortAsc().mongoSort(), TestDocument::type.sortDesc().mongoSort())
+                filter = null,
+                page = Page(0, 10),
+                sort = listOf(TestDocument::index.sortAsc().mongoSort(), TestDocument::type.sortDesc().mongoSort())
             )
             result.totalCount shouldBe docCount * 2
             result.records.size shouldBe 10
@@ -168,7 +167,7 @@ class QueryTest : StringSpec() {
             val collection = mongo.randomTestCollection<TestDocument>()
             collection.insertMany((0 until 100).map { TestDocument() })
 
-            val result = collection.query(null, Page(0, 10), 30)
+            val result = collection.query(null, Page(0, 10), maxDocuments = 30)
             result.totalCount shouldBe 30
             result.records.size shouldBe 10
         }
