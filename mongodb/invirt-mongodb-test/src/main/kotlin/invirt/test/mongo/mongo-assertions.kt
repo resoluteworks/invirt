@@ -1,7 +1,7 @@
 package invirt.test
 
 import com.mongodb.kotlin.client.MongoCollection
-import invirt.mongodb.StoredEntity
+import invirt.mongodb.TimestampedDocument
 import io.kotest.assertions.withClue
 import io.kotest.matchers.equality.shouldBeEqualToIgnoringFields
 import io.kotest.matchers.longs.shouldBeGreaterThan
@@ -10,7 +10,7 @@ import io.kotest.matchers.shouldNotBe
 import org.bson.Document
 import java.time.temporal.ChronoUnit
 
-infix fun StoredEntity.shouldBeUpdateOf(other: StoredEntity) {
+infix fun TimestampedDocument.shouldBeUpdateOf(other: TimestampedDocument) {
     val thisUpdatedAt = this.updatedAt.truncatedTo(ChronoUnit.MILLIS)
     val otherUpdatedAt = other.updatedAt.truncatedTo(ChronoUnit.MILLIS)
     withClue("$thisUpdatedAt is not after $otherUpdatedAt") {
@@ -21,7 +21,7 @@ infix fun StoredEntity.shouldBeUpdateOf(other: StoredEntity) {
     }
 }
 
-infix fun StoredEntity.shouldBeNextUpdateOf(other: StoredEntity) {
+infix fun TimestampedDocument.shouldBeNextUpdateOf(other: TimestampedDocument) {
     val thisUpdatedAt = this.updatedAt.truncatedTo(ChronoUnit.MILLIS)
     val otherUpdatedAt = other.updatedAt.truncatedTo(ChronoUnit.MILLIS)
     withClue("$thisUpdatedAt is not after $otherUpdatedAt") {
@@ -32,34 +32,30 @@ infix fun StoredEntity.shouldBeNextUpdateOf(other: StoredEntity) {
     }
 }
 
-infix fun StoredEntity?.shouldBeSameEntity(other: StoredEntity) {
+infix fun TimestampedDocument?.shouldBeSameDocument(other: TimestampedDocument) {
     this!!.shouldBeEqualToIgnoringFields(
         other,
-        StoredEntity::version,
-        StoredEntity::createdAt,
-        StoredEntity::updatedAt
+        TimestampedDocument::version,
+        TimestampedDocument::createdAt,
+        TimestampedDocument::updatedAt
     )
 }
 
-private fun Document.isAscIndex(field: String): Boolean {
-    return (this["key"] as Document)[field] == 1
-}
+private fun Document.isAscIndex(field: String): Boolean = (this["key"] as Document)[field] == 1
 
-private fun Document.isDescIndex(field: String): Boolean {
-    return (this["key"] as Document)[field] == -1
-}
+private fun Document.isDescIndex(field: String): Boolean = (this["key"] as Document)[field] == -1
 
-infix fun <Entity : StoredEntity> MongoCollection<Entity>.shouldHaveAscIndex(field: String) {
+infix fun <Doc : Any> MongoCollection<Doc>.shouldHaveAscIndex(field: String) {
     listIndexes().toList().find { it.isAscIndex(field) } shouldNotBe null
 }
 
-fun <Entity : StoredEntity> MongoCollection<Entity>.shouldHaveTextIndex(vararg fields: String) {
+fun <Doc : Any> MongoCollection<Doc>.shouldHaveTextIndex(vararg fields: String) {
     listIndexes().toList().find {
         val indexName = fields.joinToString("_") { field -> "${field}_text" }
         (it["key"] as Document)["_fts"] == "text" && (it["name"] == indexName)
     } shouldNotBe null
 }
 
-infix fun <Entity : StoredEntity> MongoCollection<Entity>.shouldHaveDescIndex(field: String) {
+infix fun <Doc : Any> MongoCollection<Doc>.shouldHaveDescIndex(field: String) {
     listIndexes().toList().find { it.isDescIndex(field) } shouldNotBe null
 }

@@ -6,7 +6,7 @@ import invirt.data.exists
 import invirt.data.geo.GeoBoundingBox
 import invirt.data.geo.GeoLocation
 import invirt.data.withinGeoBounds
-import invirt.randomCollection
+import invirt.randomTestCollection
 import invirt.testMongo
 import invirt.utils.uuid7
 import io.kotest.assertions.throwables.shouldThrowWithMessage
@@ -14,7 +14,6 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import org.bson.codecs.pojo.annotations.BsonId
-import java.time.Instant
 import java.time.LocalDate
 
 class FiltersTest : StringSpec() {
@@ -23,40 +22,36 @@ class FiltersTest : StringSpec() {
 
     init {
         "gt, lt, gte, lte" {
-            data class Entity(
+            data class TestDocument(
                 val index: Int,
                 @BsonId override val id: String = uuid7(),
-                override var version: Long = 0,
-                override val createdAt: Instant = mongoNow(),
-                override var updatedAt: Instant = mongoNow()
-            ) : StoredEntity
+                override var version: Long = 0
+            ) : VersionedDocument
 
-            val collection = mongo.database.randomCollection<Entity>()
+            val collection = mongo.randomTestCollection<TestDocument>()
             repeat(100) {
-                collection.insertOne(Entity(it + 1))
+                collection.insertOne(TestDocument(it + 1))
             }
-            collection.find(Entity::index.mongoGt(10)).toList().map { it.index } shouldContainExactlyInAnyOrder (11..100).toList()
-            collection.find(Entity::index.mongoGte(10)).toList().map { it.index } shouldContainExactlyInAnyOrder (10..100).toList()
-            collection.find(Entity::index.mongoGte(0)).toList().map { it.index } shouldContainExactlyInAnyOrder (1..100).toList()
-            collection.find(Entity::index.mongoLt(54)).toList().map { it.index } shouldContainExactlyInAnyOrder (1..53).toList()
-            collection.find(Entity::index.mongoLte(54)).toList().map { it.index } shouldContainExactlyInAnyOrder (1..54).toList()
+            collection.find(TestDocument::index.mongoGt(10)).toList().map { it.index } shouldContainExactlyInAnyOrder (11..100).toList()
+            collection.find(TestDocument::index.mongoGte(10)).toList().map { it.index } shouldContainExactlyInAnyOrder (10..100).toList()
+            collection.find(TestDocument::index.mongoGte(0)).toList().map { it.index } shouldContainExactlyInAnyOrder (1..100).toList()
+            collection.find(TestDocument::index.mongoLt(54)).toList().map { it.index } shouldContainExactlyInAnyOrder (1..53).toList()
+            collection.find(TestDocument::index.mongoLte(54)).toList().map { it.index } shouldContainExactlyInAnyOrder (1..54).toList()
         }
 
         "exists and doesntExist" {
             data class Name(val firstName: String?, val lastName: String?)
-            data class Entity(
+            data class TestDocument(
                 val name: Name?,
                 @BsonId override val id: String = uuid7(),
-                override var version: Long = 0,
-                override val createdAt: Instant = mongoNow(),
-                override var updatedAt: Instant = mongoNow()
-            ) : StoredEntity
+                override var version: Long = 0
+            ) : VersionedDocument
 
-            val collection = mongo.database.randomCollection<Entity>()
-            val e1 = collection.save(Entity(null)).id
-            val e2 = collection.save(Entity(Name(firstName = "John", lastName = null))).id
-            val e3 = collection.save(Entity(Name(firstName = "John", lastName = "Smith"))).id
-            val e4 = collection.save(Entity(Name(firstName = null, lastName = "Smith"))).id
+            val collection = mongo.randomTestCollection<TestDocument>()
+            val e1 = collection.insert(TestDocument(null)).id
+            val e2 = collection.insert(TestDocument(Name(firstName = "John", lastName = null))).id
+            val e3 = collection.insert(TestDocument(Name(firstName = "John", lastName = "Smith"))).id
+            val e4 = collection.insert(TestDocument(Name(firstName = null, lastName = "Smith"))).id
 
             collection.find("name".exists().mongoFilter()).toList().map { it.id } shouldContainExactlyInAnyOrder listOf(e2, e3, e4)
             collection.find("name".doesntExist().mongoFilter()).toList().map { it.id } shouldContainExactlyInAnyOrder listOf(e1)
@@ -73,46 +68,44 @@ class FiltersTest : StringSpec() {
         }
 
         "in" {
-            data class Entity(
+            data class TestDocument(
                 val index: Int,
                 @BsonId override val id: String = uuid7(),
-                override var version: Long = 0,
-                override val createdAt: Instant = mongoNow(),
-                override var updatedAt: Instant = mongoNow()
-            ) : StoredEntity
+                override var version: Long = 0
+            ) : VersionedDocument
 
-            val collection = mongo.database.randomCollection<Entity>()
+            val collection = mongo.randomTestCollection<TestDocument>()
             val ids = mutableListOf<String>()
             repeat(4) {
-                val document = Entity(it % 2)
+                val document = TestDocument(it % 2)
                 collection.insertOne(document)
                 ids.add(document.id)
             }
 
-            collection.find(Entity::index.mongoIn(0, 1)).toList().map { it.id } shouldContainExactlyInAnyOrder ids
-            collection.find(Entity::index.mongoIn(setOf(0, 1))).toList().map { it.id } shouldContainExactlyInAnyOrder ids
-            collection.find(Entity::index.mongoIn(listOf(0, 1))).toList().map { it.id } shouldContainExactlyInAnyOrder ids
+            collection.find(TestDocument::index.mongoIn(0, 1)).toList().map { it.id } shouldContainExactlyInAnyOrder ids
+            collection.find(TestDocument::index.mongoIn(setOf(0, 1))).toList().map { it.id } shouldContainExactlyInAnyOrder ids
+            collection.find(TestDocument::index.mongoIn(listOf(0, 1))).toList().map { it.id } shouldContainExactlyInAnyOrder ids
 
             collection.find("index".mongoIn(0, 1)).toList().map { it.id } shouldContainExactlyInAnyOrder ids
             collection.find("index".mongoIn(setOf(0, 1))).toList().map { it.id } shouldContainExactlyInAnyOrder ids
             collection.find("index".mongoIn(listOf(0, 1))).toList().map { it.id } shouldContainExactlyInAnyOrder ids
 
-            collection.find(Entity::index.mongoIn(0)).toList().map { it.id } shouldContainExactlyInAnyOrder listOf(ids[0], ids[2])
+            collection.find(TestDocument::index.mongoIn(0)).toList().map { it.id } shouldContainExactlyInAnyOrder listOf(ids[0], ids[2])
             collection.find("index".mongoIn(0)).toList().map { it.id } shouldContainExactlyInAnyOrder listOf(ids[0], ids[2])
 
-            collection.find(Entity::index.mongoIn(1)).toList().map { it.id } shouldContainExactlyInAnyOrder listOf(ids[1], ids[3])
+            collection.find(TestDocument::index.mongoIn(1)).toList().map { it.id } shouldContainExactlyInAnyOrder listOf(ids[1], ids[3])
             collection.find("index".mongoIn(1)).toList().map { it.id } shouldContainExactlyInAnyOrder listOf(ids[1], ids[3])
 
             // Error states
             val message = "Values for mongoIn cannot be empty"
             shouldThrowWithMessage<IllegalArgumentException>(message) {
-                Entity::index.mongoIn(emptySet())
+                TestDocument::index.mongoIn(emptySet())
             }
             shouldThrowWithMessage<IllegalArgumentException>(message) {
-                Entity::index.mongoIn(emptyList())
+                TestDocument::index.mongoIn(emptyList())
             }
             shouldThrowWithMessage<IllegalArgumentException>(message) {
-                Entity::index.mongoIn()
+                TestDocument::index.mongoIn()
             }
             shouldThrowWithMessage<IllegalArgumentException>(message) {
                 "index".mongoIn(emptySet())
@@ -126,44 +119,40 @@ class FiltersTest : StringSpec() {
         }
 
         "inYear" {
-            data class Entity(
+            data class TestDocument(
                 val index: Int,
                 val date: LocalDate,
                 @BsonId override val id: String = uuid7(),
-                override var version: Long = 0,
-                override val createdAt: Instant = mongoNow(),
-                override var updatedAt: Instant = mongoNow()
-            ) : StoredEntity
+                override var version: Long = 0
+            ) : VersionedDocument
 
-            val collection = mongo.database.randomCollection<Entity>()
+            val collection = mongo.randomTestCollection<TestDocument>()
             collection.insertMany(
                 listOf(
-                    Entity(1, LocalDate.of(2024, 2, 3)),
-                    Entity(2, LocalDate.of(2024, 2, 3)),
-                    Entity(3, LocalDate.of(2025, 2, 3)),
-                    Entity(4, LocalDate.of(2025, 2, 3)),
-                    Entity(5, LocalDate.of(2025, 2, 3)),
-                    Entity(6, LocalDate.of(2026, 2, 3))
+                    TestDocument(1, LocalDate.of(2024, 2, 3)),
+                    TestDocument(2, LocalDate.of(2024, 2, 3)),
+                    TestDocument(3, LocalDate.of(2025, 2, 3)),
+                    TestDocument(4, LocalDate.of(2025, 2, 3)),
+                    TestDocument(5, LocalDate.of(2025, 2, 3)),
+                    TestDocument(6, LocalDate.of(2026, 2, 3))
                 )
             )
 
-            collection.find(Entity::date.inYear(2024)).toList().map { it.index } shouldContainExactlyInAnyOrder listOf(1, 2)
-            collection.find(Entity::date.inYear(2025)).toList().map { it.index } shouldContainExactlyInAnyOrder listOf(3, 4, 5)
-            collection.find(Entity::date.inYear(2026)).toList().map { it.index } shouldContainExactlyInAnyOrder listOf(6)
+            collection.find(TestDocument::date.inYear(2024)).toList().map { it.index } shouldContainExactlyInAnyOrder listOf(1, 2)
+            collection.find(TestDocument::date.inYear(2025)).toList().map { it.index } shouldContainExactlyInAnyOrder listOf(3, 4, 5)
+            collection.find(TestDocument::date.inYear(2026)).toList().map { it.index } shouldContainExactlyInAnyOrder listOf(6)
         }
 
         "byId" {
-            data class Entity(
+            data class TestDocument(
                 @BsonId override val id: String = uuid7(),
-                override var version: Long = 0,
-                override val createdAt: Instant = mongoNow(),
-                override var updatedAt: Instant = mongoNow()
-            ) : StoredEntity
+                override var version: Long = 0
+            ) : VersionedDocument
 
-            val collection = mongo.database.randomCollection<Entity>()
+            val collection = mongo.randomTestCollection<TestDocument>()
             val ids = mutableListOf<String>()
             repeat(4) {
-                val document = Entity()
+                val document = TestDocument()
                 collection.insertOne(document)
                 ids.add(document.id)
             }
@@ -173,17 +162,15 @@ class FiltersTest : StringSpec() {
         }
 
         "byIds" {
-            data class Entity(
+            data class TestDocument(
                 @BsonId override val id: String = uuid7(),
-                override var version: Long = 0,
-                override val createdAt: Instant = mongoNow(),
-                override var updatedAt: Instant = mongoNow()
-            ) : StoredEntity
+                override var version: Long = 0
+            ) : VersionedDocument
 
-            val collection = mongo.database.randomCollection<Entity>()
+            val collection = mongo.randomTestCollection<TestDocument>()
             val ids = mutableListOf<String>()
             repeat(4) {
-                val document = Entity()
+                val document = TestDocument()
                 collection.insertOne(document)
                 ids.add(document.id)
             }
@@ -194,20 +181,18 @@ class FiltersTest : StringSpec() {
         }
 
         "text search" {
-            data class Entity(
+            data class TestDocument(
                 val name: String,
                 val description: String,
                 @BsonId override val id: String = uuid7(),
-                override var version: Long = 0,
-                override val createdAt: Instant = mongoNow(),
-                override var updatedAt: Instant = mongoNow()
-            ) : StoredEntity
+                override var version: Long = 0
+            ) : VersionedDocument
 
-            val collection = mongo.database.randomCollection<Entity>()
+            val collection = mongo.randomTestCollection<TestDocument>()
             collection.createIndex(Indexes.compoundIndex(listOf("name", "description").map { Indexes.text(it) }))
 
-            val doc1 = Entity("dogs", "dogs barking")
-            val doc2 = Entity("both", "cats and dogs")
+            val doc1 = TestDocument("dogs", "dogs barking")
+            val doc2 = TestDocument("both", "cats and dogs")
             collection.insertOne(doc1)
             collection.insertOne(doc2)
 
@@ -218,20 +203,18 @@ class FiltersTest : StringSpec() {
         }
 
         "withinGeoBounds" {
-            data class Entity(
+            data class TestDocument(
                 val location: GeoLocation,
                 @BsonId override val id: String = uuid7(),
-                override var version: Long = 0,
-                override val createdAt: Instant = mongoNow(),
-                override var updatedAt: Instant = mongoNow()
-            ) : StoredEntity
+                override var version: Long = 0
+            ) : VersionedDocument
 
-            val collection = mongo.database.randomCollection<Entity>()
+            val collection = mongo.randomTestCollection<TestDocument>()
             collection.createIndex(Indexes.geo2dsphere("location.lngLat"))
 
-            val e1 = collection.save(Entity(GeoLocation(lng = -7.0, lat = 49.1)))
-            val e2 = collection.save(Entity(GeoLocation(lng = 10.5, lat = 23.0)))
-            val e3 = collection.save(Entity(GeoLocation(lng = 22.0, lat = -10.1)))
+            val e1 = collection.insert(TestDocument(GeoLocation(lng = -7.0, lat = 49.1)))
+            val e2 = collection.insert(TestDocument(GeoLocation(lng = 10.5, lat = 23.0)))
+            val e3 = collection.insert(TestDocument(GeoLocation(lng = 22.0, lat = -10.1)))
 
             collection.find(
                 "location.lngLat".withinGeoBounds(

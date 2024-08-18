@@ -23,7 +23,7 @@ class IndexTest : StringSpec() {
             data class Gender(val name: String)
             data class Address(val city: String)
 
-            data class Entity(
+            data class Person(
                 val age: Int,
                 val gender: Gender,
                 val firstName: String,
@@ -34,20 +34,20 @@ class IndexTest : StringSpec() {
 
                 @BsonId override val id: String = uuid7(),
                 override var version: Long = 0,
-                override val createdAt: Instant = mongoNow(),
+                override var createdAt: Instant = mongoNow(),
                 override var updatedAt: Instant = mongoNow()
-            ) : StoredEntity
+            ) : TimestampedDocument
 
             val database = mongo.database
 
             val collectionName = uuid7()
             database.createCollection(collectionName)
-            val collection = database.getCollection<Entity>(collectionName)
+            val collection = database.getCollection<Person>(collectionName)
             collection.createIndexes {
-                asc(Entity::age)
+                asc(Person::age)
                 asc("gender.name")
-                desc(Entity::lastName)
-                asc(Entity::indexedAndTextIndexed)
+                desc(Person::lastName)
+                asc(Person::indexedAndTextIndexed)
                 text("address.city", "firstName", "indexedAndTextIndexed")
             }
 
@@ -61,49 +61,47 @@ class IndexTest : StringSpec() {
         }
 
         "can only add text index once" {
-            data class Entity(
+            data class Person(
                 val name: String,
                 @BsonId override val id: String = uuid7(),
                 override var version: Long = 0,
-                override val createdAt: Instant = mongoNow(),
+                override var createdAt: Instant = mongoNow(),
                 override var updatedAt: Instant = mongoNow()
-            ) : StoredEntity
+            ) : TimestampedDocument
 
             val database = mongo.database
             val collectionName = uuid7()
             database.createCollection(collectionName)
-            val collection = database.getCollection<Entity>(collectionName)
+            val collection = database.getCollection<Person>(collectionName)
 
             shouldThrowWithMessage<IllegalStateException>("Text index already added for this collection") {
                 collection.createIndexes {
-                    text(Entity::name)
+                    text(Person::name)
                     text("name")
                 }
             }
         }
 
         "create indexes - desc" {
-            data class Entity(
+            data class TestDocument(
                 val childId: String,
                 @BsonId override val id: String = uuid7(),
-                override var version: Long = 0,
-                override val createdAt: Instant = mongoNow(),
-                override var updatedAt: Instant = mongoNow()
-            ) : StoredEntity
+                override var version: Long = 0
+            ) : VersionedDocument
 
             val database = mongo.database
             val collectionName = uuid7()
             database.createCollection(collectionName)
-            val collection = database.getCollection<Entity>(collectionName)
+            val collection = database.getCollection<TestDocument>(collectionName)
             collection.createIndexes {
-                desc(Entity::childId)
+                desc(TestDocument::childId)
             }
 
             collection shouldHaveDescIndex "childId"
         }
 
         "case insensitive" {
-            data class Entity(
+            data class Person(
                 val age: Int,
                 val name: String,
                 val lastName: String,
@@ -111,21 +109,19 @@ class IndexTest : StringSpec() {
                 val address: String,
                 val city: String,
                 @BsonId override val id: String = uuid7(),
-                override var version: Long = 0,
-                override val createdAt: Instant = mongoNow(),
-                override var updatedAt: Instant = mongoNow()
-            ) : StoredEntity
+                override var version: Long = 0
+            ) : VersionedDocument
 
             val collectionName = uuid7()
             val database = mongo.database
             database.createCollection(collectionName)
-            val collection = database.getCollection<Entity>(collectionName)
+            val collection = database.getCollection<Person>(collectionName)
             collection.createIndexes {
-                asc(Entity::age)
-                asc(Entity::name)
-                asc(Entity::lastName, caseInsensitive = true)
+                asc(Person::age)
+                asc(Person::name)
+                asc(Person::lastName, caseInsensitive = true)
                 desc("firstName")
-                desc(Entity::address, caseInsensitive = true)
+                desc(Person::address, caseInsensitive = true)
                 desc("city", caseInsensitive = true)
             }
             val indexes = collection.listIndexes().toList()
@@ -138,25 +134,23 @@ class IndexTest : StringSpec() {
         }
 
         "case insensitive sort" {
-            data class Entity(
+            data class Person(
                 val name: String,
                 @BsonId override val id: String = uuid7(),
-                override var version: Long = 0,
-                override val createdAt: Instant = mongoNow(),
-                override var updatedAt: Instant = mongoNow()
-            ) : StoredEntity
+                override var version: Long = 0
+            ) : VersionedDocument
 
             val database = mongo.database
             val collectionName = uuid7()
             database.createCollection(collectionName)
-            val collection = database.getCollection<Entity>(collectionName)
+            val collection = database.getCollection<Person>(collectionName)
             collection.createIndexes {
-                asc(Entity::name)
+                asc(Person::name)
             }
 
-            collection.save(Entity("B"))
-            collection.save(Entity("a"))
-            collection.find().sort(Entity::name.sortAsc())
+            collection.insert(Person("B"))
+            collection.insert(Person("a"))
+            collection.find().sort(Person::name.sortAsc())
                 .caseInsensitive()
                 .map { it.name }.toList() shouldBe listOf("a", "B")
         }

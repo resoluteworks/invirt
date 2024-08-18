@@ -11,5 +11,5 @@ dependencies {
     implementation(project(":invirt-data"))
     api("org.mongodb:mongodb-driver-kotlin-sync:${mongoDriverVersion}")
 
-    testImplementation(project(":invirt-test"))
+    testImplementation(project(":invirt-mongodb-test"))
 }

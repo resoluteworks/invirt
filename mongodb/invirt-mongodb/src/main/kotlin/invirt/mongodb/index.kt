@@ -22,23 +22,8 @@ fun indexAsc(vararg fields: String, caseInsensitive: Boolean = false): List<Inde
 
 fun indexDesc(vararg fields: String, caseInsensitive: Boolean = false): List<IndexModel> = fields.map { it.indexDesc(caseInsensitive) }
 
-fun <E : StoredEntity> MongoCollection<E>.createIndexes(
+fun <Doc : Any> MongoCollection<Doc>.createIndexes(
     clientSession: ClientSession? = null,
-    build: IndexesBuilder.() -> Unit
-) {
-    val indexes = buildIndexes(this.namespace.collectionName, build)
-    if (clientSession != null) {
-        createIndexes(clientSession, indexes)
-    } else {
-        createIndexes(indexes)
-    }
-}
-
-/**
- * For backwards compatibility with the Java driver
- */
-fun com.mongodb.client.MongoCollection<*>.createIndexes(
-    clientSession: com.mongodb.client.ClientSession? = null,
     build: IndexesBuilder.() -> Unit
 ) {
     val indexes = buildIndexes(this.namespace.collectionName, build)
@@ -51,10 +36,7 @@ fun com.mongodb.client.MongoCollection<*>.createIndexes(
 
 private fun buildIndexes(collectionName: String, build: IndexesBuilder.() -> Unit): List<IndexModel> {
     val indexesBuilder = IndexesBuilder()
-    indexesBuilder.asc(StoredEntity::version)
-    indexesBuilder.desc(StoredEntity::createdAt)
-    indexesBuilder.desc(StoredEntity::updatedAt)
-    indexesBuilder.build()
+    build(indexesBuilder)
     log.atInfo {
         message = "Creating indexes for collection"
         payload = mapOf(
@@ -94,15 +76,25 @@ class IndexesBuilder {
         textIndexAdded = true
     }
 
-    fun <E : StoredEntity> asc(vararg properties: KProperty1<E, *>, caseInsensitive: Boolean = false) {
+    fun <Doc : Any> asc(vararg properties: KProperty1<Doc, *>, caseInsensitive: Boolean = false) {
         asc(*properties.map { it.name }.toTypedArray(), caseInsensitive = caseInsensitive)
     }
 
-    fun <E : StoredEntity> desc(vararg properties: KProperty1<E, *>, caseInsensitive: Boolean = false) {
+    fun <Doc : Any> desc(vararg properties: KProperty1<Doc, *>, caseInsensitive: Boolean = false) {
         desc(*properties.map { it.name }.toTypedArray(), caseInsensitive = caseInsensitive)
     }
 
-    fun <E : StoredEntity> text(vararg properties: KProperty1<E, String?>) {
+    fun <Doc : Any> text(vararg properties: KProperty1<Doc, String?>) {
         text(*properties.map { it.name }.toTypedArray())
+    }
+
+    fun versionIndex() {
+        asc(TimestampedDocument::version)
+    }
+
+    fun timestampedIndices() {
+        versionIndex()
+        desc(TimestampedDocument::createdAt)
+        desc(TimestampedDocument::updatedAt)
     }
 }

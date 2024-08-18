@@ -1,9 +1,7 @@
 package invirt
 
 import com.mongodb.kotlin.client.MongoCollection
-import com.mongodb.kotlin.client.MongoDatabase
 import invirt.mongodb.Mongo
-import invirt.mongodb.StoredEntity
 import invirt.utils.uuid7
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.extensions.install
@@ -17,8 +15,8 @@ private val log = KotlinLogging.logger {}
 fun Spec.testMongo(): Mongo {
     val container = install(
         ContainerExtension(
-            container = MongoDBContainer("mongo:7.0.4"),
-            mode = ContainerLifecycleMode.Project
+            container = MongoDBContainer("mongo:7.0.11"),
+            mode = ContainerLifecycleMode.Spec
         )
     )
     val connectionString = container.connectionString + "/${uuid7()}"
@@ -26,4 +24,4 @@ fun Spec.testMongo(): Mongo {
     return Mongo(connectionString)
 }
 
-inline fun <reified E : StoredEntity> MongoDatabase.randomCollection(): MongoCollection<E> = getCollection<E>(uuid7())
+inline fun <reified Doc : Any> Mongo.randomTestCollection(): MongoCollection<Doc> = database.getCollection<Doc>(uuid7())

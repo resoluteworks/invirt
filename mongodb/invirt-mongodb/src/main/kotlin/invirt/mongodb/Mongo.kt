@@ -12,7 +12,7 @@ import java.net.URI
 
 private val log = KotlinLogging.logger {}
 
-class Mongo(val connectionString: String) {
+class Mongo(private val connectionString: String) {
 
     val databaseName: String = URI(connectionString).path.replace("^/".toRegex(), "")
 

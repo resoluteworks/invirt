@@ -2,11 +2,11 @@ package invirt.mongodb
 
 import invirt.data.sortAsc
 import invirt.data.sortDesc
-import invirt.randomCollection
-import invirt.test.shouldBeNextUpdateOf
-import invirt.test.shouldBeSameEntity
+import invirt.randomTestCollection
+import invirt.test.shouldBeSameDocument
 import invirt.testMongo
 import invirt.utils.uuid7
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.throwables.shouldThrowWithMessage
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -19,84 +19,84 @@ class CollectionTest : StringSpec() {
 
     init {
         "findOne" {
-            data class Entity(
+            data class TestDocument(
                 val index: Int,
                 @BsonId override val id: String = uuid7(),
-                override var version: Long = 0,
-                override val createdAt: Instant = mongoNow(),
-                override var updatedAt: Instant = mongoNow()
-            ) : StoredEntity
+                override var version: Long = 0
+            ) : VersionedDocument
 
-            val collection = mongo.database.randomCollection<Entity>()
-            collection.insertOne(Entity(1))
-            collection.insertOne(Entity(2))
-            collection.insertOne(Entity(3))
-            collection.insertOne(Entity(4))
+            val collection = mongo.randomTestCollection<TestDocument>()
+            collection.insertOne(TestDocument(1))
+            collection.insertOne(TestDocument(2))
+            collection.insertOne(TestDocument(3))
+            collection.insertOne(TestDocument(4))
 
-            collection.findOne(Entity::index.mongoEq(2))!!.index shouldBe 2
-            collection.findOne(Entity::index.mongoEq(5)) shouldBe null
-            shouldThrowWithMessage<IllegalStateException>("More than one document found for filter ${Entity::index.mongoGt(2)}") {
-                collection.findOne(Entity::index.mongoGt(2))
+            collection.findOne(TestDocument::index.mongoEq(2))!!.index shouldBe 2
+            collection.findOne(TestDocument::index.mongoEq(5)) shouldBe null
+            shouldThrowWithMessage<IllegalStateException>("More than one document found for filter ${TestDocument::index.mongoGt(2)}") {
+                collection.findOne(TestDocument::index.mongoGt(2))
             }
         }
 
         "findFirst" {
-            data class Entity(
+            data class TestDocument(
                 val index: Int,
                 val type: String,
-                @BsonId override val id: String = index.toString(),
+                @BsonId override val id: String = uuid7(),
                 override var version: Long = 0,
-                override val createdAt: Instant = mongoNow(),
+                override var createdAt: Instant = mongoNow(),
                 override var updatedAt: Instant = mongoNow()
-            ) : StoredEntity
+            ) : TimestampedDocument
 
-            val collection = mongo.database.randomCollection<Entity>()
-            collection.insertOne(Entity(1, "person"))
-            collection.insertOne(Entity(2, "person"))
-            collection.insertOne(Entity(3, "company"))
-            collection.insertOne(Entity(4, "company"))
+            val collection = mongo.randomTestCollection<TestDocument>()
+            collection.insertOne(TestDocument(1, "person"))
+            collection.insertOne(TestDocument(2, "person"))
+            collection.insertOne(TestDocument(3, "company"))
+            collection.insertOne(TestDocument(4, "company"))
 
-            collection.findFirst(Entity::type.mongoEq("person"), Entity::index.sortAsc().mongoSort()) shouldBeSameEntity
-                Entity(1, "person")
+            collection.findFirst(TestDocument::type.mongoEq("person"), TestDocument::index.sortAsc().mongoSort()) shouldBeSameDocument
+                TestDocument(1, "person")
 
-            collection.findFirst(Entity::type.mongoEq("person"), Entity::index.sortDesc().mongoSort()) shouldBeSameEntity
-                Entity(2, "person")
+            collection.findFirst(TestDocument::type.mongoEq("person"), TestDocument::index.sortDesc().mongoSort()) shouldBeSameDocument
+                TestDocument(2, "person")
 
-            collection.findFirst(Entity::type.mongoEq("company"), Entity::index.sortDesc().mongoSort()) shouldBeSameEntity
-                Entity(4, "company")
+            collection.findFirst(TestDocument::type.mongoEq("company"), TestDocument::index.sortDesc().mongoSort()) shouldBeSameDocument
+                TestDocument(4, "company")
 
-            collection.findFirst(Entity::type.mongoEq("nothing"), Entity::index.sortDesc().mongoSort()) shouldBe null
+            collection.findFirst(TestDocument::type.mongoEq("nothing"), TestDocument::index.sortDesc().mongoSort()) shouldBe null
         }
 
         "get" {
-            data class Entity(
+            data class TestDocument(
+                val name: String = uuid7(),
                 @BsonId override val id: String = uuid7(),
                 override var version: Long = 0,
-                override val createdAt: Instant = mongoNow(),
+                override var createdAt: Instant = mongoNow(),
                 override var updatedAt: Instant = mongoNow()
-            ) : StoredEntity
+            ) : TimestampedDocument
 
-            val collection = mongo.database.randomCollection<Entity>()
-            val entity1 = Entity()
-            val entity2 = Entity()
-            collection.insertOne(entity1)
-            collection.insertOne(entity2)
+            val collection = mongo.randomTestCollection<TestDocument>()
+            val doc1 = TestDocument()
+            val doc2 = TestDocument()
+            collection.insertOne(doc1)
+            collection.insertOne(doc2)
 
-            collection.get(entity1.id) shouldBeSameEntity entity1
-            collection.get(entity2.id) shouldBeSameEntity entity2
+            collection.get(doc1.id) shouldBeSameDocument doc1
+            collection.get(doc2.id) shouldBeSameDocument doc2
             collection.get("test") shouldBe null
         }
 
         "delete" {
-            data class Entity(
+            data class TestDocument(
+                val name: String = uuid7(),
                 @BsonId override val id: String = uuid7(),
                 override var version: Long = 0,
-                override val createdAt: Instant = mongoNow(),
+                override var createdAt: Instant = mongoNow(),
                 override var updatedAt: Instant = mongoNow()
-            ) : StoredEntity
+            ) : TimestampedDocument
 
-            val collection = mongo.database.randomCollection<Entity>()
-            val id = collection.insertOne(Entity()).insertedId!!.asString().value
+            val collection = mongo.randomTestCollection<TestDocument>()
+            val id = collection.insertOne(TestDocument()).insertedId!!.asString().value
             collection.countDocuments() shouldBe 1
 
             collection.delete(id) shouldBe true
@@ -105,61 +105,132 @@ class CollectionTest : StringSpec() {
             collection.delete(id) shouldBe false
         }
 
-        "save" {
-            data class Entity(
+        "insert" {
+            data class TestDocument(
+                val name: String = uuid7(),
                 @BsonId override val id: String = uuid7(),
                 override var version: Long = 0,
-                override val createdAt: Instant = mongoNow(),
+                override var createdAt: Instant = mongoNow(),
                 override var updatedAt: Instant = mongoNow()
-            ) : StoredEntity
+            ) : TimestampedDocument
 
-            val collection = mongo.database.randomCollection<Entity>()
+            val collection = mongo.randomTestCollection<TestDocument>()
 
-            val entity1 = collection.save(Entity())
+            val doc = collection.insert(TestDocument())
+
             collection.countDocuments() shouldBe 1
-
-            val entity2 = collection.save(collection.get(entity1.id)!!)
-            collection.countDocuments() shouldBe 1
-
-            entity2 shouldBeSameEntity entity1
-            entity2 shouldBeNextUpdateOf entity1
+            val createdDoc = collection.get(doc.id)!!
+            createdDoc.version shouldBe 1
+            createdDoc.name shouldBe doc.name
         }
 
-        "collectionName" {
-            @MongoCollection("users")
-            data class User(
+        "update" {
+            data class TestDocument(
+                val type: String,
                 @BsonId override val id: String = uuid7(),
                 override var version: Long = 0,
-                override val createdAt: Instant = mongoNow(),
+                override var createdAt: Instant = mongoNow(),
                 override var updatedAt: Instant = mongoNow()
-            ) : StoredEntity
-            collectionName<User>() shouldBe "users"
+            ) : TimestampedDocument
 
-            data class Story(
+            val collection = mongo.randomTestCollection<TestDocument>()
+            val doc = TestDocument("document")
+            val id = collection.insert(doc).id
+
+            val updatedDoc = doc.copy(type = "folder")
+            collection.update(updatedDoc).id
+
+            collection.countDocuments() shouldBe 1
+            collection.get(id) shouldBe updatedDoc
+        }
+
+        "update - optimistic lock failure" {
+            data class TestDocument(
+                val type: String,
                 @BsonId override val id: String = uuid7(),
-                override var version: Long = 0,
-                override val createdAt: Instant = mongoNow(),
-                override var updatedAt: Instant = mongoNow()
-            ) : StoredEntity
-            shouldThrowWithMessage<IllegalStateException>("Class ${Story::class} doesn't have an @CollectionName annotation") {
-                collectionName<Story>()
+                override var version: Long = 0
+            ) : VersionedDocument
+
+            val collection = mongo.randomTestCollection<TestDocument>()
+            val v1 = collection.insert(TestDocument("document"))
+
+            v1.version shouldBe 1
+
+            // This update will succeed and update the version to 2
+            collection.update(v1.copy(type = "folder"))
+
+            // Attempting to update v1 should fail
+            shouldThrow<VersionedDocumentConflictException> {
+                collection.update(v1.copy(type = "container"))
             }
+
+            // The initial update to "folder" would not be overwrritten by the failed update attempt
+            val lastVersion = collection.get(v1.id)!!
+            lastVersion.type shouldBe "folder"
+            lastVersion.version shouldBe 2
+        }
+
+        "update document - optimistic lock failure with successful retry" {
+            data class TestDocument(
+                val email: String,
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0
+            ) : VersionedDocument
+
+            val collection = mongo.randomTestCollection<TestDocument>()
+            val v1 = collection.insert(TestDocument("johnsmith1@test.com"))
+
+            // This update will succeed and increase the version to 2
+            collection.update(v1.copy(email = "johnsmith2@test.com"))
+            collection.get(v1.id)!!.email shouldBe "johnsmith2@test.com"
+
+            // Attempt to update with a patch when the optimistic lock fails
+            collection.update(v1.copy(email = "johnsmith3@test.com")) {
+                it.copy(email = "johnsmith3@test.com")
+            }
+
+            val lastVersion = collection.get(v1.id)!!
+            lastVersion.email shouldBe "johnsmith3@test.com"
+            lastVersion.version shouldBe 3
+        }
+
+        "update document - optimistic lock failure with failed retry" {
+            data class TestDocument(
+                val email: String,
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0
+            ) : VersionedDocument
+
+            val collection = mongo.randomTestCollection<TestDocument>()
+            val v1 = collection.insert(TestDocument("jonhsmith1@test.com"))
+            val v2 = collection.update(v1.copy(email = "jonhsmith2@test.com"))
+
+            shouldThrow<VersionedDocumentConflictException> {
+                collection.update(v1.copy(email = "jonhsmithX@test.com")) {
+                    // Fake an update by another thread/process
+                    collection.update(v2.copy(email = "jonhsmith3@test.com"))
+                    it.copy(email = "jonhsmithX@test.com")
+                }
+            }
+
+            // The update to "jonhsmithX@test.com" must've failed and the update from the
+            // other thread/process is the last version
+            val lastVersion = collection.get(v1.id)!!
+            lastVersion.email shouldBe "jonhsmith3@test.com"
+            lastVersion.version shouldBe 3
         }
 
         "id consistency" {
-            @MongoCollection("mongo-database-id-consistency-test")
-            data class Entity(
+            data class TestDocument(
                 val name: String,
                 @BsonId override val id: String = uuid7(),
-                override var version: Long = 0,
-                override val createdAt: Instant = mongoNow(),
-                override var updatedAt: Instant = mongoNow()
-            ) : StoredEntity
+                override var version: Long = 0
+            ) : VersionedDocument
 
-            val collection = mongo.database.collection<Entity>()
-            val entity = Entity("Mary")
-            collection.save(entity)
-            collection.get(entity.id)!!.id shouldBe entity.id
+            val collection = mongo.randomTestCollection<TestDocument>()
+            val doc = TestDocument("Mary")
+            collection.insert(doc)
+            collection.get(doc.id)!!.id shouldBe doc.id
         }
     }
 }

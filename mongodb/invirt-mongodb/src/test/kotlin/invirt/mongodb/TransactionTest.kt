@@ -1,13 +1,12 @@
 package invirt.mongodb
 
-import invirt.randomCollection
+import invirt.randomTestCollection
 import invirt.testMongo
 import invirt.utils.uuid7
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.bson.codecs.pojo.annotations.BsonId
-import java.time.Instant
 
 class TransactionTest : StringSpec() {
 
@@ -15,19 +14,17 @@ class TransactionTest : StringSpec() {
 
     init {
         "tx failure" {
-            data class Entity(
+            data class TestDocument(
                 val name: String,
                 @BsonId override val id: String = uuid7(),
-                override var version: Long = 0,
-                override val createdAt: Instant = mongoNow(),
-                override var updatedAt: Instant = mongoNow()
-            ) : StoredEntity
+                override var version: Long = 0
+            ) : VersionedDocument
 
-            val collection = mongo.database.randomCollection<Entity>()
+            val collection = mongo.randomTestCollection<TestDocument>()
 
             shouldThrow<IllegalStateException> {
                 mongo.runInTransaction { session ->
-                    collection.txSave(session, Entity("Test"))
+                    collection.txInsert(session, TestDocument("Test"))
                     throw IllegalStateException("Unlucky")
                 }
             }
@@ -35,22 +32,20 @@ class TransactionTest : StringSpec() {
         }
 
         "tx success" {
-            data class Entity(
+            data class TestDocument(
                 val name: String,
                 @BsonId override val id: String = uuid7(),
-                override var version: Long = 0,
-                override val createdAt: Instant = mongoNow(),
-                override var updatedAt: Instant = mongoNow()
-            ) : StoredEntity
+                override var version: Long = 0
+            ) : VersionedDocument
 
-            val collection = mongo.database.randomCollection<Entity>()
-            val id1 = collection.save(Entity("One")).id
-            val id2 = collection.save(Entity("Two")).id
+            val collection = mongo.randomTestCollection<TestDocument>()
+            val id1 = collection.insert(TestDocument("One")).id
+            val id2 = collection.insert(TestDocument("Two")).id
             val id3 = mongo.runInTransaction { session ->
                 collection.txDelete(session, id2)
                 collection.txDelete(session, "123") // Shouldn't cause a problem as it doesn't exist
-                collection.txSave(session, collection.get(id1)!!.copy(name = "1"))
-                collection.txSave(session, Entity("3")).id
+                collection.txUpdate(session, collection.get(id1)!!.copy(name = "1"))
+                collection.txInsert(session, TestDocument("3")).id
             }
 
             collection.countDocuments() shouldBe 2

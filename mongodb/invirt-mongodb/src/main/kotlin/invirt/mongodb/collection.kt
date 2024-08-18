@@ -1,48 +1,119 @@
 package invirt.mongodb
 
-import com.mongodb.client.model.ReplaceOptions
+import com.mongodb.client.model.Filters
 import com.mongodb.kotlin.client.ClientSession
 import com.mongodb.kotlin.client.MongoCollection
 import org.bson.conversions.Bson
 
-fun <E : StoredEntity> MongoCollection<E>.save(entity: E): E {
-    replaceOne(mongoById(entity.id), entity.updated(), ReplaceOptions().upsert(true))
-    return entity
+/**
+ * Creates a new record for the specified [document]. It handles the initialisation* of [VersionedDocument.version]
+ * as well as [TimestampedDocument.createdAt] / [TimestampedDocument.updatedAt] when an instance
+ * of these types is passed as an argument.
+ */
+fun <Doc : Any> MongoCollection<Doc>.insert(document: Doc): Doc {
+    if (document is TimestampedDocument) {
+        document.createdAt = mongoNow()
+        document.updatedAt = mongoNow()
+    }
+    if (document is VersionedDocument) {
+        document.version = 1
+    }
+    insertOne(document)
+    return document
 }
 
-fun <E : StoredEntity> MongoCollection<E>.txSave(session: ClientSession, entity: E): E {
-    replaceOne(session, mongoById(entity.id), entity.updated(), ReplaceOptions().upsert(true))
-    return entity
+/**
+ * Transactional version of [MongoCollection.insert].
+ */
+fun <Doc : Any> MongoCollection<Doc>.txInsert(session: ClientSession, document: Doc): Doc {
+    if (document is TimestampedDocument) {
+        document.createdAt = mongoNow()
+        document.updatedAt = mongoNow()
+    }
+    if (document is VersionedDocument) {
+        document.version = 1
+    }
+    insertOne(session, document)
+    return document
 }
 
-fun <E : StoredEntity> MongoCollection<E>.get(id: String): E? {
-    return findOne(mongoById(id))
+/**
+ * Updates the specified [document] with an optimistic lock check based on [VersionedDocument.version].
+ *
+ * An optional [patchOnConflict] can be provided to re-apply the client updates on a fresh copy of the
+ * document when the optimistic lock fails (version drifted). When [patchOnConflict] is `null` and the
+ * optimistic lock check fails, a [VersionedDocumentConflictException] is thrown.
+ */
+fun <Doc : VersionedDocument> MongoCollection<Doc>.update(
+    document: Doc,
+    patchOnConflict: ((Doc) -> Doc)? = null
+): Doc =
+    update(null, document, patchOnConflict)
+
+/**
+ * Transactional version of [MongoCollection.update]
+ */
+fun <Doc : VersionedDocument> MongoCollection<Doc>.txUpdate(
+    session: ClientSession,
+    document: Doc,
+    patchOnConflict: ((Doc) -> Doc)? = null
+): Doc =
+    update(session, document, patchOnConflict)
+
+private fun <Doc : VersionedDocument> MongoCollection<Doc>.update(
+    session: ClientSession?,
+    document: Doc,
+    patchOnConflict: ((Doc) -> Doc)? = null
+): Doc {
+    // Document was successfully update so just return
+    return if (updateOne(session, document)) {
+        document
+    } else if (patchOnConflict != null) {
+        // Try the update with the patched version of the document
+        val patchedDocument = patchOnConflict(get(document.id)!!)
+        if (updateOne(session, patchedDocument)) {
+            patchedDocument
+        } else {
+            throw VersionedDocumentConflictException(patchedDocument.id, patchedDocument.version)
+        }
+    } else {
+        throw VersionedDocumentConflictException(document.id, document.version)
+    }
 }
 
-fun <E : StoredEntity> MongoCollection<E>.findOne(filter: Bson): E? {
+private fun <Doc : VersionedDocument> MongoCollection<Doc>.updateOne(clientSession: ClientSession?, document: Doc): Boolean {
+    val filter = Filters.and(
+        mongoById(document.id),
+        VersionedDocument::version.mongoEq(document.version)
+    )
+
+    document.version += 1
+    if (document is TimestampedDocument) {
+        document.updatedAt = mongoNow()
+    }
+
+    return clientSession
+        ?.let { replaceOne(clientSession, filter, document).matchedCount == 1L }
+        ?: (replaceOne(filter, document).matchedCount == 1L)
+}
+
+fun <Doc : Any> MongoCollection<Doc>.get(id: String): Doc? = findOne(mongoById(id))
+
+fun <Doc : Any> MongoCollection<Doc>.findOne(filter: Bson): Doc? {
     val list = find(filter).toList()
     if (list.size > 1) {
-        throw IllegalStateException("More than one document found for filter $filter")
+        throw IllegalStateException("Multiple MongoDB documents found for filter $filter")
     }
     return list.firstOrNull()
 }
 
-fun <E : StoredEntity> MongoCollection<E>.findFirst(filter: Bson, sort: Bson): E? {
-    val list = find(filter)
-        .sort(sort)
-        .limit(1)
-        .toList()
-    return if (list.isNotEmpty()) {
-        list.first()
-    } else {
-        null
-    }
-}
+fun <Doc : Any> MongoCollection<Doc>.findFirst(filter: Bson, sort: Bson): Doc? = find(filter)
+    .sort(sort)
+    .limit(1)
+    .toList()
+    .firstOrNull()
 
-fun <E : StoredEntity> MongoCollection<E>.delete(id: String): Boolean {
-    return deleteOne(mongoById(id)).deletedCount == 1L
-}
+fun <Doc : Any> MongoCollection<Doc>.delete(id: String): Boolean = deleteOne(mongoById(id)).deletedCount == 1L
 
-fun <E : StoredEntity> MongoCollection<E>.txDelete(session: ClientSession, id: String): Boolean {
-    return deleteOne(session, mongoById(id)).deletedCount == 1L
-}
+fun <Doc : Any> MongoCollection<Doc>.txDelete(session: ClientSession, id: String): Boolean =
+    deleteOne(session, mongoById(id)).deletedCount == 1L

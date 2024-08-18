@@ -9,14 +9,13 @@ import invirt.data.Page
 import invirt.data.Sort
 import invirt.data.geo.GeoBoundingBox
 import invirt.data.geo.GeoLocation
-import invirt.randomCollection
+import invirt.randomTestCollection
 import invirt.testMongo
 import invirt.utils.uuid7
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import org.bson.codecs.pojo.annotations.BsonId
-import java.time.Instant
 
 class DataTest : StringSpec() {
 
@@ -24,17 +23,15 @@ class DataTest : StringSpec() {
 
     init {
         "FindIterable.page" {
-            data class Entity(
+            data class TestDocument(
                 val index: Int,
                 @BsonId override val id: String = uuid7(),
-                override var version: Long = 0,
-                override val createdAt: Instant = mongoNow(),
-                override var updatedAt: Instant = mongoNow()
-            ) : StoredEntity
+                override var version: Long = 0
+            ) : VersionedDocument
 
-            val collection = mongo.database.randomCollection<Entity>()
+            val collection = mongo.randomTestCollection<TestDocument>()
             repeat(100) {
-                collection.insertOne(Entity(it))
+                collection.insertOne(TestDocument(it))
             }
             collection.find().page(Page(0, 10)).toList().map { it.index } shouldContainExactlyInAnyOrder (0..9).toList()
             collection.find().page(Page(40, 20)).toList().map { it.index } shouldContainExactlyInAnyOrder (40..59).toList()
@@ -51,17 +48,15 @@ class DataTest : StringSpec() {
         }
 
         "FindIterable.sort" {
-            data class Entity(
+            data class TestDocument(
                 val index: Int,
                 @BsonId override val id: String = uuid7(),
-                override var version: Long = 0,
-                override val createdAt: Instant = mongoNow(),
-                override var updatedAt: Instant = mongoNow()
-            ) : StoredEntity
+                override var version: Long = 0
+            ) : VersionedDocument
 
-            val collection = mongo.database.randomCollection<Entity>()
+            val collection = mongo.randomTestCollection<TestDocument>()
             repeat(100) {
-                collection.insertOne(Entity(it))
+                collection.insertOne(TestDocument(it))
             }
             collection.find().sort(Sort.asc("index")).toList().map { it.index } shouldBe (0..99).toList()
             collection.find().sort(Sort.desc("index")).toList().map { it.index } shouldBe (99 downTo 0).toList()
