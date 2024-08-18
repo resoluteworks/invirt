@@ -113,7 +113,7 @@ fun <Doc : Any> MongoCollection<Doc>.findFirst(filter: Bson, sort: Bson): Doc? =
     .toList()
     .firstOrNull()
 
-fun <Doc : Any> MongoCollection<Doc>.delete(id: String): Boolean = deleteOne(mongoById(id)).deletedCount == 1L
+fun MongoCollection<*>.delete(id: String): Boolean = deleteOne(mongoById(id)).deletedCount == 1L
 
-fun <Doc : Any> MongoCollection<Doc>.txDelete(session: ClientSession, id: String): Boolean =
+fun MongoCollection<*>.txDelete(session: ClientSession, id: String): Boolean =
     deleteOne(session, mongoById(id)).deletedCount == 1L

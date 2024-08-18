@@ -8,7 +8,9 @@ import io.kotest.core.extensions.install
 import io.kotest.core.spec.Spec
 import io.kotest.extensions.testcontainers.ContainerExtension
 import io.kotest.extensions.testcontainers.ContainerLifecycleMode
+import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.MongoDBContainer
+import org.testcontainers.containers.wait.strategy.Wait
 
 private val log = KotlinLogging.logger {}
 
@@ -20,6 +22,20 @@ fun Spec.testMongo(): Mongo {
         )
     )
     val connectionString = container.connectionString + "/${uuid7()}"
+    log.info { "Test MongoDB connection string is $connectionString" }
+    return Mongo(connectionString)
+}
+
+fun Spec.testMongoAtlas(): Mongo {
+    val container = install(
+        ContainerExtension(
+            container = GenericContainer("mongodb/mongodb-atlas-local:7.0.11")
+                .withExposedPorts(27017, 27027)
+                .waitingFor(Wait.forListeningPorts(27017, 27027)),
+            mode = ContainerLifecycleMode.Spec
+        )
+    )
+    val connectionString = "mongodb://localhost:${container.getMappedPort(27017)}/${uuid7()}"
     log.info { "Test MongoDB connection string is $connectionString" }
     return Mongo(connectionString)
 }

@@ -45,25 +45,25 @@ private fun Document.isAscIndex(field: String): Boolean = (this["key"] as Docume
 
 private fun Document.isDescIndex(field: String): Boolean = (this["key"] as Document)[field] == -1
 
-infix fun <Doc : Any> MongoCollection<Doc>.shouldHaveAscIndex(field: String) {
+infix fun MongoCollection<*>.shouldHaveAscIndex(field: String) {
     listIndexes().toList().find { it.isAscIndex(field) } shouldNotBe null
 }
 
-infix fun <Doc : Any> MongoCollection<Doc>.shouldNotHaveAscIndex(field: String) {
+infix fun MongoCollection<*>.shouldNotHaveAscIndex(field: String) {
     listIndexes().toList().find { it.isAscIndex(field) } shouldBe null
 }
 
-infix fun <Doc : Any> MongoCollection<Doc>.shouldNotHaveDescIndex(field: String) {
+infix fun MongoCollection<*>.shouldNotHaveDescIndex(field: String) {
     listIndexes().toList().find { it.isDescIndex(field) } shouldBe null
 }
 
-fun <Doc : Any> MongoCollection<Doc>.shouldHaveTextIndex(vararg fields: String) {
+fun MongoCollection<*>.shouldHaveTextIndex(vararg fields: String) {
     listIndexes().toList().find {
         val indexName = fields.joinToString("_") { field -> "${field}_text" }
         (it["key"] as Document)["_fts"] == "text" && (it["name"] == indexName)
     } shouldNotBe null
 }
 
-infix fun <Doc : Any> MongoCollection<Doc>.shouldHaveDescIndex(field: String) {
+infix fun MongoCollection<*>.shouldHaveDescIndex(field: String) {
     listIndexes().toList().find { it.isDescIndex(field) } shouldNotBe null
 }

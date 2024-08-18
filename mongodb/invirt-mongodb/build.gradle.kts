@@ -16,6 +16,7 @@ dependencies {
     api("io.mongock:mongock-api")
     implementation("io.mongock:mongock-standalone")
     implementation("io.mongock:mongodb-sync-v4-driver")
+    implementation("org.awaitility:awaitility-kotlin:4.2.2")
 
     testImplementation(project(":invirt-mongodb-test"))
 }

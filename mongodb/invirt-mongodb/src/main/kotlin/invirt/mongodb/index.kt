@@ -22,7 +22,7 @@ fun indexAsc(vararg fields: String, caseInsensitive: Boolean = false): List<Inde
 
 fun indexDesc(vararg fields: String, caseInsensitive: Boolean = false): List<IndexModel> = fields.map { it.indexDesc(caseInsensitive) }
 
-fun <Doc : Any> MongoCollection<Doc>.createIndices(
+fun MongoCollection<*>.createIndices(
     clientSession: ClientSession? = null,
     build: IndexesBuilder.() -> Unit
 ) {
