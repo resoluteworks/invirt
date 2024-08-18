@@ -10,7 +10,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
-import org.http4k.cloudnative.env.Environment
+import org.http4k.config.Environment
 import java.io.File
 import java.io.FileNotFoundException
 

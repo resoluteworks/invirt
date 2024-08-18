@@ -8,7 +8,7 @@ import TabItem from '@theme/TabItem';
 # Environment
 
 ### Environment.developmentMode
-Reads a variable `DEVELOPMENT_MODE` from the receiver [Environment](https://www.http4k.org/api/org.http4k.cloudnative.env/-environment/) which can be
+Reads a variable `DEVELOPMENT_MODE` from the receiver [Environment](https://www.http4k.org/api/http4k-config/org.http4k.config/-environment/index.html) which can be
 set on your local machine when running the application locally to enable hot reload capabilities
 (browser refresh loads template edits or static asset edits).
 
@@ -36,7 +36,7 @@ enables classpath loading for views or static assets.
 
 
 ### Environment.withDotEnv()
-Loads environment variables from .env files and returns a new [Environment](https://www.http4k.org/api/org.http4k.cloudnative.env/-environment/)
+Loads environment variables from .env files and returns a new [Environment](https://www.http4k.org/api/http4k-config/org.http4k.config/-environment/index.html)
 with the combined variables from receiver environment and the `.env` file. The variables in the receiver `Environment`
 override the ones in the .env files.
 
