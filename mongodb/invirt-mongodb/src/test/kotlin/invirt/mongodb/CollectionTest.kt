@@ -33,13 +33,13 @@ class CollectionTest : StringSpec() {
 
             collection.findOne(TestDocument::index.mongoEq(2))!!.index shouldBe 2
             collection.findOne(TestDocument::index.mongoEq(5)) shouldBe null
-            shouldThrowWithMessage<IllegalStateException>("More than one document found for filter ${TestDocument::index.mongoGt(2)}") {
+            shouldThrowWithMessage<IllegalStateException>("Multiple MongoDB documents found for filter ${TestDocument::index.mongoGt(2)}") {
                 collection.findOne(TestDocument::index.mongoGt(2))
             }
         }
 
         "findFirst" {
-            data class TestDocument(
+            data class TestDoc(
                 val index: Int,
                 val type: String,
                 @BsonId override val id: String = uuid7(),
@@ -48,22 +48,16 @@ class CollectionTest : StringSpec() {
                 override var updatedAt: Instant = mongoNow()
             ) : TimestampedDocument
 
-            val collection = mongo.randomTestCollection<TestDocument>()
-            collection.insertOne(TestDocument(1, "person"))
-            collection.insertOne(TestDocument(2, "person"))
-            collection.insertOne(TestDocument(3, "company"))
-            collection.insertOne(TestDocument(4, "company"))
+            val collection = mongo.randomTestCollection<TestDoc>()
+            val doc1 = collection.insert(TestDoc(1, "person"))
+            val doc2 = collection.insert(TestDoc(2, "person"))
+            val doc3 = collection.insert(TestDoc(3, "company"))
+            val doc4 = collection.insert(TestDoc(4, "company"))
 
-            collection.findFirst(TestDocument::type.mongoEq("person"), TestDocument::index.sortAsc().mongoSort()) shouldBeSameDocument
-                TestDocument(1, "person")
-
-            collection.findFirst(TestDocument::type.mongoEq("person"), TestDocument::index.sortDesc().mongoSort()) shouldBeSameDocument
-                TestDocument(2, "person")
-
-            collection.findFirst(TestDocument::type.mongoEq("company"), TestDocument::index.sortDesc().mongoSort()) shouldBeSameDocument
-                TestDocument(4, "company")
-
-            collection.findFirst(TestDocument::type.mongoEq("nothing"), TestDocument::index.sortDesc().mongoSort()) shouldBe null
+            collection.findFirst(TestDoc::type.mongoEq("person"), TestDoc::index.sortAsc().mongoSort()) shouldBeSameDocument doc1
+            collection.findFirst(TestDoc::type.mongoEq("person"), TestDoc::index.sortDesc().mongoSort()) shouldBeSameDocument doc2
+            collection.findFirst(TestDoc::type.mongoEq("company"), TestDoc::index.sortDesc().mongoSort()) shouldBeSameDocument doc4
+            collection.findFirst(TestDoc::type.mongoEq("nothing"), TestDoc::index.sortDesc().mongoSort()) shouldBe null
         }
 
         "get" {

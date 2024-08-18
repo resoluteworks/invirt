@@ -49,6 +49,14 @@ infix fun <Doc : Any> MongoCollection<Doc>.shouldHaveAscIndex(field: String) {
     listIndexes().toList().find { it.isAscIndex(field) } shouldNotBe null
 }
 
+infix fun <Doc : Any> MongoCollection<Doc>.shouldNotHaveAscIndex(field: String) {
+    listIndexes().toList().find { it.isAscIndex(field) } shouldBe null
+}
+
+infix fun <Doc : Any> MongoCollection<Doc>.shouldNotHaveDescIndex(field: String) {
+    listIndexes().toList().find { it.isDescIndex(field) } shouldBe null
+}
+
 fun <Doc : Any> MongoCollection<Doc>.shouldHaveTextIndex(vararg fields: String) {
     listIndexes().toList().find {
         val indexName = fields.joinToString("_") { field -> "${field}_text" }

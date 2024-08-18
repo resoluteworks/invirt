@@ -43,7 +43,8 @@ class IndexTest : StringSpec() {
             val collectionName = uuid7()
             database.createCollection(collectionName)
             val collection = database.getCollection<Person>(collectionName)
-            collection.createIndexes {
+            collection.createIndices {
+                timestampedIndices()
                 asc(Person::age)
                 asc("gender.name")
                 desc(Person::lastName)
@@ -75,7 +76,7 @@ class IndexTest : StringSpec() {
             val collection = database.getCollection<Person>(collectionName)
 
             shouldThrowWithMessage<IllegalStateException>("Text index already added for this collection") {
-                collection.createIndexes {
+                collection.createIndices {
                     text(Person::name)
                     text("name")
                 }
@@ -93,7 +94,7 @@ class IndexTest : StringSpec() {
             val collectionName = uuid7()
             database.createCollection(collectionName)
             val collection = database.getCollection<TestDocument>(collectionName)
-            collection.createIndexes {
+            collection.createIndices {
                 desc(TestDocument::childId)
             }
 
@@ -116,7 +117,7 @@ class IndexTest : StringSpec() {
             val database = mongo.database
             database.createCollection(collectionName)
             val collection = database.getCollection<Person>(collectionName)
-            collection.createIndexes {
+            collection.createIndices {
                 asc(Person::age)
                 asc(Person::name)
                 asc(Person::lastName, caseInsensitive = true)
@@ -144,7 +145,7 @@ class IndexTest : StringSpec() {
             val collectionName = uuid7()
             database.createCollection(collectionName)
             val collection = database.getCollection<Person>(collectionName)
-            collection.createIndexes {
+            collection.createIndices {
                 asc(Person::name)
             }
 

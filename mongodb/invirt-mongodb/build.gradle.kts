@@ -9,7 +9,13 @@ dependencies {
 
     implementation(project(":invirt-utils"))
     implementation(project(":invirt-data"))
+
     api("org.mongodb:mongodb-driver-kotlin-sync:${mongoDriverVersion}")
+
+    api(platform("io.mongock:mongock-bom:5.4.4"))
+    api("io.mongock:mongock-api")
+    implementation("io.mongock:mongock-standalone")
+    implementation("io.mongock:mongodb-sync-v4-driver")
 
     testImplementation(project(":invirt-mongodb-test"))
 }
