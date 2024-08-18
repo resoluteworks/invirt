@@ -3,7 +3,9 @@ package invirt.mongodb
 import invirt.data.sortAsc
 import invirt.data.sortDesc
 import invirt.randomTestCollection
-import invirt.test.shouldBeSameDocument
+import invirt.test.mongo.shouldBeNextUpdateOf
+import invirt.test.mongo.shouldBeSameDocument
+import invirt.test.mongo.shouldBeUpdateOf
 import invirt.testMongo
 import invirt.utils.uuid7
 import io.kotest.assertions.throwables.shouldThrow
@@ -131,11 +133,19 @@ class CollectionTest : StringSpec() {
             val doc = TestDocument("document")
             val id = collection.insert(doc).id
 
-            val updatedDoc = doc.copy(type = "folder")
-            collection.update(updatedDoc).id
-
+            val updatedDoc1 = collection.update(collection.get(id)!!)
             collection.countDocuments() shouldBe 1
-            collection.get(id) shouldBe updatedDoc
+            collection.get(id) shouldBe updatedDoc1
+            updatedDoc1 shouldBeUpdateOf doc
+            updatedDoc1 shouldBeNextUpdateOf doc
+
+            val updatedDoc2 = collection.update(collection.get(id)!!.copy(type = "folder"))
+            collection.countDocuments() shouldBe 1
+            collection.get(id) shouldBe updatedDoc2
+            updatedDoc2 shouldBeUpdateOf doc
+            updatedDoc2 shouldBeUpdateOf updatedDoc1
+            updatedDoc2 shouldBeNextUpdateOf updatedDoc1
+            updatedDoc2.type shouldBe "folder"
         }
 
         "update - optimistic lock failure" {

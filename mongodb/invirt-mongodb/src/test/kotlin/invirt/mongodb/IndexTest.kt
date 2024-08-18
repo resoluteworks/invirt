@@ -1,9 +1,9 @@
 package invirt.mongodb
 
 import invirt.data.sortAsc
-import invirt.test.shouldHaveAscIndex
-import invirt.test.shouldHaveDescIndex
-import invirt.test.shouldHaveTextIndex
+import invirt.test.mongo.shouldHaveAscIndex
+import invirt.test.mongo.shouldHaveDescIndex
+import invirt.test.mongo.shouldHaveTextIndex
 import invirt.testMongo
 import invirt.utils.uuid7
 import io.kotest.assertions.throwables.shouldThrowWithMessage

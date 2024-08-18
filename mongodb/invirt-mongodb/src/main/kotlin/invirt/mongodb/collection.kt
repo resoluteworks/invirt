@@ -47,8 +47,7 @@ fun <Doc : Any> MongoCollection<Doc>.txInsert(session: ClientSession, document: 
 fun <Doc : VersionedDocument> MongoCollection<Doc>.update(
     document: Doc,
     patchOnConflict: ((Doc) -> Doc)? = null
-): Doc =
-    update(null, document, patchOnConflict)
+): Doc = update(null, document, patchOnConflict)
 
 /**
  * Transactional version of [MongoCollection.update]
@@ -57,31 +56,22 @@ fun <Doc : VersionedDocument> MongoCollection<Doc>.txUpdate(
     session: ClientSession,
     document: Doc,
     patchOnConflict: ((Doc) -> Doc)? = null
-): Doc =
-    update(session, document, patchOnConflict)
+): Doc = update(session, document, patchOnConflict)
 
 private fun <Doc : VersionedDocument> MongoCollection<Doc>.update(
     session: ClientSession?,
     document: Doc,
     patchOnConflict: ((Doc) -> Doc)? = null
-): Doc {
-    // Document was successfully update so just return
-    return if (updateOne(session, document)) {
-        document
-    } else if (patchOnConflict != null) {
+): Doc = updateOne(session, document)
+    ?: if (patchOnConflict != null) {
         // Try the update with the patched version of the document
-        val patchedDocument = patchOnConflict(get(document.id)!!)
-        if (updateOne(session, patchedDocument)) {
-            patchedDocument
-        } else {
-            throw VersionedDocumentConflictException(patchedDocument.id, patchedDocument.version)
-        }
+        val patchedDocument = updateOne(session, patchOnConflict(get(document.id)!!))
+        patchedDocument ?: throw VersionedDocumentConflictException(document.id, document.version)
     } else {
         throw VersionedDocumentConflictException(document.id, document.version)
     }
-}
 
-private fun <Doc : VersionedDocument> MongoCollection<Doc>.updateOne(clientSession: ClientSession?, document: Doc): Boolean {
+private fun <Doc : VersionedDocument> MongoCollection<Doc>.updateOne(clientSession: ClientSession?, document: Doc): Doc? {
     val filter = Filters.and(
         mongoById(document.id),
         VersionedDocument::version.mongoEq(document.version)
@@ -92,9 +82,15 @@ private fun <Doc : VersionedDocument> MongoCollection<Doc>.updateOne(clientSessi
         document.updatedAt = mongoNow()
     }
 
-    return clientSession
+    val isUpdated = clientSession
         ?.let { replaceOne(clientSession, filter, document).matchedCount == 1L }
         ?: (replaceOne(filter, document).matchedCount == 1L)
+
+    return if (isUpdated) {
+        document
+    } else {
+        null
+    }
 }
 
 fun <Doc : Any> MongoCollection<Doc>.get(id: String): Doc? = findOne(mongoById(id))
