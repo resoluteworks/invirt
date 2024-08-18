@@ -16,15 +16,15 @@ class QueryTest : StringSpec() {
 
     init {
         "default args" {
-            data class TestEntity(
+            data class TestDocument(
                 val type: String,
                 @BsonId override val id: String = uuid7(),
                 override var version: Long = 0
             ) : VersionedDocument
 
-            val collection = mongo.randomTestCollection<TestEntity>()
-            collection.insertMany((0 until 34).map { TestEntity("company") })
-            collection.insertMany((0 until 23).map { TestEntity("individual") })
+            val collection = mongo.randomTestCollection<TestDocument>()
+            collection.insertMany((0 until 34).map { TestDocument("company") })
+            collection.insertMany((0 until 23).map { TestDocument("individual") })
 
             val result = collection.query()
             result.totalCount shouldBe 57
