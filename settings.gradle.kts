@@ -8,4 +8,4 @@ include("invirt-utils")
 include("invirt-test")
 
 include("invirt-mongodb")
-project(":invirt-mongodb").projectDir = file("experimental/invirt-mongodb")
+project(":invirt-mongodb").projectDir = file("mongodb/invirt-mongodb")
