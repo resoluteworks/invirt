@@ -2,6 +2,7 @@ package invirt.mongodb.mongock.migrations.model
 
 import invirt.mongodb.Mongo
 import invirt.mongodb.createIndices
+import invirt.mongodb.indexAsc
 import invirt.mongodb.mongock.ModelMigration
 import invirt.mongodb.mongock.migrations.Company
 import io.mongock.api.annotations.BeforeExecution
@@ -13,9 +14,8 @@ class V1_CreateIndex : ModelMigration {
 
     @BeforeExecution
     override fun model(mongo: Mongo) {
-        mongo.database.getCollection<Company>(Company.COLLECTION).createIndices {
-            asc(Company::name)
-            timestampedIndices()
-        }
+        mongo.database.getCollection<Company>(Company.COLLECTION).createIndices(
+            Company::name.indexAsc()
+        )
     }
 }

@@ -4,9 +4,9 @@ import invirt.data.sortAsc
 import invirt.test.mongo.shouldHaveAscIndex
 import invirt.test.mongo.shouldHaveDescIndex
 import invirt.test.mongo.shouldHaveTextIndex
+import invirt.test.mongo.shouldHaveUniqueIndex
 import invirt.testMongo
 import invirt.utils.uuid7
-import io.kotest.assertions.throwables.shouldThrowWithMessage
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -43,44 +43,22 @@ class IndexTest : StringSpec() {
             val collectionName = uuid7()
             database.createCollection(collectionName)
             val collection = database.getCollection<Person>(collectionName)
-            collection.createIndices {
-                timestampedIndices()
-                asc(Person::age)
-                asc("gender.name")
-                desc(Person::lastName)
-                asc(Person::indexedAndTextIndexed)
-                text("address.city", "firstName", "indexedAndTextIndexed")
-            }
+            collection.createIndices(
+                Person::age.indexAsc(),
+                "gender.name".indexAsc(unique = true),
+                Person::lastName.indexDesc(),
+                Person::indexedAndTextIndexed.indexAsc(),
+                textIndex("address.city", "firstName", "indexedAndTextIndexed")
+            )
 
             collection shouldHaveAscIndex "age"
             collection shouldHaveAscIndex "gender.name"
+            collection shouldHaveUniqueIndex "gender.name"
             collection shouldHaveDescIndex "lastName"
             collection shouldHaveAscIndex "version"
             collection shouldHaveDescIndex "createdAt"
             collection shouldHaveDescIndex "updatedAt"
             collection.shouldHaveTextIndex("address.city", "firstName", "indexedAndTextIndexed")
-        }
-
-        "can only add text index once" {
-            data class Person(
-                val name: String,
-                @BsonId override val id: String = uuid7(),
-                override var version: Long = 0,
-                override var createdAt: Instant = mongoNow(),
-                override var updatedAt: Instant = mongoNow()
-            ) : TimestampedDocument
-
-            val database = mongo.database
-            val collectionName = uuid7()
-            database.createCollection(collectionName)
-            val collection = database.getCollection<Person>(collectionName)
-
-            shouldThrowWithMessage<IllegalStateException>("Text index already added for this collection") {
-                collection.createIndices {
-                    text(Person::name)
-                    text("name")
-                }
-            }
         }
 
         "create indexes - desc" {
@@ -94,9 +72,9 @@ class IndexTest : StringSpec() {
             val collectionName = uuid7()
             database.createCollection(collectionName)
             val collection = database.getCollection<TestDocument>(collectionName)
-            collection.createIndices {
-                desc(TestDocument::childId)
-            }
+            collection.createIndices(
+                TestDocument::childId.indexDesc()
+            )
 
             collection shouldHaveDescIndex "childId"
         }
@@ -117,14 +95,14 @@ class IndexTest : StringSpec() {
             val database = mongo.database
             database.createCollection(collectionName)
             val collection = database.getCollection<Person>(collectionName)
-            collection.createIndices {
-                asc(Person::age)
-                asc(Person::name)
-                asc(Person::lastName, caseInsensitive = true)
-                desc("firstName")
-                desc(Person::address, caseInsensitive = true)
-                desc("city", caseInsensitive = true)
-            }
+            collection.createIndices(
+                Person::age.indexAsc(),
+                Person::name.indexAsc(),
+                Person::lastName.indexAsc(caseInsensitive = true),
+                "firstName".indexDesc(),
+                Person::address.indexDesc(caseInsensitive = true),
+                "city".indexDesc(caseInsensitive = true)
+            )
             val indexes = collection.listIndexes().toList()
             indexes.indexForField("age")["collation"] shouldBe null
             indexes.indexForField("name")["collation"] shouldBe null
@@ -145,9 +123,9 @@ class IndexTest : StringSpec() {
             val collectionName = uuid7()
             database.createCollection(collectionName)
             val collection = database.getCollection<Person>(collectionName)
-            collection.createIndices {
-                asc(Person::name)
-            }
+            collection.createIndices(
+                Person::name.indexAsc()
+            )
 
             collection.insert(Person("B"))
             collection.insert(Person("a"))

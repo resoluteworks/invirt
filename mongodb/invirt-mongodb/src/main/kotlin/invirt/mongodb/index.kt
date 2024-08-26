@@ -5,96 +5,59 @@ import com.mongodb.client.model.CollationStrength
 import com.mongodb.client.model.IndexModel
 import com.mongodb.client.model.IndexOptions
 import com.mongodb.client.model.Indexes
-import com.mongodb.kotlin.client.ClientSession
 import com.mongodb.kotlin.client.MongoCollection
 import io.github.oshai.kotlinlogging.KotlinLogging
-import kotlin.reflect.KProperty1
+import kotlin.reflect.KProperty
+import kotlin.reflect.full.isSubclassOf
 
 private val log = KotlinLogging.logger {}
 
-fun String.indexAsc(caseInsensitive: Boolean = false): IndexModel = IndexModel(Indexes.ascending(this), indexOptions(caseInsensitive))
+fun String.indexAsc(unique: Boolean = false, caseInsensitive: Boolean = false): IndexModel =
+    IndexModel(Indexes.ascending(this), indexOptions(unique, caseInsensitive))
 
-fun String.indexDesc(caseInsensitive: Boolean = false): IndexModel = IndexModel(Indexes.descending(this), indexOptions(caseInsensitive))
+fun String.indexDesc(unique: Boolean = false, caseInsensitive: Boolean = false): IndexModel =
+    IndexModel(Indexes.descending(this), indexOptions(unique, caseInsensitive))
+
+fun <Value : Any> KProperty<Value?>.indexAsc(unique: Boolean = false, caseInsensitive: Boolean = false): IndexModel =
+    name.indexAsc(unique, caseInsensitive)
+
+fun <Value : Any> KProperty<Value?>.indexDesc(unique: Boolean = false, caseInsensitive: Boolean = false): IndexModel =
+    name.indexDesc(unique, caseInsensitive)
 
 fun textIndex(vararg fields: String): IndexModel = IndexModel(Indexes.compoundIndex(fields.map { Indexes.text(it) }))
 
-fun indexAsc(vararg fields: String, caseInsensitive: Boolean = false): List<IndexModel> = fields.map { it.indexAsc(caseInsensitive) }
+fun MongoCollection<*>.createIndices(vararg indexModels: IndexModel) {
+    val indexes = mutableListOf<IndexModel>()
+    indexes.addAll(indexModels)
 
-fun indexDesc(vararg fields: String, caseInsensitive: Boolean = false): List<IndexModel> = fields.map { it.indexDesc(caseInsensitive) }
-
-fun MongoCollection<*>.createIndices(
-    clientSession: ClientSession? = null,
-    build: IndexesBuilder.() -> Unit
-) {
-    val indexes = buildIndexes(this.namespace.collectionName, build)
-    if (clientSession != null) {
-        createIndexes(clientSession, indexes)
-    } else {
-        createIndexes(indexes)
+    if (documentClass.kotlin.isSubclassOf(VersionedDocument::class)) {
+        indexes.add(VersionedDocument::version.indexAsc(unique = false, caseInsensitive = false))
     }
-}
 
-private fun buildIndexes(collectionName: String, build: IndexesBuilder.() -> Unit): List<IndexModel> {
-    val indexesBuilder = IndexesBuilder()
-    build(indexesBuilder)
+    if (documentClass.kotlin.isSubclassOf(TimestampedDocument::class)) {
+        indexes.add(TimestampedDocument::createdAt.indexDesc(unique = false, caseInsensitive = false))
+        indexes.add(TimestampedDocument::updatedAt.indexDesc(unique = false, caseInsensitive = false))
+    }
+
+    val collectionName = this.namespace.collectionName
     log.atInfo {
         message = "Creating indexes for collection"
         payload = mapOf(
             "collection" to collectionName,
-            "count" to indexesBuilder.indexes.size,
-            "indexes" to indexesBuilder.indexes.map { it.keys }
+            "count" to indexes.size,
+            "indexes" to indexes.map { it.keys }
         )
     }
-    return indexesBuilder.indexes
+    createIndexes(indexes)
 }
 
-private fun indexOptions(caseInsensitive: Boolean): IndexOptions {
+private fun indexOptions(unique: Boolean, caseInsensitive: Boolean): IndexOptions {
     val indexOptions = IndexOptions()
+    if (unique) {
+        indexOptions.unique(true)
+    }
     if (caseInsensitive) {
         indexOptions.collation(Collation.builder().locale("en").collationStrength(CollationStrength.SECONDARY).build())
     }
     return indexOptions
-}
-
-class IndexesBuilder {
-    private var textIndexAdded = false
-    internal var indexes: MutableList<IndexModel> = mutableListOf()
-
-    fun asc(vararg fields: String, caseInsensitive: Boolean = false) {
-        indexes.addAll(indexAsc(*fields, caseInsensitive = caseInsensitive))
-    }
-
-    fun desc(vararg fields: String, caseInsensitive: Boolean = false) {
-        indexes.addAll(indexDesc(*fields, caseInsensitive = caseInsensitive))
-    }
-
-    fun text(vararg fields: String) {
-        if (textIndexAdded) {
-            throw IllegalStateException("Text index already added for this collection")
-        }
-        indexes.add(textIndex(*fields))
-        textIndexAdded = true
-    }
-
-    fun <Doc : Any> asc(vararg properties: KProperty1<Doc, *>, caseInsensitive: Boolean = false) {
-        asc(*properties.map { it.name }.toTypedArray(), caseInsensitive = caseInsensitive)
-    }
-
-    fun <Doc : Any> desc(vararg properties: KProperty1<Doc, *>, caseInsensitive: Boolean = false) {
-        desc(*properties.map { it.name }.toTypedArray(), caseInsensitive = caseInsensitive)
-    }
-
-    fun <Doc : Any> text(vararg properties: KProperty1<Doc, String?>) {
-        text(*properties.map { it.name }.toTypedArray())
-    }
-
-    fun versionIndex() {
-        asc(TimestampedDocument::version)
-    }
-
-    fun timestampedIndices() {
-        versionIndex()
-        desc(TimestampedDocument::createdAt)
-        desc(TimestampedDocument::updatedAt)
-    }
 }

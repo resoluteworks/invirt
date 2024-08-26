@@ -49,8 +49,16 @@ infix fun MongoCollection<*>.shouldHaveAscIndex(field: String) {
     listIndexes().toList().find { it.isAscIndex(field) } shouldNotBe null
 }
 
+infix fun MongoCollection<*>.shouldHaveDescIndex(field: String) {
+    listIndexes().toList().find { it.isDescIndex(field) } shouldNotBe null
+}
+
 infix fun MongoCollection<*>.shouldNotHaveAscIndex(field: String) {
     listIndexes().toList().find { it.isAscIndex(field) } shouldBe null
+}
+
+infix fun <Entity : Any> MongoCollection<Entity>.shouldHaveUniqueIndex(field: String) {
+    listIndexes().toList().find { index -> (index["key"] as Document)[field] != null && index["unique"] == true } shouldNotBe null
 }
 
 infix fun MongoCollection<*>.shouldNotHaveDescIndex(field: String) {
@@ -62,8 +70,4 @@ fun MongoCollection<*>.shouldHaveTextIndex(vararg fields: String) {
         val indexName = fields.joinToString("_") { field -> "${field}_text" }
         (it["key"] as Document)["_fts"] == "text" && (it["name"] == indexName)
     } shouldNotBe null
-}
-
-infix fun MongoCollection<*>.shouldHaveDescIndex(field: String) {
-    listIndexes().toList().find { it.isDescIndex(field) } shouldNotBe null
 }
