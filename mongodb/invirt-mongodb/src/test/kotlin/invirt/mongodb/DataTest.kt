@@ -30,9 +30,8 @@ class DataTest : StringSpec() {
             ) : VersionedDocument
 
             val collection = mongo.randomTestCollection<TestDocument>()
-            repeat(100) {
-                collection.insertOne(TestDocument(it))
-            }
+            val documents = (1..100).map { TestDocument(it) }
+            collection.insertMany(documents)
             collection.find().page(Page(0, 10)).toList().map { it.index } shouldContainExactlyInAnyOrder (0..9).toList()
             collection.find().page(Page(40, 20)).toList().map { it.index } shouldContainExactlyInAnyOrder (40..59).toList()
         }
@@ -55,9 +54,8 @@ class DataTest : StringSpec() {
             ) : VersionedDocument
 
             val collection = mongo.randomTestCollection<TestDocument>()
-            repeat(100) {
-                collection.insertOne(TestDocument(it))
-            }
+            val documents = (1..100).map { TestDocument(it) }
+            collection.insertMany(documents)
             collection.find().sort(Sort.asc("index")).toList().map { it.index } shouldBe (0..99).toList()
             collection.find().sort(Sort.desc("index")).toList().map { it.index } shouldBe (99 downTo 0).toList()
             collection.find().sort().toList().map { it.index } shouldContainExactlyInAnyOrder (0..99).toList()

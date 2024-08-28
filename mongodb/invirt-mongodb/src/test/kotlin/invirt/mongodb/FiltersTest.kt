@@ -29,9 +29,8 @@ class FiltersTest : StringSpec() {
             ) : VersionedDocument
 
             val collection = mongo.randomTestCollection<TestDocument>()
-            repeat(100) {
-                collection.insertOne(TestDocument(it + 1))
-            }
+            val documents = (1..100).map { TestDocument(it) }
+            collection.insertMany(documents)
             collection.find(TestDocument::index.mongoGt(10)).toList().map { it.index } shouldContainExactlyInAnyOrder (11..100).toList()
             collection.find(TestDocument::index.mongoGte(10)).toList().map { it.index } shouldContainExactlyInAnyOrder (10..100).toList()
             collection.find(TestDocument::index.mongoGte(0)).toList().map { it.index } shouldContainExactlyInAnyOrder (1..100).toList()

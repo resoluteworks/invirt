@@ -29,9 +29,8 @@ class AggregatesTest : StringSpec() {
 
             val collection = mongo.randomTestCollection<TestDocument>()
 
-            repeat(100) {
-                collection.insert(TestDocument(it + 1))
-            }
+            val documents = (0 until 100).map { TestDocument(it) }
+            collection.insertMany(documents)
 
             collection.pagedAggregate(
                 pipeline = listOf(
@@ -60,10 +59,11 @@ class AggregatesTest : StringSpec() {
 
             val collection = mongo.randomTestCollection<TestDocument>()
 
-            repeat(100) {
+            val documents = (0 until 100).map {
                 val type = if (it % 2 == 0) "person" else "company"
-                collection.insert(TestDocument(it + 1, type))
+                TestDocument(it + 1, type)
             }
+            collection.insertMany(documents)
 
             val result = collection.pagedAggregate(
                 pipeline = listOf(
