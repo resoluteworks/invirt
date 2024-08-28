@@ -6,6 +6,10 @@ import org.http4k.config.Environment
 import org.http4k.config.EnvironmentKey
 import org.http4k.lens.boolean
 
+/**
+ * Returns a new [Environment] with the values from the .env file in the given directory.
+ * If the file is missing, the environment is not modified.
+ */
 fun Environment.withDotEnv(dotEnvDirectory: String = "./"): Environment = withDotEnv(
     dotenv {
         directory = dotEnvDirectory
@@ -14,6 +18,10 @@ fun Environment.withDotEnv(dotEnvDirectory: String = "./"): Environment = withDo
     }
 )
 
+/**
+ * Returns a new [Environment] with the values from the given [Dotenv].
+ * If the file is missing, the environment is not modified.
+ */
 fun Environment.withDotEnv(dotEnv: Dotenv): Environment = this overrides Environment.from(dotEnv.entries().associate { it.key to it.value })
 
 /**

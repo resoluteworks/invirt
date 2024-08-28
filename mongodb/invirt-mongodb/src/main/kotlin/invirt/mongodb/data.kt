@@ -13,30 +13,53 @@ import invirt.data.geo.GeoBoundingBox
 import invirt.data.geo.GeoLocation
 import org.bson.conversions.Bson
 
+/**
+ * Applies the specified [page] to the [FindIterable] by skipping the first [Page.from] documents
+ * and limiting the result to [Page.size] documents.
+ */
 fun <T : Any> FindIterable<T>.page(page: Page): FindIterable<T> = this.skip(page.from)
     .limit(page.size)
 
+/**
+ * Converts the specified [Sort] to a MongoDB [Bson] sort.
+ */
 fun Sort.mongoSort(): Bson = when (order) {
     SortOrder.ASC -> Sorts.ascending(field)
     SortOrder.DESC -> Sorts.descending(field)
 }
 
+/**
+ * Converts the specified list of [Sort] to a MongoDB [Bson] sort.
+ */
 fun List<Sort>.mongoSort(): Bson? = if (this.isNotEmpty()) {
     Sorts.orderBy(map { it.mongoSort() })
 } else {
     null
 }
 
-fun Array<out Sort>.mongoSort(): Bson? = if (this.isNotEmpty()) {
-    Sorts.orderBy(map { it.mongoSort() })
-} else {
-    null
-}
-
+/**
+ * Applies the specified [sort] to the [FindIterable].
+ */
 fun <T : Any> FindIterable<T>.sort(vararg sort: Sort = emptyArray()): FindIterable<T> = if (sort.isNotEmpty()) {
     this.sort(sort.toList().mongoSort())
 } else {
     this
+}
+
+/**
+ * Converts the specified [DataFilter] to a MongoDB [Bson] filter.
+ * It handles both [DataFilter.Field] and [DataFilter.Compound] filters.
+ */
+fun DataFilter.mongoFilter(): Bson = when (this) {
+    is DataFilter.Field<*> -> this.fieldFilter()
+    is DataFilter.Compound -> {
+        when (this.operator) {
+            DataFilter.Compound.Operator.OR -> Filters.or(this.subFilters.map { it.mongoFilter() })
+            DataFilter.Compound.Operator.AND -> Filters.and(this.subFilters.map { it.mongoFilter() })
+        }
+    }
+
+    else -> throw IllegalArgumentException("Unknown filter type ${this::class}")
 }
 
 private fun GeoLocation.toPosition(): Position = Position(lng, lat)
@@ -55,16 +78,4 @@ private fun DataFilter.Field<*>.fieldFilter(): Bson = when (operation) {
         val positions = geoBounds.points.plus(geoBounds.southWest).map { it.toPosition() }
         Filters.geoWithin(field, Polygon(positions))
     }
-}
-
-fun DataFilter.mongoFilter(): Bson = when (this) {
-    is DataFilter.Field<*> -> this.fieldFilter()
-    is DataFilter.Compound -> {
-        when (this.operator) {
-            DataFilter.Compound.Operator.OR -> Filters.or(this.subFilters.map { it.mongoFilter() })
-            DataFilter.Compound.Operator.AND -> Filters.and(this.subFilters.map { it.mongoFilter() })
-        }
-    }
-
-    else -> throw IllegalArgumentException("Unknown filter type ${this::class}")
 }

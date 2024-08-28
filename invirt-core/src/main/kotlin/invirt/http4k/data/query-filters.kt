@@ -6,6 +6,11 @@ import invirt.data.orFilter
 import org.http4k.core.Request
 import org.http4k.lens.BiDiLens
 
+/**
+ * A filter that can be applied to a [Request] to extract values from query parameters and build a [DataFilter].
+ * The filter can be used to build complex filters by combining multiple query parameters with different operators.
+ * @param operator the operator to use when combining multiple filters.
+ */
 class QueryValuesFilter(private val operator: DataFilter.Compound.Operator) {
 
     private val paramFilters = mutableListOf<QueryParamFilter<*>>()
@@ -69,6 +74,9 @@ class QueryValuesFilter(private val operator: DataFilter.Compound.Operator) {
     }
 }
 
+/**
+ * Creates a new [QueryValuesFilter] with the given [operator] and applies the [build] function to it.
+ */
 fun queryValuesFilter(
     operator: DataFilter.Compound.Operator = DataFilter.Compound.Operator.AND,
     build: QueryValuesFilter.() -> Unit

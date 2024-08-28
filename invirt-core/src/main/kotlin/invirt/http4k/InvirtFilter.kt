@@ -9,6 +9,11 @@ import org.http4k.core.then
 import org.http4k.filter.ServerFilters
 import org.http4k.lens.RequestContextKey
 
+/**
+ * The core Invirt filter that sets up the request context and stores the current request on the current thread.
+ * This filter should be the first filter in the filter chain.
+ * The filter also provides access to the current request and validation errors.
+ */
 object InvirtFilter {
 
     val requestContexts = RequestContexts()

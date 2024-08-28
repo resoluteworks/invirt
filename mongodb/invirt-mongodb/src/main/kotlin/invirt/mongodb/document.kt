@@ -5,6 +5,9 @@ import java.time.Instant
 /**
  * Represents a records stored in Mongo that can be used for optimistic lock
  * scenarios using the [version] property.
+ *
+ * See [com.mongodb.kotlin.client.MongoCollection.update] for more information
+ * on using optimistic lock with MongoDB.
  */
 interface VersionedDocument {
     val id: String

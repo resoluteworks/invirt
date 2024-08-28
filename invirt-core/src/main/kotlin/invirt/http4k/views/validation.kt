@@ -6,6 +6,14 @@ import org.http4k.core.Response
 import org.http4k.core.Status
 import org.http4k.template.ViewModel
 
+/**
+ * A response that renders a view (template) from a model object when an error occurs.
+ * Typically used to render a form with validation errors.
+ *
+ * @param model The model object to render in the view.
+ * @param errors The validation errors to display in the view.
+ * @param template The template to render.
+ */
 internal class ErrorResponseView(
     val model: Any?,
     val errors: ValidationErrors,

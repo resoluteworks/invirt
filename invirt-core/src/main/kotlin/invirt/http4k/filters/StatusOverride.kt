@@ -6,11 +6,12 @@ import org.http4k.core.Status
 
 private val log = KotlinLogging.logger {}
 
+/**
+ * An http4k filter that overrides the status of the response.
+ */
 object StatusOverride {
 
-    operator fun invoke(vararg overrides: Pair<Status, Status>): Filter {
-        return invoke(overrides.toMap())
-    }
+    operator fun invoke(vararg overrides: Pair<Status, Status>): Filter = invoke(overrides.toMap())
 
     operator fun invoke(overrides: Map<Status, Status>): Filter = Filter { next ->
         { request ->

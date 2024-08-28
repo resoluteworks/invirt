@@ -14,6 +14,9 @@ import java.io.StringWriter
 
 private val log = KotlinLogging.logger {}
 
+/**
+ * A [Templates] implementation that uses Pebble as the template engine.
+ */
 class InvirtPebbleTemplates(
     private val configure: (PebbleEngine.Builder) -> PebbleEngine.Builder = { it },
     private val classLoader: ClassLoader = ClassLoader.getSystemClassLoader()

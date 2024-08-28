@@ -17,6 +17,9 @@ fun MongoCollection<*>.createDefaultSearchIndex(definition: String) {
     log.info { "Created default Mongo search index" }
 }
 
+/**
+ * Waits for the search index with the given [indexName] to be ready.
+ */
 fun MongoCollection<*>.waitForSearchIndexReady(indexName: String, seconds: Int = 60) {
     await("Mongo search index '${indexName}' ready")
         .atMost(Duration.ofSeconds(seconds.toLong()))
@@ -28,6 +31,9 @@ fun MongoCollection<*>.waitForSearchIndexReady(indexName: String, seconds: Int =
         }
 }
 
+/**
+ * Waits for the default search index to be ready.
+ */
 fun MongoCollection<*>.waitForDefaultSearchIndexReady(seconds: Int = 60) {
     await("Mongo default search index ready")
         .atMost(Duration.ofSeconds(seconds.toLong()))

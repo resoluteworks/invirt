@@ -13,6 +13,9 @@ import org.http4k.lens.Header
 
 fun <T : Any> BiDiBodyLens<T>.ok(message: T): Response = Response(Status.OK).with(this of message)
 
+/**
+ * Returns an updated response with the specified cookies.
+ */
 fun Response.withCookies(cookies: Collection<Cookie>): Response {
     var response = this
     cookies.forEach {
@@ -21,6 +24,9 @@ fun Response.withCookies(cookies: Collection<Cookie>): Response {
     return response
 }
 
+/**
+ * Returns an updated response with the specified cookies invalidated.
+ */
 fun Response.invalidateCookies(cookies: Collection<Cookie>): Response {
     var response = this
     cookies.forEach {
@@ -29,17 +35,20 @@ fun Response.invalidateCookies(cookies: Collection<Cookie>): Response {
     return response
 }
 
-fun httpSeeOther(location: String): Response {
-    return Response(Status.SEE_OTHER)
-        .with(Header.LOCATION of Uri.of(location))
-}
-
-fun httpNotFound(): Response {
-    return Response(Status.NOT_FOUND)
-}
+/**
+ * Returns a 303 redirect response with the specified location.
+ */
+fun httpSeeOther(location: String): Response = Response(Status.SEE_OTHER)
+    .with(Header.LOCATION of Uri.of(location))
 
 /**
- * When an HTTP 200 is required before a redirect, for example https://stackoverflow.com/questions/42216700/how-can-i-redirect-after-oauth2-with-samesite-strict-and-still-get-my-cookies
+ * Returns a 404 not found response.
+ */
+fun httpNotFound(): Response = Response(Status.NOT_FOUND)
+
+/**
+ * When an HTTP 200 is required before a redirect, for example
+ * https://stackoverflow.com/questions/42216700/how-can-i-redirect-after-oauth2-with-samesite-strict-and-still-get-my-cookies
  */
 fun htmlRedirect(url: String): Response {
     val body = """<html><head><meta http-equiv="refresh" content="0;URL='${url}'"/></head></html>"""

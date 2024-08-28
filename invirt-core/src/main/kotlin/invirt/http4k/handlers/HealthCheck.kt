@@ -8,6 +8,9 @@ import org.http4k.core.with
 import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.routes
 
+/**
+ * A simple health check handler that returns a JSON response with a status of "healthy".
+ */
 object HealthCheck {
 
     internal val jsonLens = jsonLens<HealthStatus>()

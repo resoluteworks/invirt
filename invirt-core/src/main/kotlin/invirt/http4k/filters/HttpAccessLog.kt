@@ -7,6 +7,9 @@ import org.http4k.core.HttpTransaction
 import org.http4k.core.toParametersMap
 import org.http4k.filter.ResponseFilters
 
+/**
+ * An http4k filter that logs HTTP transactions.
+ */
 object HttpAccessLog {
 
     // Only lazy to make testing easier

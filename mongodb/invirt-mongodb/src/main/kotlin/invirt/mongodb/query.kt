@@ -11,6 +11,12 @@ import invirt.data.RecordsPage
 import org.bson.Document
 import org.bson.conversions.Bson
 
+/**
+ * Runs a [MongoCollection.find] for the specified [filter] with the given [page] and [sort].
+ * Optionally, a [maxDocuments] limit can be set to restrict the total number of documents to count.
+ *
+ * @return a [RecordsPage] with the documents matching the filter and page.
+ */
 fun <Doc : Any> MongoCollection<Doc>.query(
     filter: Bson? = null,
     page: Page = Page(0, 10),
@@ -33,7 +39,7 @@ fun <Doc : Any> MongoCollection<Doc>.query(
 
 /**
  * Runs a [MongoCollection.aggregate] for the specified [pipeline] with the given [page]
- * and optionally additional [facets]. Returns a [PagedAggregateSearchResult] containing
+ * and optional [facets]. Returns a [PagedAggregateSearchResult] containing
  * the [RecordsPage] for the specified page and the raw response document.
  */
 fun <Doc : Any> MongoCollection<Doc>.pagedAggregate(

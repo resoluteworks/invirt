@@ -12,6 +12,11 @@ import java.net.URI
 
 private val log = KotlinLogging.logger {}
 
+/**
+ * Represents a connection to a MongoDB database.
+ * @param connectionString The connection string to the MongoDB database.
+ * @throws IllegalArgumentException If the connection string is missing the database name.
+ */
 class Mongo(val connectionString: String) {
 
     val databaseName: String = URI(connectionString).path.replace("^/".toRegex(), "")
@@ -34,6 +39,9 @@ class Mongo(val connectionString: String) {
         }
     }
 
+    /**
+     * Runs the specified [block] in a MongoDB transaction.
+     */
     fun <Result> runInTransaction(block: (ClientSession) -> Result): Result {
         val session = mongoClient.startSession()
         return try {

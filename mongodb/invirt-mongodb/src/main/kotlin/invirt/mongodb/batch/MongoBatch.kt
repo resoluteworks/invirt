@@ -2,6 +2,9 @@ package invirt.mongodb.batch
 
 import com.mongodb.kotlin.client.MongoCollection
 
+/**
+ * A batch of documents to be inserted into a MongoDB collection.
+ */
 class MongoBatch<Doc : Any>(
     private val collection: MongoCollection<Doc>,
     private val size: Int = 1000
@@ -32,6 +35,10 @@ class MongoBatch<Doc : Any>(
     }
 }
 
+/**
+ * Creates a new [MongoBatch] for the given [MongoCollection] and executes the [block] function.
+ * The batch will be automatically closed after the block is executed.
+ */
 fun <Doc : Any> MongoCollection<Doc>.withBatch(size: Int = 1000, block: (MongoBatch<Doc>) -> Unit) {
     MongoBatch(this, size).use(block)
 }

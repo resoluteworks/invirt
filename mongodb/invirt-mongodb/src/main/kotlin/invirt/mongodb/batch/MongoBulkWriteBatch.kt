@@ -3,6 +3,9 @@ package invirt.mongodb.batch
 import com.mongodb.client.model.WriteModel
 import com.mongodb.kotlin.client.MongoCollection
 
+/**
+ * A batch of write operations to be executed on a MongoDB collection.
+ */
 class MongoBulkWriteBatch<Doc : Any>(
     private val collection: MongoCollection<Doc>,
     private val size: Int = 1000
@@ -33,6 +36,10 @@ class MongoBulkWriteBatch<Doc : Any>(
     }
 }
 
+/**
+ * Creates a new [MongoBulkWriteBatch] for the given [MongoCollection] and executes the [block] function.
+ * The batch will be automatically closed after the block is executed.
+ */
 fun <Doc : Any> MongoCollection<Doc>.withBulkWriteBatch(size: Int = 1000, block: (MongoBulkWriteBatch<Doc>) -> Unit) {
     MongoBulkWriteBatch(this, size).use(block)
 }

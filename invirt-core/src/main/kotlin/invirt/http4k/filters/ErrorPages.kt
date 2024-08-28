@@ -5,13 +5,11 @@ import org.http4k.core.Filter
 import org.http4k.core.Status
 
 /**
- * Renders a view based on a status code
+ * An http4k filter that renders a view (template) for a given status code.
  */
 object ErrorPages {
 
-    operator fun invoke(vararg statusViewMappings: Pair<Status, String>): Filter {
-        return invoke(statusViewMappings.toMap())
-    }
+    operator fun invoke(vararg statusViewMappings: Pair<Status, String>): Filter = invoke(statusViewMappings.toMap())
 
     operator fun invoke(statusViewMappings: Map<Status, String>): Filter = Filter { next ->
         { request ->

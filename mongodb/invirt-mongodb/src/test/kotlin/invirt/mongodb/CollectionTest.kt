@@ -164,7 +164,7 @@ class CollectionTest : StringSpec() {
             collection.update(v1.copy(type = "folder"))
 
             // Attempting to update v1 should fail
-            shouldThrow<VersionedDocumentConflictException> {
+            shouldThrow<VersionConflictException> {
                 collection.update(v1.copy(type = "container"))
             }
 
@@ -209,7 +209,7 @@ class CollectionTest : StringSpec() {
             val v1 = collection.insert(TestDocument("jonhsmith1@test.com"))
             val v2 = collection.update(v1.copy(email = "jonhsmith2@test.com"))
 
-            shouldThrow<VersionedDocumentConflictException> {
+            shouldThrow<VersionConflictException> {
                 collection.update(v1.copy(email = "jonhsmithX@test.com")) {
                     // Fake an update by another thread/process
                     collection.update(v2.copy(email = "jonhsmith3@test.com"))

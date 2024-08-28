@@ -10,6 +10,10 @@ import io.mongock.api.annotations.RollbackExecution
 import io.mongock.driver.mongodb.sync.v4.driver.MongoSync4Driver
 import io.mongock.runner.standalone.MongockStandalone
 
+/**
+ * Runs migrations for a MongoDB database using the Mongock library.
+ * @param packageName The package to scan for migrations.
+ */
 fun Mongo.runMigrations(packageName: String) {
     MongockStandalone.builder()
         .setDriver(MongoSync4Driver.withDefaultLock(MongoClients.create(connectionString), databaseName))
@@ -22,7 +26,7 @@ fun Mongo.runMigrations(packageName: String) {
 
 /**
  * Migration that only operates on data definitions for a Mongo database and which
- * aren't typically allowed to run in a transaction
+ * aren't typically allowed to run in a transaction.
  */
 interface ModelMigration {
 
@@ -52,6 +56,9 @@ interface DataMigration {
     fun rollbackData(database: JavaMongoDatabase, session: JavaClientSession)
 }
 
+/**
+ * Migration that applies both model and data changes.
+ */
 interface ModelAndDataMigration {
     fun model(mongo: Mongo)
     fun rollbackModel(mongo: Mongo)
