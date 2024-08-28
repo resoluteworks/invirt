@@ -55,6 +55,15 @@ class GeoBoundingBoxTest : StringSpec({
         )
     }
 
+    "to/from string box" {
+        GeoBoundingBox(-8.596867, 51.348611, 1.950008, 56.435911).let {
+            GeoBoundingBox.fromLngLatString(it.toLngLatString()) shouldBe it
+        }
+        GeoBoundingBox(-8.596867, 51.348611, 1.950008, 56.435911).let {
+            GeoBoundingBox.fromLatLngString(it.toLatLngString()) shouldBe it
+        }
+    }
+
     "pad" {
         GeoBoundingBox(
             southWest = GeoLocation(lng = -8.5, lat = 51.3),

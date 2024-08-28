@@ -15,12 +15,13 @@ data class GeoBoundingBox(
         GeoLocation(northEast.lng, southWest.lat)
     )
 
-    fun pad(delta: Double): GeoBoundingBox {
-        return GeoBoundingBox(
-            southWest = GeoLocation.normalised(lng = southWest.lng + delta, lat = southWest.lat + delta),
-            northEast = GeoLocation.normalised(lng = northEast.lng - delta, lat = northEast.lat - delta)
-        )
-    }
+    fun toLngLatString(): String = "${southWest.lng},${southWest.lat},${northEast.lng},${northEast.lat}"
+    fun toLatLngString(): String = "${southWest.lat},${southWest.lng},${northEast.lat},${northEast.lng}"
+
+    fun pad(delta: Double): GeoBoundingBox = GeoBoundingBox(
+        southWest = GeoLocation.normalised(lng = southWest.lng + delta, lat = southWest.lat + delta),
+        northEast = GeoLocation.normalised(lng = northEast.lng - delta, lat = northEast.lat - delta)
+    )
 
     companion object {
         operator fun invoke(bbox: List<Double>): GeoBoundingBox {
