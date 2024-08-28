@@ -29,7 +29,7 @@ class AggregatesTest : StringSpec() {
 
             val collection = mongo.randomTestCollection<TestDocument>()
 
-            val documents = (0 until 100).map { TestDocument(it) }
+            val documents = (1..100).map { TestDocument(it) }
             collection.insertMany(documents)
 
             collection.pagedAggregate(
