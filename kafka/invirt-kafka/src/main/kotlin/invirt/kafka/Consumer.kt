@@ -33,7 +33,7 @@ class Consumer<E : KafkaEvent>(
 ) {
 
     @Volatile
-    private var stopped: Boolean = false
+    internal var stopped: Boolean = false
 
     init {
         val threadPool = ThreadPool<Unit>(threads)
@@ -54,6 +54,17 @@ class Consumer<E : KafkaEvent>(
                 runConsumer(kafkaConsumer, groupId)
             }
         }
+
+        Runtime.getRuntime().addShutdownHook(object : Thread() {
+            override fun run() {
+                this@Consumer.stop()
+                threadPool.close()
+            }
+        })
+    }
+
+    fun stop() {
+        stopped = true
     }
 
     private fun runConsumer(kafkaConsumer: KafkaConsumer<String, E>, groupId: String) {
@@ -82,6 +93,7 @@ class Consumer<E : KafkaEvent>(
         }
 
         kafkaConsumer.unsubscribe()
+        kafkaConsumer.subscription()
         kafkaConsumer.close()
         log.info { "Stopped consumer for topic $topic and group $groupId" }
     }

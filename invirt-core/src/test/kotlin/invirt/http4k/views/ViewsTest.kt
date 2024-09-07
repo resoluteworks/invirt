@@ -26,6 +26,8 @@ class ViewsTest : StringSpec() {
 
                 val updatedContent = uuid7()
                 templateFile.writeText(updatedContent)
+
+                // The rendered content must be updated after the template file is updated
                 httpHandler(Request(Method.GET, "/test")).bodyString() shouldBe updatedContent
             } finally {
                 templateFile.writeText(initialContent)

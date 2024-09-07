@@ -65,7 +65,7 @@ fun <Doc : VersionedDocument> MongoCollection<Doc>.txUpdate(
 private fun <Doc : VersionedDocument> MongoCollection<Doc>.update(
     session: ClientSession?,
     document: Doc,
-    patchOnConflict: ((Doc) -> Doc)? = null
+    patchOnConflict: ((Doc) -> Doc)?
 ): Doc = updateOne(session, document)
     ?: if (patchOnConflict != null) {
         // Try the update with the patched version of the document

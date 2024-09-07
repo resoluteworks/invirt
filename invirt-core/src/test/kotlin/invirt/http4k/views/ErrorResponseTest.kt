@@ -1,6 +1,7 @@
 package invirt.http4k.views
 
 import invirt.http4k.InvirtFilter
+import invirt.utils.uuid7
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -29,6 +30,13 @@ class ErrorResponseTest : StringSpec({
             .then(routes("/test" bind Method.GET to { errorResponse("model", errors, "errorResponse-utils-test", Status.BAD_REQUEST) }))
             .invoke(Request(Method.GET, "/test"))
             .status shouldBe Status.BAD_REQUEST
+    }
+
+    "errorResponse - error pairs" {
+        InvirtFilter()
+            .then(routes("/test" bind Method.GET to { errorResponse("errorResponse-utils-test", "test" to uuid7()) }))
+            .invoke(Request(Method.GET, "/test"))
+            .status shouldBe Status.UNPROCESSABLE_ENTITY
     }
 
     "errorResponse - fail on empty errors" {

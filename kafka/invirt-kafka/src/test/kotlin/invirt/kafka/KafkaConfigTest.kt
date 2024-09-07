@@ -55,4 +55,41 @@ class KafkaConfigTest : StringSpec({
                 )
             )
     }
+
+    "clientProperties - no security" {
+        KafkaConfig(
+            Environment.from(
+                "KAFKA_SERVERS" to "localhost:9092",
+                "KAFKA_APPLICATION_ID" to "test",
+                "KAFKA_TOPIC_REPLICATION_FACTOR" to "3",
+                "KAFKA_TOPIC_DEFAULT_PARTITION_COUNT" to "5",
+                "KAFKA_CONSUMER_POLL_TIMEOUT" to "10000"
+            )
+        ).clientProperties() shouldBe mapOf(
+            "bootstrap.servers" to "localhost:9092"
+        )
+    }
+
+    "clientProperties - security" {
+        KafkaConfig(
+            Environment.from(
+                "KAFKA_SERVERS" to "localhost:9092",
+                "KAFKA_APPLICATION_ID" to "test",
+                "KAFKA_TOPIC_REPLICATION_FACTOR" to "3",
+                "KAFKA_TOPIC_DEFAULT_PARTITION_COUNT" to "5",
+                "KAFKA_CONSUMER_POLL_TIMEOUT" to "10000",
+                "KAFKA_SECURITY_ENABLED" to "true",
+                "KAFKA_SECURITY_MECHANISM" to "SCRAM-SHA-512",
+                "KAFKA_SECURITY_USERNAME" to "user",
+                "KAFKA_SECURITY_PASSWORD" to "password",
+                "KAFKA_SECURITY_PROTOCOL" to "SASL_SSL"
+            )
+        ).clientProperties() shouldBe mapOf(
+            "bootstrap.servers" to "localhost:9092",
+            "sasl.jaas.config" to
+                "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"user\" password=\"password\";",
+            "sasl.mechanism" to "SCRAM-SHA-512",
+            "security.protocol" to "SASL_SSL"
+        )
+    }
 })

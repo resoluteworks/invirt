@@ -3,13 +3,8 @@ package invirt.utils.threads
 import java.util.concurrent.Callable
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
-import java.util.concurrent.TimeUnit
 
-class ThreadPool<T>(
-    threadCount: Int,
-    private val timeout: Long = 1,
-    private val timeoutUnit: TimeUnit = TimeUnit.MINUTES
-) : AutoCloseable {
+class ThreadPool<T>(threadCount: Int) : AutoCloseable {
 
     private val threadPool = Executors.newFixedThreadPool(threadCount)
     private val futures = mutableListOf<Future<T>>()
@@ -22,7 +17,11 @@ class ThreadPool<T>(
 
     override fun close() {
         futures.forEach { it.get() }
+        threadPool.shutdownNow()
+    }
+
+    fun shutdown(timeout: Long, unit: java.util.concurrent.TimeUnit) {
         threadPool.shutdown()
-        threadPool.awaitTermination(timeout, timeoutUnit)
+        threadPool.awaitTermination(timeout, unit)
     }
 }

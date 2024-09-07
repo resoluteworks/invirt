@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.apache.kafka.common.serialization.Deserializer
-import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.common.serialization.Serializer
 import kotlin.reflect.KClass
 
@@ -18,13 +17,4 @@ internal fun <E : KafkaEvent> streamJsonSerializer(): Serializer<E> = Serializer
 
 internal fun <E : KafkaEvent> streamJsonDeserializer(valueClass: KClass<E>): Deserializer<E> = Deserializer<E> { _, value ->
     defaultKafkaJsonMapper.readValue(String(value), valueClass.java)
-}
-
-class StreamJsonSerde<E : KafkaEvent>(valueClass: KClass<E>) : Serde<E> {
-
-    private val serializer = streamJsonSerializer<E>()
-    private val deserializer = streamJsonDeserializer(valueClass)
-
-    override fun serializer(): Serializer<E> = serializer
-    override fun deserializer(): Deserializer<E> = deserializer
 }

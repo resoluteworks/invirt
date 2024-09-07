@@ -12,7 +12,7 @@ import org.http4k.lens.BiDiBodyLens
 import org.http4k.template.ViewModel
 import org.http4k.template.viewModel
 
-private lateinit var defaultViewLens: BiDiBodyLens<ViewModel>
+internal lateinit var defaultViewLens: BiDiBodyLens<ViewModel>
 private val log = KotlinLogging.logger {}
 
 /**
@@ -42,7 +42,7 @@ fun initialiseInvirtViews(
     }
 }
 
-private fun pebbleTemplates(staticAssetsVersion: String? = null, extensions: List<Extension>): InvirtPebbleTemplates =
+internal fun pebbleTemplates(staticAssetsVersion: String? = null, extensions: List<Extension>): InvirtPebbleTemplates =
     InvirtPebbleTemplates(configure = { builder ->
         extensions.forEach { builder.extension(it) }
         builder.extension(

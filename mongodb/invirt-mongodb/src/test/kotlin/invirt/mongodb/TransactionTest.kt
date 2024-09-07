@@ -7,6 +7,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.bson.codecs.pojo.annotations.BsonId
+import java.time.Instant
 
 class TransactionTest : StringSpec() {
 
@@ -17,8 +18,10 @@ class TransactionTest : StringSpec() {
             data class TestDocument(
                 val name: String,
                 @BsonId override val id: String = uuid7(),
-                override var version: Long = 0
-            ) : VersionedDocument
+                override var version: Long = 0,
+                override var createdAt: Instant = mongoNow(),
+                override var updatedAt: Instant = mongoNow()
+            ) : TimestampedDocument
 
             val collection = mongo.randomTestCollection<TestDocument>()
 

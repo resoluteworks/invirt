@@ -52,4 +52,8 @@ coverallsJacoco {
     reportPath = project.layout.buildDirectory.file("reports/jacoco/jacocoRootReport/jacocoRootReport.xml").get().asFile.absolutePath
 }
 
-val Project.hasCoverage get() = name != "invirt-bom" && name != "invirt-test"
+val Project.hasCoverage
+    get() = name != "invirt-bom" &&
+        name != "invirt-test" &&
+        name != "invirt-mongodb-test" &&
+        name != "invirt-kafka-test"
