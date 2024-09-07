@@ -1,6 +1,6 @@
 package invirt.http4k
 
-import invirt.utils.withValue
+import invirt.utils.threads.withValue
 import io.validk.ValidationErrors
 import org.http4k.core.Filter
 import org.http4k.core.Request

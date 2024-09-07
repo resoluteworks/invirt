@@ -1,7 +1,7 @@
 package invirt.http4k.security.authentication
 
 import invirt.http4k.InvirtFilter
-import invirt.utils.withValue
+import invirt.utils.threads.withValue
 import org.http4k.core.Request
 import org.http4k.lens.RequestContextKey
 

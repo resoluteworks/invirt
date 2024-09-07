@@ -1,10 +1,10 @@
 package invirt.mongodb
 
 import invirt.data.sortAsc
-import invirt.test.mongo.shouldHaveAscIndex
-import invirt.test.mongo.shouldHaveDescIndex
-import invirt.test.mongo.shouldHaveTextIndex
-import invirt.test.mongo.shouldHaveUniqueIndex
+import invirt.mongo.test.shouldHaveAscIndex
+import invirt.mongo.test.shouldHaveDescIndex
+import invirt.mongo.test.shouldHaveTextIndex
+import invirt.mongo.test.shouldHaveUniqueIndex
 import invirt.testMongo
 import invirt.utils.uuid7
 import io.kotest.core.spec.style.StringSpec

@@ -1,4 +1,4 @@
-package invirt.utils
+package invirt.utils.threads
 
 /**
  * Runs the specified [block] by first setting the specified [value] on this [ThreadLocal] and

@@ -1,9 +1,9 @@
 package invirt.mongodb.mongock
 
+import invirt.mongo.test.shouldHaveAscIndex
+import invirt.mongo.test.shouldHaveDescIndex
+import invirt.mongo.test.shouldNotHaveAscIndex
 import invirt.mongodb.mongock.migrations.Company
-import invirt.test.mongo.shouldHaveAscIndex
-import invirt.test.mongo.shouldHaveDescIndex
-import invirt.test.mongo.shouldNotHaveAscIndex
 import invirt.testMongo
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec

@@ -1,4 +1,4 @@
-package invirt.test.mongo
+package invirt.mongo.test
 
 import com.mongodb.kotlin.client.MongoCollection
 import invirt.mongodb.TimestampedDocument

@@ -1,4 +1,4 @@
-package invirt.test.mongo
+package invirt.mongo.test
 
 import com.mongodb.client.model.Aggregates
 import com.mongodb.client.model.search.SearchOperator
