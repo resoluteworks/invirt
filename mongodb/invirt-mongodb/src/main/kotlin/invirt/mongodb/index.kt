@@ -12,17 +12,14 @@ import kotlin.reflect.full.isSubclassOf
 
 private val log = KotlinLogging.logger {}
 
-fun String.indexAsc(unique: Boolean = false, caseInsensitive: Boolean = false): IndexModel =
-    IndexModel(Indexes.ascending(this), indexOptions(unique, caseInsensitive))
+fun String.asc(options: IndexOptions.() -> IndexOptions = { this }): IndexModel =
+    IndexModel(Indexes.ascending(this), options(IndexOptions()))
 
-fun String.indexDesc(unique: Boolean = false, caseInsensitive: Boolean = false): IndexModel =
-    IndexModel(Indexes.descending(this), indexOptions(unique, caseInsensitive))
+fun String.desc(options: IndexOptions.() -> IndexOptions = { this }): IndexModel =
+    IndexModel(Indexes.descending(this), options(IndexOptions()))
 
-fun <Value : Any> KProperty<Value?>.indexAsc(unique: Boolean = false, caseInsensitive: Boolean = false): IndexModel =
-    name.indexAsc(unique, caseInsensitive)
-
-fun <Value : Any> KProperty<Value?>.indexDesc(unique: Boolean = false, caseInsensitive: Boolean = false): IndexModel =
-    name.indexDesc(unique, caseInsensitive)
+fun KProperty<*>.asc(options: IndexOptions.() -> IndexOptions = { this }): IndexModel = this.name.asc(options)
+fun KProperty<*>.desc(options: IndexOptions.() -> IndexOptions = { this }): IndexModel = this.name.desc(options)
 
 fun textIndex(vararg fields: String): IndexModel = IndexModel(Indexes.compoundIndex(fields.map { Indexes.text(it) }))
 
@@ -31,12 +28,12 @@ fun MongoCollection<*>.createIndices(vararg indexModels: IndexModel) {
     indexes.addAll(indexModels)
 
     if (documentClass.kotlin.isSubclassOf(VersionedDocument::class)) {
-        indexes.add(VersionedDocument::version.indexAsc(unique = false, caseInsensitive = false))
+        indexes.add(VersionedDocument::version.asc())
     }
 
     if (documentClass.kotlin.isSubclassOf(TimestampedDocument::class)) {
-        indexes.add(TimestampedDocument::createdAt.indexDesc(unique = false, caseInsensitive = false))
-        indexes.add(TimestampedDocument::updatedAt.indexDesc(unique = false, caseInsensitive = false))
+        indexes.add(TimestampedDocument::createdAt.desc())
+        indexes.add(TimestampedDocument::updatedAt.desc())
     }
 
     val collectionName = this.namespace.collectionName
@@ -51,13 +48,14 @@ fun MongoCollection<*>.createIndices(vararg indexModels: IndexModel) {
     createIndexes(indexes)
 }
 
-private fun indexOptions(unique: Boolean, caseInsensitive: Boolean): IndexOptions {
-    val indexOptions = IndexOptions()
-    if (unique) {
-        indexOptions.unique(true)
-    }
-    if (caseInsensitive) {
-        indexOptions.collation(Collation.builder().locale("en").collationStrength(CollationStrength.SECONDARY).build())
-    }
-    return indexOptions
+fun IndexOptions.caseInsensitive(
+    locale: String = "en",
+    strength: CollationStrength = CollationStrength.TERTIARY
+): IndexOptions {
+    val collation = Collation.builder()
+        .locale(locale)
+        .collationStrength(strength)
+        .caseLevel(false)
+        .build()
+    return this.collation(collation)
 }

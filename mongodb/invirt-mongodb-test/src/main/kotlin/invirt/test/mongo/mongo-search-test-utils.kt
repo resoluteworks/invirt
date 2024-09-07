@@ -12,7 +12,7 @@ import java.time.Duration
 /**
  * Waits for [count] documents to be indexed by checking the existed of a [field] in the specified [indexName].
  */
-inline fun MongoCollection<*>.waitForSearchDocuments(
+fun MongoCollection<*>.waitForSearchDocuments(
     field: String,
     count: Int,
     indexName: String = DEFAULT_MONGO_SEARCH_INDEX

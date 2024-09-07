@@ -31,20 +31,21 @@ fun Sort.mongoSort(): Bson = when (order) {
 /**
  * Converts the specified list of [Sort] to a MongoDB [Bson] sort.
  */
-fun List<Sort>.mongoSort(): Bson? = if (this.isNotEmpty()) {
-    Sorts.orderBy(map { it.mongoSort() })
+fun List<Sort>.mongoSort(): List<Bson> = this.map { it.mongoSort() }
+
+/**
+ * Applies the specified [sort] to the [FindIterable].
+ */
+fun <T : Any> FindIterable<T>.sort(sort: List<Sort>): FindIterable<T> = if (sort.isNotEmpty()) {
+    this.sort(Sorts.orderBy(sort.mongoSort()))
 } else {
-    null
+    this
 }
 
 /**
  * Applies the specified [sort] to the [FindIterable].
  */
-fun <T : Any> FindIterable<T>.sort(vararg sort: Sort = emptyArray()): FindIterable<T> = if (sort.isNotEmpty()) {
-    this.sort(sort.toList().mongoSort())
-} else {
-    this
-}
+fun <T : Any> FindIterable<T>.sort(vararg sort: Sort = emptyArray()): FindIterable<T> = this.sort(sort.toList())
 
 /**
  * Converts the specified [DataFilter] to a MongoDB [Bson] filter.

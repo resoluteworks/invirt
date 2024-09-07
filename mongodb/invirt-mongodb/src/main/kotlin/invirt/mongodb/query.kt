@@ -5,11 +5,13 @@ import com.mongodb.client.model.CountOptions
 import com.mongodb.client.model.Facet
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Sorts
+import com.mongodb.kotlin.client.FindIterable
 import com.mongodb.kotlin.client.MongoCollection
 import invirt.data.Page
 import invirt.data.RecordsPage
 import org.bson.Document
 import org.bson.conversions.Bson
+import java.util.stream.Collectors.toList
 
 /**
  * Runs a [MongoCollection.find] for the specified [filter] with the given [page] and [sort].
@@ -21,7 +23,8 @@ fun <Doc : Any> MongoCollection<Doc>.query(
     filter: Bson? = null,
     page: Page = Page(0, 10),
     sort: List<Bson> = emptyList(),
-    maxDocuments: Int = 0
+    maxDocuments: Int = 0,
+    buildFind: FindIterable<Doc>.() -> FindIterable<Doc> = { this }
 ): RecordsPage<Doc> {
     val docFilter = filter ?: Filters.empty()
 
@@ -29,6 +32,7 @@ fun <Doc : Any> MongoCollection<Doc>.query(
     if (sort.isNotEmpty()) {
         find = find.sort(Sorts.orderBy(sort))
     }
+    find = buildFind(find)
 
     return RecordsPage(
         records = find.page(page).toList(),

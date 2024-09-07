@@ -44,10 +44,10 @@ class IndexTest : StringSpec() {
             database.createCollection(collectionName)
             val collection = database.getCollection<Person>(collectionName)
             collection.createIndices(
-                Person::age.indexAsc(),
-                "gender.name".indexAsc(unique = true),
-                Person::lastName.indexDesc(),
-                Person::indexedAndTextIndexed.indexAsc(),
+                Person::age.asc(),
+                "gender.name".asc { unique(true) },
+                Person::lastName.desc(),
+                Person::indexedAndTextIndexed.asc(),
                 textIndex("address.city", "firstName", "indexedAndTextIndexed")
             )
 
@@ -73,7 +73,7 @@ class IndexTest : StringSpec() {
             database.createCollection(collectionName)
             val collection = database.getCollection<TestDocument>(collectionName)
             collection.createIndices(
-                TestDocument::childId.indexDesc()
+                TestDocument::childId.desc()
             )
 
             collection shouldHaveDescIndex "childId"
@@ -96,12 +96,12 @@ class IndexTest : StringSpec() {
             database.createCollection(collectionName)
             val collection = database.getCollection<Person>(collectionName)
             collection.createIndices(
-                Person::age.indexAsc(),
-                Person::name.indexAsc(),
-                Person::lastName.indexAsc(caseInsensitive = true),
-                "firstName".indexDesc(),
-                Person::address.indexDesc(caseInsensitive = true),
-                "city".indexDesc(caseInsensitive = true)
+                Person::age.asc(),
+                Person::name.asc(),
+                Person::lastName.asc { caseInsensitive() },
+                "firstName".desc(),
+                Person::address.desc { caseInsensitive() },
+                "city".desc { caseInsensitive() }
             )
             val indexes = collection.listIndexes().toList()
             indexes.indexForField("age")["collation"] shouldBe null
@@ -124,7 +124,7 @@ class IndexTest : StringSpec() {
             database.createCollection(collectionName)
             val collection = database.getCollection<Person>(collectionName)
             collection.createIndices(
-                Person::name.indexAsc()
+                Person::name.asc()
             )
 
             collection.insert(Person("B"))

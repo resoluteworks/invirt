@@ -13,6 +13,7 @@ import invirt.randomTestCollection
 import invirt.testMongo
 import invirt.utils.uuid7
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import org.bson.codecs.pojo.annotations.BsonId
@@ -39,11 +40,14 @@ class DataTest : StringSpec() {
         "Sort.mongoSort" {
             Sort.asc("name").mongoSort() shouldBe Sorts.ascending("name")
             Sort.desc("name").mongoSort() shouldBe Sorts.descending("name")
-            emptyList<Sort>().mongoSort() shouldBe null
+            emptyList<Sort>().mongoSort() shouldBe emptyList()
         }
 
         "Sort.mongoSort multiple values" {
-            listOf(Sort.asc("name"), Sort.desc("age")).mongoSort() shouldBe Sorts.orderBy(Sorts.ascending("name"), Sorts.descending("age"))
+            listOf(Sort.asc("name"), Sort.desc("age")).mongoSort() shouldContainExactly listOf(
+                Sorts.ascending("name"),
+                Sorts.descending("age")
+            )
         }
 
         "FindIterable.sort" {

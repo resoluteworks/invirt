@@ -7,6 +7,7 @@ import invirt.randomTestCollection
 import invirt.testMongo
 import invirt.utils.uuid7
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import org.bson.codecs.pojo.annotations.BsonId
 
@@ -96,6 +97,7 @@ class QueryTest : StringSpec() {
                 page = Page(0, 10),
                 sort = listOf(TestDocument::index.sortAsc().mongoSort())
             )
+
             result1.totalCount shouldBe docCount
             result1.records.size shouldBe 10
             result1.records.map { it.type }.toSet() shouldBe setOf("company")
@@ -110,6 +112,34 @@ class QueryTest : StringSpec() {
             result2.records.size shouldBe 10
             result2.records.map { it.type }.toSet() shouldBe setOf("company")
             result2.records.map { it.index } shouldBe ((docCount - 1) downTo 85).toList()
+        }
+
+        "sort case insensitive" {
+            data class TestDocument(
+                val name: String,
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0
+            ) : VersionedDocument
+
+            val collection = mongo.randomTestCollection<TestDocument>()
+            collection.createIndices(
+                TestDocument::name.asc { caseInsensitive() }
+            )
+            collection.insertMany(
+                listOf(
+                    TestDocument("Apple"),
+                    TestDocument("Banana"),
+                    TestDocument("almond")
+                )
+            )
+
+            // The default won't be sorted
+            collection.query(sort = listOf(TestDocument::name.sortAsc().mongoSort()))
+                .records.map { it.name } shouldContainExactly listOf("Apple", "Banana", "almond")
+
+            // The case-insensitive index will sort correctly
+            collection.query(sort = listOf(TestDocument::name.sortAsc().mongoSort())) { caseInsensitive() }
+                .records.map { it.name } shouldContainExactly listOf("almond", "Apple", "Banana")
         }
 
         "sort with multiple fields" {
