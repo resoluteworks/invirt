@@ -15,8 +15,10 @@ for those who want to write web applications in Kotlin.
 
 Invirt is **not** a framework for building microservices.
 
-For the in-depth documentation please check the [framework documentation](/docs/framework/configuration),
-[API docs](/docs/api/invirt-core/route-binding) and the [Quick start section](/docs/overview/quickstart).
+Detailed documentation:
+ * [Framework](/docs/framework/configuration)
+ * [API docs](/docs/api/invirt-core/route-binding)
+ * [Quick start section](/docs/overview/quickstart).
 
 ## Motivation
 When it comes to building web applications that aren't trading systems or social media mammoths,
