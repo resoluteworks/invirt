@@ -1,19 +1,17 @@
 package examples.form.validation
 
-import invirt.http4k.GET
-import invirt.http4k.POST
-import invirt.http4k.config.developmentMode
-import invirt.http4k.httpSeeOther
-import invirt.http4k.toForm
-import invirt.http4k.views.errorResponse
-import invirt.http4k.views.initialiseInvirtViews
-import invirt.http4k.views.renderTemplate
+import invirt.core.GET
+import invirt.core.Invirt
+import invirt.core.POST
+import invirt.core.httpSeeOther
+import invirt.core.toForm
+import invirt.core.views.errorResponse
+import invirt.core.views.renderTemplate
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.validk.ValidObject
 import io.validk.Validation
 import io.validk.email
 import io.validk.minLength
-import org.http4k.config.Environment
 import org.http4k.core.then
 import org.http4k.routing.routes
 import org.http4k.server.Netty
@@ -42,8 +40,6 @@ data class SignupForm(
 class Application {
 
     fun start() {
-        initialiseInvirtViews(hotReload = Environment.ENV.developmentMode)
-
         val appHandler = Invirt()
             .then(
                 routes(

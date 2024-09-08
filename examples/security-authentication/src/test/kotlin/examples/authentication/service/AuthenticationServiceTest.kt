@@ -1,7 +1,7 @@
 package examples.authentication.service
 
 import examples.authentication.service.Tokens.Companion.SESSION_EXPIRY_MINUTES
-import invirt.http4k.security.authentication.AuthenticationResponse
+import invirt.security.authentication.AuthenticationResponse
 import invirt.test.cookies
 import invirt.utils.uuid7
 import io.kotest.core.spec.style.StringSpec

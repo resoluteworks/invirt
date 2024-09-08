@@ -5,17 +5,17 @@ import examples.authentication.handlers.IndexHandler
 import examples.authentication.handlers.LoginHandler
 import examples.authentication.handlers.LogoutHandler
 import examples.authentication.service.AuthenticationService
-import invirt.http4k.config.developmentMode
-import invirt.http4k.filters.ErrorPages
-import invirt.http4k.filters.StatusOverride
-import invirt.http4k.security.authentication.AuthenticationFilter
-import invirt.http4k.security.authentication.Principal
-import invirt.http4k.security.authentication.authenticatedRoutes
-import invirt.http4k.views.initialiseInvirtViews
+import invirt.core.Invirt
+import invirt.core.InvirtConfig
+import invirt.core.InvirtPebbleConfig
+import invirt.core.filters.ErrorPages
+import invirt.core.filters.StatusOverride
 import invirt.pebble.functions.pebbleFunction
 import invirt.pebble.pebbleFunctions
+import invirt.security.authentication.AuthenticationFilter
+import invirt.security.authentication.Principal
+import invirt.security.authentication.authenticatedRoutes
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.http4k.config.Environment
 import org.http4k.core.Status
 import org.http4k.core.then
 import org.http4k.routing.routes
@@ -26,8 +26,6 @@ private val log = KotlinLogging.logger {}
 class Application {
 
     fun start() {
-        val devMode = Environment.ENV.developmentMode
-
         // A custom Pebble extension with nothing else than a currentUser() function
         // to display this information on the dashboard
         val pebbleExtensions = listOf(
@@ -36,11 +34,9 @@ class Application {
             )
         )
 
-        initialiseInvirtViews(hotReload = devMode, pebbleExtensions = pebbleExtensions)
-
         val authService = AuthenticationService()
 
-        val appHandler = Invirt()
+        val appHandler = Invirt(InvirtConfig(pebble = InvirtPebbleConfig(extensions = pebbleExtensions)))
             .then(AuthenticationFilter(authService))
             .then(ErrorPages(Status.NOT_FOUND to "error/404"))
             .then(StatusOverride(Status.FORBIDDEN to Status.NOT_FOUND))

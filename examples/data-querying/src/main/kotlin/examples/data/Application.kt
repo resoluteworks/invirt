@@ -2,10 +2,8 @@ package examples.data
 
 import examples.data.handlers.OrderHandler
 import examples.data.service.OrderService
-import invirt.http4k.config.developmentMode
-import invirt.http4k.views.initialiseInvirtViews
+import invirt.core.Invirt
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.http4k.config.Environment
 import org.http4k.core.then
 import org.http4k.routing.routes
 import org.http4k.server.Netty
@@ -15,9 +13,6 @@ private val log = KotlinLogging.logger {}
 class Application {
 
     fun start() {
-        val devMode = Environment.ENV.developmentMode
-        initialiseInvirtViews(hotReload = devMode)
-
         val orderService = OrderService()
         val appHandler = Invirt().then(
             routes(

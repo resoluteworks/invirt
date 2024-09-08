@@ -1,7 +1,7 @@
 package examples.authentication.handlers
 
-import invirt.http4k.GET
-import invirt.http4k.views.renderTemplate
+import invirt.core.GET
+import invirt.core.views.renderTemplate
 import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.routes
 

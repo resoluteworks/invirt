@@ -1,8 +1,8 @@
 package examples.authentication.handlers
 
-import invirt.http4k.GET
-import invirt.http4k.httpSeeOther
-import invirt.http4k.security.authentication.principal
+import invirt.core.GET
+import invirt.core.httpSeeOther
+import invirt.security.authentication.principal
 import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.routes
 

@@ -1,12 +1,12 @@
 package examples.form.basics
 
-import invirt.http4k.GET
-import invirt.http4k.POST
-import invirt.http4k.toForm
-import invirt.http4k.views.ViewResponse
-import invirt.http4k.views.initialiseInvirtViews
-import invirt.http4k.views.ok
-import invirt.http4k.views.renderTemplate
+import invirt.core.GET
+import invirt.core.Invirt
+import invirt.core.POST
+import invirt.core.toForm
+import invirt.core.views.ViewResponse
+import invirt.core.views.ok
+import invirt.core.views.renderTemplate
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.http4k.core.then
 import org.http4k.routing.routes
@@ -47,8 +47,6 @@ class OrderSaved(
 class Application {
 
     fun start() {
-        initialiseInvirtViews()
-
         val appHandler = Invirt().then(
             routes(
                 "/" GET { renderTemplate("create-order") },

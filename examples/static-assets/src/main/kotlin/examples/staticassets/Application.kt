@@ -1,12 +1,14 @@
 package examples.staticassets
 
-import invirt.http4k.GET
-import invirt.http4k.cacheDays
-import invirt.http4k.config.developmentMode
-import invirt.http4k.config.gitCommitId
-import invirt.http4k.handlers.staticAssets
-import invirt.http4k.views.initialiseInvirtViews
-import invirt.http4k.views.renderTemplate
+import invirt.core.GET
+import invirt.core.Invirt
+import invirt.core.InvirtConfig
+import invirt.core.InvirtPebbleConfig
+import invirt.core.cacheDays
+import invirt.core.config.developmentMode
+import invirt.core.config.gitCommitId
+import invirt.core.handlers.staticAssets
+import invirt.core.views.renderTemplate
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.http4k.config.Environment
 import org.http4k.core.then
@@ -22,12 +24,12 @@ class Application {
         val assetsVersion = gitCommitId()!!
         val developmentMode = Environment.ENV.developmentMode
 
-        initialiseInvirtViews(
-            hotReload = developmentMode,
-            staticAssetsVersion = assetsVersion
+        val config = InvirtConfig(
+            pebble = InvirtPebbleConfig(
+                globalVariables = mapOf("staticAssetsVersion" to assetsVersion)
+            )
         )
-
-        val appHandler = Invirt().then(
+        val appHandler = Invirt(config).then(
             routes(
                 "/" GET { renderTemplate("index") },
                 "/static/${assetsVersion}" bind cacheDays(365).then(staticAssets(developmentMode))

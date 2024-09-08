@@ -6,10 +6,10 @@ import examples.authentication.service.Tokens.Companion.JWT_EXPIRY_MINUTES
 import examples.authentication.service.Tokens.Companion.SESSION_EXPIRY_MINUTES
 import examples.authentication.service.Tokens.Companion.jwtCookie
 import examples.authentication.service.Tokens.Companion.sessionCookie
-import invirt.http4k.security.authentication.AuthenticationResponse
-import invirt.http4k.security.authentication.Authenticator
-import invirt.http4k.security.authentication.Principal
-import invirt.http4k.withCookies
+import invirt.core.withCookies
+import invirt.security.authentication.AuthenticationResponse
+import invirt.security.authentication.Authenticator
+import invirt.security.authentication.Principal
 import invirt.utils.uuid7
 import org.http4k.core.Request
 import org.http4k.core.Response
