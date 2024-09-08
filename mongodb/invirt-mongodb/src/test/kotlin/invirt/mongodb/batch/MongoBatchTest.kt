@@ -30,13 +30,34 @@ class MongoBatchTest : StringSpec() {
             val collection = spyk(mongo.database.getCollection<TestDocument>(collectionName))
 
             collection.withBatch(10) { batch ->
-                repeat(48) {
+                repeat(18) {
                     batch.add(TestDocument())
                 }
+                batch.addAll((1..30).map { TestDocument() })
             }
 
             verify(exactly = 5) { collection.insertMany(any(), any<InsertManyOptions>()) }
             collection.countDocuments() shouldBe 48
+        }
+
+        "batch with exact number of documents" {
+            data class TestDocument(
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0
+            ) : VersionedDocument
+
+            val collectionName = uuid7()
+            mongo.database.createCollection(collectionName)
+            val collection = spyk(mongo.database.getCollection<TestDocument>(collectionName))
+
+            collection.withBatch(10) { batch ->
+                repeat(10) {
+                    batch.add(TestDocument())
+                }
+            }
+
+            verify(exactly = 1) { collection.insertMany(any(), any<InsertManyOptions>()) }
+            collection.countDocuments() shouldBe 10
         }
 
         "batch with small number of documents" {

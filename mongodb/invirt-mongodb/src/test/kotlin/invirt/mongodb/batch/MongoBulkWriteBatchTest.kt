@@ -31,9 +31,10 @@ class MongoBulkWriteBatchTest : StringSpec() {
             val collection = spyk(mongo.database.getCollection<TestDocument>(collectionName))
 
             collection.withBulkWriteBatch(10) { batch ->
-                repeat(48) {
+                repeat(18) {
                     batch.add(InsertOneModel(TestDocument()))
                 }
+                batch.addAll((1..30).map { InsertOneModel(TestDocument()) })
             }
 
             verify(exactly = 5) { collection.bulkWrite(any(), any<BulkWriteOptions>()) }

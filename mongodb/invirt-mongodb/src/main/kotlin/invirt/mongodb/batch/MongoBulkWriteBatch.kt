@@ -40,6 +40,6 @@ class MongoBulkWriteBatch<Doc : Any>(
  * Creates a new [MongoBulkWriteBatch] for the given [MongoCollection] and executes the [block] function.
  * The batch will be automatically closed after the block is executed.
  */
-fun <Doc : Any> MongoCollection<Doc>.withBulkWriteBatch(size: Int = 1000, block: (MongoBulkWriteBatch<Doc>) -> Unit) {
+fun <Doc : Any> MongoCollection<Doc>.withBulkWriteBatch(size: Int, block: (MongoBulkWriteBatch<Doc>) -> Unit) {
     MongoBulkWriteBatch(this, size).use(block)
 }

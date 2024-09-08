@@ -18,12 +18,16 @@ fun Spec.testMongo(): Mongo {
     val container = install(
         ContainerExtension(
             container = MongoDBContainer("mongo:7.0.11"),
-            mode = ContainerLifecycleMode.Spec
+            mode = ContainerLifecycleMode.Project
         )
     )
     val connectionString = container.connectionString + "/${uuid7()}"
     log.info { "Test MongoDB connection string is $connectionString" }
-    return Mongo(connectionString)
+    val mongo = Mongo(connectionString)
+    afterSpec {
+        mongo.close()
+    }
+    return mongo
 }
 
 fun Spec.testMongoAtlas(): Mongo {
@@ -32,12 +36,16 @@ fun Spec.testMongoAtlas(): Mongo {
             container = GenericContainer("mongodb/mongodb-atlas-local:7.0.11")
                 .withExposedPorts(27017, 27027)
                 .waitingFor(Wait.forListeningPorts(27017, 27027)),
-            mode = ContainerLifecycleMode.Spec
+            mode = ContainerLifecycleMode.Project
         )
     )
     val connectionString = "mongodb://localhost:${container.getMappedPort(27017)}/${uuid7()}"
     log.info { "Test MongoDB connection string is $connectionString" }
-    return Mongo(connectionString)
+    val mongo = Mongo(connectionString)
+    afterSpec {
+        mongo.close()
+    }
+    return mongo
 }
 
 inline fun <reified Doc : Any> Mongo.randomTestCollection(): MongoCollection<Doc> = database.getCollection<Doc>(uuid7())

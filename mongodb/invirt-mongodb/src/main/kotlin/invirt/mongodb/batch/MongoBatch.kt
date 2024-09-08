@@ -39,6 +39,6 @@ class MongoBatch<Doc : Any>(
  * Creates a new [MongoBatch] for the given [MongoCollection] and executes the [block] function.
  * The batch will be automatically closed after the block is executed.
  */
-fun <Doc : Any> MongoCollection<Doc>.withBatch(size: Int = 1000, block: (MongoBatch<Doc>) -> Unit) {
+fun <Doc : Any> MongoCollection<Doc>.withBatch(size: Int, block: (MongoBatch<Doc>) -> Unit) {
     MongoBatch(this, size).use(block)
 }
