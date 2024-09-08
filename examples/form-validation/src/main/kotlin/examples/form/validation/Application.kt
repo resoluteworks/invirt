@@ -1,7 +1,6 @@
 package examples.form.validation
 
 import invirt.http4k.GET
-import invirt.http4k.InvirtFilter
 import invirt.http4k.POST
 import invirt.http4k.config.developmentMode
 import invirt.http4k.httpSeeOther
@@ -45,7 +44,7 @@ class Application {
     fun start() {
         initialiseInvirtViews(hotReload = Environment.ENV.developmentMode)
 
-        val appHandler = InvirtFilter()
+        val appHandler = Invirt()
             .then(
                 routes(
                     "/" GET { renderTemplate("signup") },

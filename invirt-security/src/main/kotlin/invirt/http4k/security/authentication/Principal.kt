@@ -1,12 +1,12 @@
 package invirt.http4k.security.authentication
 
-import invirt.http4k.InvirtFilter
+import invirt.http4k.InvirtRequestContext
 import invirt.utils.threads.withValue
 import org.http4k.core.Request
 import org.http4k.lens.RequestContextKey
 
 internal val principalThreadLocal = ThreadLocal<Principal>()
-internal val principalContextKey = RequestContextKey.optional<Principal>(InvirtFilter.requestContexts)
+internal val principalContextKey = RequestContextKey.optional<Principal>(InvirtRequestContext.http4kRequestContexts)
 
 interface Principal {
 

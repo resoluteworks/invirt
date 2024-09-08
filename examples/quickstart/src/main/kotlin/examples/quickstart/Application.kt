@@ -1,7 +1,6 @@
 package examples.quickstart
 
 import invirt.http4k.GET
-import invirt.http4k.InvirtFilter
 import invirt.http4k.views.ViewResponse
 import invirt.http4k.views.initialiseInvirtViews
 import invirt.http4k.views.ok
@@ -19,7 +18,7 @@ class Application {
     fun start() {
         initialiseInvirtViews()
 
-        val appHandler = InvirtFilter().then(
+        val appHandler = Invirt().then(
             routes(
                 "/" GET {
                     IndexResponse(currentUsername = "email@test.com").ok()

@@ -1,7 +1,6 @@
 package examples.staticassets
 
 import invirt.http4k.GET
-import invirt.http4k.InvirtFilter
 import invirt.http4k.cacheDays
 import invirt.http4k.config.developmentMode
 import invirt.http4k.config.gitCommitId
@@ -28,7 +27,7 @@ class Application {
             staticAssetsVersion = assetsVersion
         )
 
-        val appHandler = InvirtFilter().then(
+        val appHandler = Invirt().then(
             routes(
                 "/" GET { renderTemplate("index") },
                 "/static/${assetsVersion}" bind cacheDays(365).then(staticAssets(developmentMode))

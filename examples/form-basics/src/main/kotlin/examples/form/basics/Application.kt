@@ -1,7 +1,6 @@
 package examples.form.basics
 
 import invirt.http4k.GET
-import invirt.http4k.InvirtFilter
 import invirt.http4k.POST
 import invirt.http4k.toForm
 import invirt.http4k.views.ViewResponse
@@ -50,7 +49,7 @@ class Application {
     fun start() {
         initialiseInvirtViews()
 
-        val appHandler = InvirtFilter().then(
+        val appHandler = Invirt().then(
             routes(
                 "/" GET { renderTemplate("create-order") },
 

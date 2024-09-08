@@ -1,6 +1,6 @@
 package invirt.http4k.views
 
-import invirt.http4k.InvirtFilter
+import invirt.http4k.InvirtRequestContext
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.pebbletemplates.pebble.PebbleEngine
 import io.pebbletemplates.pebble.error.LoaderException
@@ -33,20 +33,16 @@ class InvirtPebbleTemplates(
                 val writer = StringWriter()
 
                 val context = if (viewModel is ErrorResponseView) {
-                    InvirtFilter.setErrors(viewModel.errors)
+                    InvirtRequestContext.setErrors(viewModel.errors)
                     mapOf(
-                        "model" to viewModel.model,
-                        "errors" to viewModel.errors
+                        "model" to viewModel.model, "errors" to viewModel.errors
                     )
                 } else {
                     mapOf("model" to viewModel)
                 }
 
                 engine.getTemplate(template).evaluate(
-                    writer,
-                    context.plus(
-                        "request" to InvirtFilter.currentRequest
-                    )
+                    writer, context.plus("request" to InvirtRequestContext.request)
                 )
                 writer.toString()
             } catch (e: LoaderException) {
@@ -62,11 +58,8 @@ class InvirtPebbleTemplates(
         return PebbleTemplateRenderer(configure(PebbleEngine.Builder().loader(loader)).build())
     }
 
-    override fun Caching(baseTemplateDir: String): TemplateRenderer {
-        val loader = FileLoader()
-        loader.prefix = baseTemplateDir
-        return PebbleTemplateRenderer(configure(PebbleEngine.Builder().cacheActive(true).loader(loader)).build())
-    }
+    override fun Caching(baseTemplateDir: String): TemplateRenderer =
+        throw UnsupportedOperationException("Invirt doesn't support templates cached on disk")
 
     override fun HotReload(baseTemplateDir: String): TemplateRenderer {
         val loader = FileLoader()

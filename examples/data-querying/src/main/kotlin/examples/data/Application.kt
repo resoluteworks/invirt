@@ -2,7 +2,6 @@ package examples.data
 
 import examples.data.handlers.OrderHandler
 import examples.data.service.OrderService
-import invirt.http4k.InvirtFilter
 import invirt.http4k.config.developmentMode
 import invirt.http4k.views.initialiseInvirtViews
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -20,7 +19,7 @@ class Application {
         initialiseInvirtViews(hotReload = devMode)
 
         val orderService = OrderService()
-        val appHandler = InvirtFilter().then(
+        val appHandler = Invirt().then(
             routes(
                 OrderHandler(orderService)
             )

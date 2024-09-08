@@ -1,8 +1,7 @@
 package invirt.pebble
 
 import invirt.data.Page
-import invirt.http4k.InvirtFilter
-import invirt.http4k.views.initialiseInvirtViews
+import invirt.http4k.Invirt
 import invirt.http4k.views.ok
 import invirt.http4k.views.renderTemplate
 import invirt.http4k.views.withView
@@ -18,8 +17,6 @@ import org.http4k.template.ViewModel
 class InvirtRequestTest : StringSpec() {
 
     init {
-        beforeSpec { initialiseInvirtViews() }
-
         "replaceQuery" {
             testRequestFunction("replaceQuery", "/test", "/test?from=10")
             testRequestFunction("replaceQuery", "/test?from=5", "/test?from=10")
@@ -108,13 +105,13 @@ class InvirtRequestTest : StringSpec() {
     }
 
     private fun testRequestFunction(function: String, request: String, expectedBody: String) {
-        val httpHandler = InvirtFilter().then(routes("/test" bind Method.GET to { renderTemplate("request-function-${function}") }))
+        val httpHandler = Invirt().then(routes("/test" bind Method.GET to { renderTemplate("request-function-${function}") }))
         val response = httpHandler(Request(Method.GET, request))
         response.bodyString().trim() shouldBe expectedBody
     }
 
     private fun testRequestFunctionModel(function: String, request: String = "/test", model: Any, expectedBody: String) {
-        val httpHandler = InvirtFilter().then(
+        val httpHandler = Invirt().then(
             routes(
                 "/test" bind Method.GET to {
                     if (model is ViewModel) {

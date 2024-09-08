@@ -5,7 +5,6 @@ import examples.authentication.handlers.IndexHandler
 import examples.authentication.handlers.LoginHandler
 import examples.authentication.handlers.LogoutHandler
 import examples.authentication.service.AuthenticationService
-import invirt.http4k.InvirtFilter
 import invirt.http4k.config.developmentMode
 import invirt.http4k.filters.ErrorPages
 import invirt.http4k.filters.StatusOverride
@@ -41,7 +40,7 @@ class Application {
 
         val authService = AuthenticationService()
 
-        val appHandler = InvirtFilter()
+        val appHandler = Invirt()
             .then(AuthenticationFilter(authService))
             .then(ErrorPages(Status.NOT_FOUND to "error/404"))
             .then(StatusOverride(Status.FORBIDDEN to Status.NOT_FOUND))

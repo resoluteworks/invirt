@@ -13,9 +13,9 @@ import io.pebbletemplates.pebble.extension.Filter
 import io.pebbletemplates.pebble.extension.Function
 import java.time.LocalDate
 
-class InvirtPebbleExtension(private val staticAssetsVersion: String? = null) : AbstractExtension() {
+class InvirtPebbleExtension(private val globalVariables: Map<String, Any>) : AbstractExtension() {
 
-    override fun getGlobalVariables(): Map<String, Any?> = mapOf("staticAssetsVersion" to staticAssetsVersion)
+    override fun getGlobalVariables(): Map<String, Any?> = globalVariables
 
     override fun getFunctions(): Map<String, Function> = listOf(
         pebbleFunction("today") { LocalDate.now() },

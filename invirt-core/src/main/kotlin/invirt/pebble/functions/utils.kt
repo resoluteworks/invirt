@@ -1,6 +1,6 @@
 package invirt.pebble.functions
 
-import invirt.http4k.InvirtFilter
+import invirt.http4k.InvirtRequestContext
 import invirt.utils.minorUnitToString
 import java.util.*
 
@@ -10,7 +10,7 @@ val currencyFromMinorUnitFunction = pebbleFunction("currencyFromMinorUnit", "min
 }
 
 val errorsFunction = pebbleFunction("errors") {
-    InvirtFilter.errors
+    InvirtRequestContext.errors
 }
 
 /**
@@ -18,5 +18,5 @@ val errorsFunction = pebbleFunction("errors") {
  * in the current model for a template
  */
 val requestFunction = pebbleFunction("request") {
-    InvirtFilter.currentRequest
+    InvirtRequestContext.request
 }

@@ -1,7 +1,6 @@
 package invirt.pebble
 
-import invirt.http4k.InvirtFilter
-import invirt.http4k.views.initialiseInvirtViews
+import invirt.http4k.Invirt
 import invirt.http4k.views.ok
 import invirt.http4k.views.renderTemplate
 import invirt.http4k.views.withView
@@ -22,8 +21,6 @@ import java.time.ZoneOffset
 class PebbleFunctionsTest : StringSpec() {
 
     init {
-        beforeSpec { initialiseInvirtViews() }
-
         "today" {
             testFunction("today", "/test", "${LocalDate.now()}")
         }
@@ -100,7 +97,7 @@ class PebbleFunctionsTest : StringSpec() {
         }
 
         "uuid" {
-            val httpHandler = InvirtFilter().then(routes("/test" bind Method.GET to { renderTemplate("function-uuid") }))
+            val httpHandler = Invirt().then(routes("/test" bind Method.GET to { renderTemplate("function-uuid") }))
             val response1 = httpHandler(Request(Method.GET, "/test"))
             val response2 = httpHandler(Request(Method.GET, "/test"))
 
@@ -117,13 +114,13 @@ class PebbleFunctionsTest : StringSpec() {
     }
 
     private fun testFunction(function: String, request: String, expectedBody: String) {
-        val httpHandler = InvirtFilter().then(routes("/test" bind Method.GET to { renderTemplate("function-${function}") }))
+        val httpHandler = Invirt().then(routes("/test" bind Method.GET to { renderTemplate("function-${function}") }))
         val response = httpHandler(Request(Method.GET, request))
         response.bodyString().trim() shouldBe expectedBody
     }
 
     private fun testFunctionModel(function: String, request: String = "/test", model: Any, expectedBody: String) {
-        val httpHandler = InvirtFilter().then(
+        val httpHandler = Invirt().then(
             routes(
                 "/test" bind Method.GET to {
                     if (model is ViewModel) {

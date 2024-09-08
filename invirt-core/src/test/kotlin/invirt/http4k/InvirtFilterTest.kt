@@ -15,10 +15,10 @@ class InvirtFilterTest : StringSpec({
 
     "request thread local" {
         lateinit var requestFromHandler: Request
-        val handler = InvirtFilter().then(
+        val handler = Invirt().then(
             routes(
                 "/test" GET { request ->
-                    requestFromHandler = InvirtFilter.currentRequest!!
+                    requestFromHandler = InvirtRequestContext.request!!
                     Response(Status.OK)
                 }
             )
@@ -27,15 +27,15 @@ class InvirtFilterTest : StringSpec({
         handler(request) shouldHaveStatus Status.OK
         requestFromHandler.uri shouldBe request.uri
         requestFromHandler.method shouldBe request.method
-        InvirtFilter.currentRequest shouldBe null
+        InvirtRequestContext.request shouldBe null
     }
 
     "request thread local cleared after request even when error occurs" {
-        val handler = InvirtFilter()
+        val handler = Invirt()
             .then(routes("/{value}" GET { throw IllegalStateException("Cannot proceed") }))
         shouldThrowWithMessage<IllegalStateException>("Cannot proceed") {
             handler(Request(Method.GET, "/test"))
         }
-        InvirtFilter.currentRequest shouldBe null
+        InvirtRequestContext.request shouldBe null
     }
 })

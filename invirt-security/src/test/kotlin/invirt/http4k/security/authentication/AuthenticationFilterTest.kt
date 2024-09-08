@@ -1,6 +1,6 @@
 package invirt.http4k.security.authentication
 
-import invirt.http4k.InvirtFilter
+import invirt.http4k.Invirt
 import invirt.http4k.security.TestPrincipal
 import invirt.http4k.security.authTestRoute
 import invirt.http4k.security.failingAuthenticator
@@ -17,7 +17,7 @@ import org.http4k.kotest.shouldHaveSetCookie
 class AuthenticationFilterTest : StringSpec({
 
     "unauthenticated" {
-        InvirtFilter()
+        Invirt()
             .then(AuthenticationFilter(failingAuthenticator))
             .authTestRoute()
             .shouldHaveNullPrincipal()
@@ -27,7 +27,7 @@ class AuthenticationFilterTest : StringSpec({
     "principal present when authenticated" {
         val principal = TestPrincipal(uuid7())
         val authenticator = successAuthenticator(principal)
-        InvirtFilter()
+        Invirt()
             .then(AuthenticationFilter(authenticator))
             .authTestRoute()
             .shouldHavePrincipal(principal)
@@ -40,7 +40,7 @@ class AuthenticationFilterTest : StringSpec({
         val principal = TestPrincipal(uuid7())
 
         val authenticator = successAuthenticator(principal, listOf(Cookie("test-cookie", "refreshed-value")))
-        InvirtFilter()
+        Invirt()
             .then(AuthenticationFilter(authenticator))
             .authTestRoute()
             .shouldHavePrincipal(principal)
