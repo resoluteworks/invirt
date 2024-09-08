@@ -6,7 +6,6 @@ import org.http4k.config.Environment
 
 data class InvirtConfig(
     val developmentMode: Boolean = Environment.ENV.developmentMode,
-    val staticAssetsVersion: String? = null,
     val pebble: InvirtPebbleConfig = InvirtPebbleConfig()
 )
 

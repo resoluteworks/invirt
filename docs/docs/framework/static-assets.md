@@ -1,5 +1,5 @@
 ---
-sidebar_position: 3
+sidebar_position: 2
 ---
 
 # Static Assets
@@ -53,8 +53,12 @@ hot reload and caching classpath loading of static assets, similarly to how
 [views are loaded](/docs/framework/views-wiring#dynamic-hot-reload).
 ```kotlin
 fun staticAssets(
-    hotReload: Boolean,
+    developmentMode: Boolean,
     classpathLocation: String = "webapp/static",
     directory: String = "src/main/resources/webapp/static"
-): RoutingHttpHandler
+): RoutingHttpHandler = if (developmentMode) {
+    static(ResourceLoader.Directory(directory))
+} else {
+    static(ResourceLoader.Classpath(classpathLocation))
+}
 ```

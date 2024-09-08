@@ -76,7 +76,7 @@ class Application {
 }
 ```
 
-The contents of the `index.peb` template are as follows:
+The content of the `index.peb` template is as follows:
 
 ```html
 <!DOCTYPE html>
@@ -104,7 +104,7 @@ application's routes. This filter sets a default view lens for your application,
 framework internals discussed later in this documentation.
 
 The behaviour of the Invirt filter can be customised using a configuration object discussed in the
-[Configuration](/docs/framework/configuration) section.
+[Configuration API Docs](/docs/api/invirt-core/configuration).
 
 We also recommend reading more about http4k's [templating capabilities](https://www.http4k.org/guide/howto/use_a_templating_engine/),
 most of Invirt is built on top of those.
