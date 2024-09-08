@@ -6,7 +6,12 @@ import quickStartHome from './assets/quickstart-home.png';
 
 # Quick Start
 
-For the in-depth documentation please check:
+Invirt aims to leverage proven solutions like http4k and Pebble to enable rapid development of web applications.
+This includes [form binding](/docs/framework/forms/form-basics) and [form validation](/docs/framework/forms/form-validation),
+[data querying utilities](/docs/framework/data-querying/overview) and [authentication](/docs/framework/security/overview),
+and many others.
+
+This quick start is For the in-depth documentation please check:
  * [Framework documentation](/docs/framework/views-wiring)
  * [API documentation](/docs/api/invirt-core/route-binding)
 
