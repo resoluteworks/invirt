@@ -28,7 +28,7 @@ class StaticAssetsTest : StringSpec({
         httpHandler(Request(Method.GET, "/static/css/style.css")) shouldHaveStatus Status.NOT_FOUND
     }
 
-    "hotreload" {
+    "developmentMode" {
         val httpHandler = routes(
             "/static/2" bind staticAssets(true, directory = "src/test/resources/static-assets-test/static")
         )
@@ -39,11 +39,11 @@ class StaticAssetsTest : StringSpec({
         httpHandler(Request(Method.GET, "/static/css/style.css")) shouldHaveStatus Status.NOT_FOUND
     }
 
-    "hotreload from boolean" {
-        fun test(hotReload: Boolean) {
+    "developmentMode from boolean" {
+        fun test(developmentMode: Boolean) {
             val httpHandler = routes(
                 "/static/12345" bind staticAssets(
-                    hotReload = hotReload,
+                    developmentMode = developmentMode,
                     directory = "src/test/resources/static-assets-test/static",
                     classpathLocation = "static-assets-test/static"
                 )

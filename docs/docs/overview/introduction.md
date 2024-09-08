@@ -32,11 +32,12 @@ Which, in turn, has made everyone wince at the thought of running anything "non-
 We believe, however, that the developments in the past years have created the space for
 this thinking to be challenged.
 
-We now have decent templating engines like [Pebble](https://pebbletemplates.io/) on the JVM. Frameworks like [http4k](https://www.http4k.org/) push the
-boundaries of a modern programming language like Kotlin, and give us a great balance
-between productivity and startup time. And with [Hotwire](https://hotwired.dev/)
-we can build modern and responsive web apps using almost exclusively server-side rendering, and little
-to no JavaScript.
+We now have decent templating engines like [Pebble](https://pebbletemplates.io/) on the JVM.
+Frameworks like [http4k](https://www.http4k.org/) push the boundaries of a modern programming language
+like Kotlin, and give us a great balance between productivity and startup time.
+
+Last but not least, with [Hotwire](https://hotwired.dev/) we can build modern and responsive web apps
+using almost exclusively server-side rendering, and little to no JavaScript.
 
 To be clear, we believe in the diversity of the web, and we are in no way downplaying the incredible
 contributions that all of these platforms have made to its evolution.
