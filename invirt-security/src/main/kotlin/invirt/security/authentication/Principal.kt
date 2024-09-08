@@ -1,6 +1,6 @@
-package invirt.core.security.authentication
+package invirt.security.authentication
 
-import invirt.http4k.InvirtRequestContext
+import invirt.core.InvirtRequestContext
 import invirt.utils.threads.withValue
 import org.http4k.core.Request
 import org.http4k.lens.RequestContextKey

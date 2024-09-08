@@ -1,8 +1,8 @@
-package invirt.core.security
+package invirt.security
 
-import invirt.http4k.GET
-import invirt.http4k.security.authentication.Principal
-import invirt.http4k.security.authentication.securedRoutes
+import invirt.core.GET
+import invirt.security.authentication.Principal
+import invirt.security.authentication.securedRoutes
 import io.kotest.core.spec.style.StringSpec
 import org.http4k.core.Method
 import org.http4k.core.Request
@@ -24,7 +24,7 @@ class SecuredRoutesTest : StringSpec({
             )
         )
 
-        invirt.core.security.withRoles("ADMIN") {
+        withRoles("ADMIN") {
             handler(Request(Method.GET, "/admin")) shouldHaveStatus Status.OK
             handler(Request(Method.GET, "/admin/test")) shouldHaveStatus Status.OK
         }
@@ -42,7 +42,7 @@ class SecuredRoutesTest : StringSpec({
             )
         )
 
-        invirt.core.security.withRoles("USER") {
+        withRoles("USER") {
             handler(Request(Method.GET, "/admin")) shouldHaveStatus Status.FORBIDDEN
             handler(Request(Method.GET, "/admin/test")) shouldHaveStatus Status.FORBIDDEN
         }
@@ -84,23 +84,23 @@ class SecuredRoutesTest : StringSpec({
         val request = Request(Method.GET, "/test")
 
         // Someone with role "ADMIN" is allowed
-        invirt.core.security.withRoles("ADMIN") {
+        withRoles("ADMIN") {
             securedRoutes(check, testRoutes)(request) shouldHaveStatus Status.OK
         }
 
         // Someone with role "USER" is allowed
-        invirt.core.security.withRoles("USER") {
+        withRoles("USER") {
             securedRoutes(check, testRoutes)(request) shouldHaveStatus Status.OK
         }
 
         // Someone with either "ADMIN" or "USER" is allowed
-        invirt.core.security.withRoles("USER", "HR", "CEO") {
+        withRoles("USER", "HR", "CEO") {
             securedRoutes(check, testRoutes)(request) shouldHaveStatus Status.OK
         }
-        invirt.core.security.withRoles("ADMIN", "HR", "CEO") {
+        withRoles("ADMIN", "HR", "CEO") {
             securedRoutes(check, testRoutes)(request) shouldHaveStatus Status.OK
         }
-        invirt.core.security.withRoles("ADMIN", "USER", "HR", "CEO") {
+        withRoles("ADMIN", "USER", "HR", "CEO") {
             securedRoutes(check, testRoutes)(request) shouldHaveStatus Status.OK
         }
     }
@@ -110,16 +110,16 @@ class SecuredRoutesTest : StringSpec({
         val testRoutes = routes("/test" GET { Response(Status.OK) })
         val request = Request(Method.GET, "/test")
 
-        invirt.core.security.withRoles("HR") {
+        withRoles("HR") {
             securedRoutes(check, testRoutes)(request) shouldHaveStatus Status.FORBIDDEN
         }
-        invirt.core.security.withRoles("CEO") {
+        withRoles("CEO") {
             securedRoutes(check, testRoutes)(request) shouldHaveStatus Status.FORBIDDEN
         }
-        invirt.core.security.withRoles("HR", "IT", "CEO") {
+        withRoles("HR", "IT", "CEO") {
             securedRoutes(check, testRoutes)(request) shouldHaveStatus Status.FORBIDDEN
         }
-        invirt.core.security.withRoles("ADMINISTRATOR", "HR", "CEO") {
+        withRoles("ADMINISTRATOR", "HR", "CEO") {
             securedRoutes(check, testRoutes)(request) shouldHaveStatus Status.FORBIDDEN
         }
     }

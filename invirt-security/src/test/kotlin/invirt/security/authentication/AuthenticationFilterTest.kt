@@ -1,10 +1,10 @@
-package invirt.core.security.authentication
+package invirt.security.authentication
 
-import invirt.http4k.Invirt
-import invirt.http4k.security.TestPrincipal
-import invirt.http4k.security.authTestRoute
-import invirt.http4k.security.failingAuthenticator
-import invirt.http4k.security.successAuthenticator
+import invirt.core.Invirt
+import invirt.security.TestPrincipal
+import invirt.security.authTestRoute
+import invirt.security.failingAuthenticator
+import invirt.security.successAuthenticator
 import invirt.utils.uuid7
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldBeEmpty

@@ -1,11 +1,11 @@
-package invirt.core.security
+package invirt.security
 
-import invirt.http4k.GET
-import invirt.http4k.security.authentication.AuthenticationResponse
-import invirt.http4k.security.authentication.Authenticator
-import invirt.http4k.security.authentication.Principal
-import invirt.http4k.security.authentication.principal
-import invirt.http4k.security.authentication.useOnThisThread
+import invirt.core.GET
+import invirt.security.authentication.AuthenticationResponse
+import invirt.security.authentication.Authenticator
+import invirt.security.authentication.Principal
+import invirt.security.authentication.principal
+import invirt.security.authentication.useOnThisThread
 import invirt.utils.uuid7
 import io.kotest.matchers.shouldBe
 import org.http4k.core.Filter

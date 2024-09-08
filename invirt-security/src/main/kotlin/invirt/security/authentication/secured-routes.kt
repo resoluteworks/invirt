@@ -1,4 +1,4 @@
-package invirt.core.security.authentication
+package invirt.security.authentication
 
 import org.http4k.core.Filter
 import org.http4k.core.Response

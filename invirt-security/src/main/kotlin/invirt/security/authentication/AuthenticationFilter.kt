@@ -1,6 +1,6 @@
-package invirt.core.security.authentication
+package invirt.security.authentication
 
-import invirt.http4k.withCookies
+import invirt.core.withCookies
 import org.http4k.core.Filter
 
 /**

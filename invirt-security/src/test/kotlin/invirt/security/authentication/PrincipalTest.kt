@@ -1,7 +1,7 @@
-package invirt.core.security.authentication
+package invirt.security.authentication
 
-import invirt.http4k.InvirtRequestContext
-import invirt.http4k.security.TestPrincipal
+import invirt.core.InvirtRequestContext
+import invirt.security.TestPrincipal
 import invirt.utils.uuid7
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.throwables.shouldThrowWithMessage
