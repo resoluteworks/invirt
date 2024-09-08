@@ -1,9 +1,8 @@
 ---
 sidebar_position: 3
-title: Running examples
 ---
 
-# Running the example applications
+# Example applications
 
 There are several example applications for various Invirt capabilities and use cases
 in the [examples](https://github.com/resoluteworks/invirt/tree/main/examples) directory.

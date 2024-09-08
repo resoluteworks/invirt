@@ -21,18 +21,19 @@ private val log = KotlinLogging.logger {}
 class Application {
 
     fun start() {
-        val assetsVersion = gitCommitId()!!
-        val developmentMode = Environment.ENV.developmentMode
+        val staticAssetsVersion = gitCommitId()!!
+        val devMode = Environment.ENV.developmentMode
 
         val config = InvirtConfig(
+            developmentMode = devMode,
             pebble = InvirtPebbleConfig(
-                globalVariables = mapOf("staticAssetsVersion" to assetsVersion)
+                globalVariables = mapOf("staticAssetsVersion" to staticAssetsVersion)
             )
         )
         val appHandler = Invirt(config).then(
             routes(
                 "/" GET { renderTemplate("index") },
-                "/static/${assetsVersion}" bind cacheDays(365).then(staticAssets(developmentMode))
+                "/static/${staticAssetsVersion}" bind cacheDays(365).then(staticAssets(devMode))
             )
         )
 

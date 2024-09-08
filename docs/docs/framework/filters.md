@@ -4,6 +4,8 @@ sidebar_position: 4
 
 # Filters
 
+These are a set of utility filters that come with Invirt and which you can opt for in your application.
+
 ## CatchAll
 
 Logs all exceptions and enables mapping exception types to HTTP response statuses.

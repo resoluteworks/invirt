@@ -4,8 +4,7 @@ sidebar_position: 1
 
 # Overview
 
-:::note [Example application](https://github.com/resoluteworks/invirt/tree/main/examples/data-querying)
-:::
+[Example application](https://github.com/resoluteworks/invirt/tree/main/examples/data-querying)
 
 Invirt provides the wiring for an application to derive filtering, pagination and sorting logic
 from a request's query parameters. A set of abstractions for these components are define

@@ -12,9 +12,10 @@
     --ifm-color-primary-darkest: #b36a00;
     --ifm-color-primary-light: #ffa21a;
     --ifm-color-primary-lighter: #ffa726;
-    --ifm-color-primary-lightest: #ffb74d;
+    --ifm-color-primary-lightest: #ffc76d;
     --ifm-color-secondary: #02889A;
     --ifm-color-secondary-dark: #02787A;
+    --ifm-color-secondary-darker: #02787A;
     --ifm-code-font-size: 95%;
     --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
     --ifm-container-width-xl: 1140px;
@@ -69,3 +70,9 @@ a {
 .button.button--secondary {
     color: #fff;
 }
+
+.main-cta {
+    margin-right: 24px;
+    margin-top: 20px;
+}
+

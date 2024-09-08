@@ -19,8 +19,7 @@ enables classpath loading for views or static assets.
   <TabItem value="example" label="Example" default>
     ```kotlin
     val devMode = Environment.ENV.developmentMode
-    initialiseInvirtViews(hotReload = devMode)
-    val appHandler = InvirtFilter().then(
+    val appHandler = Invirt(InvirtConfig(developmentMode = Environment.ENV.developmentMode)).then(
         routes(
             "/static/${assetsVersion}" bind staticAssets(devMode)
         )

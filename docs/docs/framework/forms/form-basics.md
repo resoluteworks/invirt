@@ -4,8 +4,7 @@ sidebar_position: 1
 import formBasics from './assets/form-basics.png';
 
 # Form basics
-:::note [Example application](https://github.com/resoluteworks/invirt/tree/main/examples/form-basics)
-:::
+[Example application](https://github.com/resoluteworks/invirt/tree/main/examples/form-basics)
 
 Invirt provides a simple `Request.toForm<FormType>()` utility to convert complex HTML form bodies to application model objects,
 with support for arrays, maps and nested objects, similar to some other MVC frameworks.

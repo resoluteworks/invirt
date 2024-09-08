@@ -1,11 +1,18 @@
 ---
-sidebar_position: 1
+sidebar_position: 0
 ---
 
 # Configuration
 
-The Invirt configuration object is a simple data class that allows you to customise the behaviour of the framework.
-It is passed to the `Invirt` filter when wiring the application.
+As we've seen in the [Quickstart](/docs/overview/quickstart) example, a simple call to `Invirt()` wires
+the framework with its default configuration. However, you can customise the behaviour of the framework
+by passing an `InvirtConfig` object to this initialisation call.
+
+The Invirt configuration object controls how the framework behaves in different environments, and allows you to customise
+the Pebble template engine used by Invirt.
+
+Below is the configuration object with its default values. There are a set of sensible defaults which
+you can override as needed.
 
 ```kotlin
 data class InvirtConfig(
@@ -27,7 +34,8 @@ By default, this flag is read from the `DEVELOPMENT_MODE` environment variable a
 [here](/docs/api/invirt-core/environment#environmentdevelopmentmode).
 
 When set to `true`, the framework will look for templates in the `InvirtPebbleConfig.hotReloadDirectory` path,
-and any template edits will be immediately visible (for example via a browser refresh). This is typically useful in a development environment.
+and any template edits will be immediately visible (for example via a browser refresh). This is typically useful
+on a local development environment.
 
 When set to `false`, the framework will look for templates in the `InvirtPebbleConfig.classpathLocation` path
 with additional caching capabilities using http4k's built-in components. This is typically used when deploying the application in production.

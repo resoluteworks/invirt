@@ -144,7 +144,7 @@ This then allows us to call an Invirt extension (`.or` in this case) to specify
  * How each of the individual `OrderStatus` convert to a `DataFilter`, a simple equals filter, in this case, via `Order::status.eq(status)`
 
 ### Response and view wiring
-To render the orders we will use [ViewResponse](/docs/framework/views-wiring#viewresponse), which will store
+To render the orders we will use [ViewResponse](/docs/framework/views-response), which will store
 the `RecordsPage<Order>` returned by `OrderService.searchOrders()`, to be consumed directly by the template.
 
 We also want to provide the `OrderStatus` enum values to render the possible options for the order status

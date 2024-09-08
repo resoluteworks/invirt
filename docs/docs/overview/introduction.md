@@ -3,14 +3,20 @@ sidebar_position: 1
 ---
 
 # Introduction
-Invirt is a framework for building web applications with [Kotlin](https://kotlinlang.org/), [http4k](https://www.http4k.org/)
-and [Pebble templates](https://pebbletemplates.io/).
+Invirt's objective is to provide the core MVC components and utilities to develop modern web
+applications on the JVM. Invirt leverages [http4k](https://www.http4k.org/), [Pebble templates](https://pebbletemplates.io/),
+and the expressiveness of Kotlin to deliver [form binding](/docs/framework/forms/form-basics), [validation](/docs/framework/forms/form-validation),
+[data querying abstractions](/docs/framework/data-querying/overview), [authentication support](/docs/framework/security/overview),
+and many others.
 
-Invirt doesn't re-invent the wheel, it simply adds utility and convenience
+Invirt doesn't re-invent the wheel. It simply adds utility and convenience
 on top of proven and mature solutions, in order to deliver a better developer experience
 for those who want to write web applications in Kotlin.
 
 Invirt is **not** a framework for building microservices.
+
+For the in-depth documentation please check the [framework documentation](/docs/framework/configuration),
+[API docs](/docs/api/invirt-core/route-binding) and the [Quick start section](/docs/overview/quickstart).
 
 ## Motivation
 When it comes to building web applications that aren't trading systems or social media mammoths,
