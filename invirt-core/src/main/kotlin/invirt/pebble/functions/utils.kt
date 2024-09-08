@@ -1,6 +1,6 @@
 package invirt.pebble.functions
 
-import invirt.http4k.InvirtRequestContext
+import invirt.core.InvirtRequestContext
 import invirt.utils.minorUnitToString
 import java.util.*
 

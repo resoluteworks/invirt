@@ -1,9 +1,9 @@
 package invirt.pebble
 
-import invirt.http4k.Invirt
-import invirt.http4k.views.ok
-import invirt.http4k.views.renderTemplate
-import invirt.http4k.views.withView
+import invirt.core.Invirt
+import invirt.core.views.ok
+import invirt.core.views.renderTemplate
+import invirt.core.views.withView
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe

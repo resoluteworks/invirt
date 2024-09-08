@@ -1,7 +1,7 @@
 package invirt.pebble
 
-import invirt.http4k.Invirt
-import invirt.http4k.views.errorResponse
+import invirt.core.Invirt
+import invirt.core.views.errorResponse
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.validk.ValidationError
