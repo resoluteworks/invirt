@@ -2,6 +2,8 @@
 sidebar_position: 2
 ---
 
+import quickStartHome from './assets/quickstart-home.png';
+
 # Quick Start
 
 For the in-depth documentation please check:
@@ -54,14 +56,12 @@ for template look-ups. For a complete example, please check the [Quickstart proj
 
 ### Application
 ```kotlin
-class IndexResponse(val currentUsername: String) : ViewResponse("index.peb")
+class IndexResponse(val currentUsername: String) : ViewResponse("index")
 
 class Application {
 
     fun start() {
-        initialiseInvirtViews()
-
-        val appHandler = InvirtFilter().then(
+        val appHandler = Invirt().then(
             routes(
                 "/" GET {
                     IndexResponse(currentUsername = "email@test.com").ok()
@@ -71,39 +71,41 @@ class Application {
 
         val server = Netty(8080)
         server.toServer(appHandler).start()
+        log.info { "Server started at http://localhost:${server.port}" }
     }
 }
 ```
-`IndexResponse` extends Invirt's `ViewResponse` (a convenience implementation of http4k's [ViewModel](https://www.http4k.org/api/org.http4k.template/-view-model/)).
-This object stores the data to be used in the template (`currentUsername`), and defines the template to be rendered (`index.peb`)
 
-`IndexResponse` is available as the `model` object within the template, as per example below.
+The contents of the `index.peb` template are as follows:
+
 ```html
-<div>
-    Current user is {{ model.currentUsername }}
-</div>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+    </head>
+
+    <body style="padding: 40px;">
+        <h1>Homepage</h1>
+        <div>Current user is <b>{{ model.currentUsername }}</b></div>
+    </body>
+</html>
 ```
+
+Opening the browser at http://localhost:8080 will render this template with the `currentUsername` value
+as per screenshot below.
+
+<img src={quickStartHome} width="400"/>
+
 
 ### Wiring explained
-In the code above there are two components required to enable Invirt in your http4k application.
+In order to wire Invirt in your http4k application, you simply define the `Invirt()` filter before your
+application's routes. This filter sets a default view lens for your application, and bootstraps other
+framework internals discussed later in this documentation.
 
-#### 1. Initialising Invirt views
-```kotlin
-initialiseInvirtViews()
-```
-This sets a default view lens to be used throughout your application when rendering Pebble template responses.
-We recommend reading more about http4k's [templating capabilities](https://www.http4k.org/guide/howto/use_a_templating_engine/), most of Invirt
-is built on top of those.
+The behaviour of the Invirt filter can be customised using a configuration object discussed in the
+[Configuration](/docs/framework/configuration) section.
 
-There are several parameters that can be passed to `initialiseInvirtViews()` to override the default behaviour.
-All of these are discussed in detail in [Pebble Views Wiring](/docs/framework/views-wiring).
+We also recommend reading more about http4k's [templating capabilities](https://www.http4k.org/guide/howto/use_a_templating_engine/),
+most of Invirt is built on top of those.
 
-#### 2. InvirtFilter
-```kotlin
-val appHandler = InvirtFilter()
-    .then(routes(...))
-```
-`InvirtFilter` handles a few of the framework's internals, including setting the current http4k `Request`
-on the current thread, as well as managing validation errors for a request. These are in turn exposed internally
-to other Invirt components and your application. You can add this filter anywhere in your application's filter chain
-before wiring your http4k routes.
