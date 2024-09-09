@@ -8,7 +8,7 @@ import TabItem from '@theme/TabItem';
 # Request extensions
 
 ### Request.sort()
-Returns a `Sort` object from the query parameter `sort` in this request or `null` if this parameter is not present.
+Returns a [Sort](/docs/api/invirt-data/sort) object from the query parameter `sort` in this request or `null` if this parameter is not present.
 This should be in the form `sort=<field>:<order>`, for example `sort=name:Asc`, `sort=createdAt:DESC`. The order element
 is not case-sensitive.
 
