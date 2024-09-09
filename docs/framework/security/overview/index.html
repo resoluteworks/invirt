@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.4.0">
 <title data-rh="true">Overview | Invirt</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://your-docusaurus-site.example.com/img/docusaurus-social-card.jpg"><meta data-rh="true" name="twitter:image" content="https://your-docusaurus-site.example.com/img/docusaurus-social-card.jpg"><meta data-rh="true" property="og:url" content="https://your-docusaurus-site.example.com/docs/framework/security/overview"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Overview | Invirt"><meta data-rh="true" name="description" content="Invirt&#x27;s security module focuses exclusively on authentication and it provides"><meta data-rh="true" property="og:description" content="Invirt&#x27;s security module focuses exclusively on authentication and it provides"><link data-rh="true" rel="icon" href="/img/logo.svg"><link data-rh="true" rel="canonical" href="https://your-docusaurus-site.example.com/docs/framework/security/overview"><link data-rh="true" rel="alternate" href="https://your-docusaurus-site.example.com/docs/framework/security/overview" hreflang="en"><link data-rh="true" rel="alternate" href="https://your-docusaurus-site.example.com/docs/framework/security/overview" hreflang="x-default"><link rel="stylesheet" href="/assets/css/styles.2b9718c9.css">
-<script src="/assets/js/runtime~main.e1eb012d.js" defer="defer"></script>
+<script src="/assets/js/runtime~main.25da9347.js" defer="defer"></script>
 <script src="/assets/js/main.3e7dd079.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
@@ -28,15 +28,17 @@ there is also an <a href="/docs/framework/security/example">example application<
 <img src="/assets/images/authentication-happy-flow-4e143881653d97ac9b469800b224b685.png">
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="what-invirt-security-doesnt-do">What Invirt Security doesn&#x27;t do<a class="hash-link" aria-label="Direct link to What Invirt Security doesn&#x27;t do" title="Direct link to What Invirt Security doesn&#x27;t do" href="/docs/framework/security/overview#what-invirt-security-doesnt-do">​</a></h2>
 <h4 class="anchor anchorWithStickyNavbar_LWe7" id="loginlogout">Login/Logout<a class="hash-link" aria-label="Direct link to Login/Logout" title="Direct link to Login/Logout" href="/docs/framework/security/overview#loginlogout">​</a></h4>
-<p>As these operations are usually heavy coupled to the authentication provider being used and the application
+<p>As these operations are usually heavily coupled to the authentication provider being used and the application
 design, we left this to the developer to wire according to the system requirements. Handling magic links, MFA
 and other authentication options is not something that Invirt wants to or can prescribe.</p>
 <h4 class="anchor anchorWithStickyNavbar_LWe7" id="authorisation">Authorisation<a class="hash-link" aria-label="Direct link to Authorisation" title="Direct link to Authorisation" href="/docs/framework/security/overview#authorisation">​</a></h4>
 <p>Invirt doesn&#x27;t implement authorisation semantics, as we felt that this is an area where the application
 must be allowed flexibility. We didn&#x27;t want to make any assumptions about the applications authorisation requirements
 and whether, for example, it should use RBAC (Role Based Access Control) or ABAC (Attribute-Based Access).</p>
+<p>However, if you&#x27;re interested in a lightweight RBAC library for Kotlin there&#x27;s <a href="https://github.com/resoluteworks/klees" target="_blank" rel="noopener noreferrer">Klees</a>
+which is owned by the Invirt maintainer.</p>
 <h4 class="anchor anchorWithStickyNavbar_LWe7" id="path-based-access-control">Path-based access control<a class="hash-link" aria-label="Direct link to Path-based access control" title="Direct link to Path-based access control" href="/docs/framework/security/overview#path-based-access-control">​</a></h4>
-<p>Some frameworks provide utilities to define paths and regular expressions to secure certain routes and
+<p>Some MVC frameworks provide utilities to define URI paths and regular expressions to secure certain routes and
 resources based on a Principal&#x27;s role or attributes. For example <code>/admin/*</code> can only be accessed by Role.ADMIN, etc.
 This is a practice that has a lot of limitations and it leads to a code base that is hard to maintain.
 It also falls in the realm of authorisation, which we discarded above.</p>
