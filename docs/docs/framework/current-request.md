@@ -15,8 +15,8 @@ println(InvirtRequestContext.request!!.uri)
 ```
 
 ## In Pebble templates
-Pebble templates can access the request object directly from the [`request`](/docs/api/invirt-core/pebble/pebble-context-objects#request)
-object in the root context, when not inside a macro. Inside macros, the [`request()`](/docs/api/invirt-core/pebble/pebble-functions#request)
+Pebble templates can access the request object directly from the [`request`](/docs/api/invirt-core/pebble-context-objects#request)
+object in the root context, when not inside a macro. Inside macros, the [`request()`](/docs/api/invirt-core/pebble-functions#request)
 Pebble function must be used instead (due to the fact that [macros don't have access to the global context](https://pebbletemplates.io/wiki/tag/macro/)).
 
 ```html

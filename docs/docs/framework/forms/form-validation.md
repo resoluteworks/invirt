@@ -140,7 +140,7 @@ internal class ErrorResponseView(
 When returning `errorResponse(form, errors, "signup.peb")`, Invirt's custom Pebble rendering detects
 that we're trying to render an error response and exposes the passed `errors` argument into the
 template context, and the form as the `model`. You can read more about accessing errors in your template
-[here](/docs/api/invirt-core/pebble/pebble-context-objects#errors).
+[here](/docs/api/invirt-core/pebble-context-objects#errors).
 
 ### Displaying error messages
 
