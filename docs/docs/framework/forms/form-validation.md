@@ -40,8 +40,8 @@ application must wire as a dependency and use in its handlers to validate form i
 ```kotlin
 implementation "io.resoluteworks:validk:${validkVersion}"
 ```
-Validk is not part of the Invirt framework as it's been designed as a stand-alone re-usable
-library. But it's under the tutelage of the same maintainers as Invirt.
+Validk is owned by the Invirt maintainer, but it's not part of the Invirt framework
+as it's been designed as a stand-alone re-usable library.
 
 ## Submission flow
 Below is a very basic example of a form collecting signup details for a user. The form
