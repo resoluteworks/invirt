@@ -36,7 +36,7 @@ there is also an [example application](/docs/framework/security/example) to expl
 ## What Invirt Security doesn't do
 
 #### Login/Logout
-As these operations are usually heavy coupled to the authentication provider being used and the application
+As these operations are usually heavily coupled to the authentication provider being used and the application
 design, we left this to the developer to wire according to the system requirements. Handling magic links, MFA
 and other authentication options is not something that Invirt wants to or can prescribe.
 
@@ -45,8 +45,11 @@ Invirt doesn't implement authorisation semantics, as we felt that this is an are
 must be allowed flexibility. We didn't want to make any assumptions about the applications authorisation requirements
 and whether, for example, it should use RBAC (Role Based Access Control) or ABAC (Attribute-Based Access).
 
+However, if you're interested in a lightweight RBAC library for Kotlin there's [Klees](https://github.com/resoluteworks/klees)
+which is owned by the Invirt maintainer.
+
 #### Path-based access control
-Some frameworks provide utilities to define paths and regular expressions to secure certain routes and
+Some MVC frameworks provide utilities to define URI paths and regular expressions to secure certain routes and
 resources based on a Principal's role or attributes. For example `/admin/*` can only be accessed by Role.ADMIN, etc.
 This is a practice that has a lot of limitations and it leads to a code base that is hard to maintain.
 It also falls in the realm of authorisation, which we discarded above.
