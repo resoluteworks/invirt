@@ -25,6 +25,10 @@ class PebbleFunctionsTest : StringSpec() {
             testFunction("today", "/test", "${LocalDate.now()}")
         }
 
+        "plural" {
+            testFunction("plural", "/test", "dogs\ncat\ncars")
+        }
+
         "request" {
             testFunction(
                 "request",

@@ -20,3 +20,10 @@ val errorsFunction = pebbleFunction("errors") {
 val requestFunction = pebbleFunction("request") {
     InvirtRequestContext.request
 }
+
+val pluralizeFunction = pebbleFunction("pluralize", "count", "singular", "plural") {
+    val count = (args["count"] as Number).toLong()
+    val singular = args["singular"] as String
+    val plural = args["plural"] as String
+    if (count == 1L) singular else plural
+}

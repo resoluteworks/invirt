@@ -1,0 +1,5 @@
+{{ pluralize(10, "dog", "dogs") }}
+
+{{ pluralize(1, "cat", "cats") }}
+
+{{ pluralize(0, "car", "cars") }}

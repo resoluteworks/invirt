@@ -6,6 +6,7 @@ import invirt.pebble.functions.errorsFunction
 import invirt.pebble.functions.jsonArrayFunction
 import invirt.pebble.functions.jsonFunction
 import invirt.pebble.functions.pebbleFunction
+import invirt.pebble.functions.pluralizeFunction
 import invirt.pebble.functions.requestFunction
 import invirt.utils.uuid7
 import io.pebbletemplates.pebble.extension.AbstractExtension
@@ -21,16 +22,12 @@ class InvirtPebbleExtension(private val globalVariables: Map<String, Any>) : Abs
         pebbleFunction("today") { LocalDate.now() },
         pebbleFunction("uuid") { uuid7() },
 
-        // Utils
+        requestFunction,
         currencyFromMinorUnitFunction,
         errorsFunction,
-
-        // JSON
+        pluralizeFunction,
         jsonFunction,
-        jsonArrayFunction,
-
-        // Request
-        requestFunction
+        jsonArrayFunction
     ).associateBy { it.name }
 
     override fun getFilters(): Map<String, Filter> = mapOf(
