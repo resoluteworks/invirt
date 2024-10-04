@@ -17,14 +17,14 @@ private val log = KotlinLogging.logger {}
  */
 object CatchAll {
 
-    operator fun invoke(vararg exceptionStatusMappings: Pair<KClass<out Throwable>, Status>): Filter =
+    operator fun invoke(vararg exceptionStatusMappings: Pair<KClass<out Exception>, Status>): Filter =
         invoke(exceptionStatusMappings.toMap())
 
-    operator fun invoke(exceptionStatusMappings: Map<KClass<out Throwable>, Status>): Filter = Filter { next ->
+    operator fun invoke(exceptionStatusMappings: Map<KClass<out Exception>, Status>): Filter = Filter { next ->
         { request ->
             try {
                 next(request)
-            } catch (t: Throwable) {
+            } catch (t: Exception) {
                 log.error(t) { t.message }
                 exceptionStatusMappings[t::class]
                     ?.let { Response(it) }

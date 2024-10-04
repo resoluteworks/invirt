@@ -49,7 +49,7 @@ class Mongo(val connectionString: String) {
             val result = block(session)
             session.commitTransaction()
             result
-        } catch (e: Throwable) {
+        } catch (e: Exception) {
             log.error(e) { "MongoDB transaction error: ${e.message}" }
             session.abortTransaction()
             throw e

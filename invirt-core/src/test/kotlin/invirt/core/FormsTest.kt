@@ -118,6 +118,11 @@ class FormsTest : StringSpec() {
             post<Form>("name" to "John Smith", "age" to 45) shouldBe Form("John Smith", 45)
         }
 
+        "empty form" {
+            data class Form(val name: String, val list: List<String> = emptyList())
+            post<Form>("name" to "") shouldBe Form("", emptyList())
+        }
+
         "collection fields submitted as multiple form values for the same field" {
             data class Form(val name: String, val roles: Set<String>)
             post<Form>("name" to "John Smith", "roles" to listOf("admin", "user")) shouldBe Form(

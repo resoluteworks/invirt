@@ -106,7 +106,7 @@ internal fun formFieldsToMapTree(fields: Map<String, Any>): Any {
 @Suppress("UNCHECKED_CAST")
 internal fun Any.indexKeysToCollections(): Any {
     return if (this is Map<*, *>) {
-        val index = (keys.first() as String).toIntOrNull()
+        val index = keys.firstOrNull()?.let { it as? String }?.toIntOrNull()
         return if (index != null) {
             // We have numeric keys (like 0, 1, 2), which means all keys on this level are indices (it will/should fail otherwise)
             entries.sortedBy { (it.key as String).toInt() }
