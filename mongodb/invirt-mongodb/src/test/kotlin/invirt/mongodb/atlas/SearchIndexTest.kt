@@ -1,12 +1,12 @@
 package invirt.mongodb.atlas
 
 import com.mongodb.client.model.search.SearchOperator
+import invirt.mongo.test.testMongoAtlas
 import invirt.mongo.test.waitForSearchDocuments
 import invirt.mongodb.TimestampedDocument
 import invirt.mongodb.VersionedDocument
 import invirt.mongodb.insert
 import invirt.mongodb.mongoNow
-import invirt.testMongoAtlas
 import invirt.utils.uuid7
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainExactly

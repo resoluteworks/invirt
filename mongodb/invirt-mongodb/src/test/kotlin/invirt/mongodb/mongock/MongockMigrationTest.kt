@@ -3,8 +3,8 @@ package invirt.mongodb.mongock
 import invirt.mongo.test.shouldHaveAscIndex
 import invirt.mongo.test.shouldHaveDescIndex
 import invirt.mongo.test.shouldNotHaveAscIndex
+import invirt.mongo.test.testMongo
 import invirt.mongodb.mongock.migrations.Company
-import invirt.testMongo
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe

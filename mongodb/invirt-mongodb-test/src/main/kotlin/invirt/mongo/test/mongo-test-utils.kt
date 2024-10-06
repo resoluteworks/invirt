@@ -5,9 +5,13 @@ import com.mongodb.client.model.search.SearchOperator
 import com.mongodb.client.model.search.SearchOptions
 import com.mongodb.client.model.search.SearchPath
 import com.mongodb.kotlin.client.MongoCollection
+import invirt.mongodb.Mongo
 import invirt.mongodb.atlas.DEFAULT_MONGO_SEARCH_INDEX
+import invirt.utils.uuid7
 import org.awaitility.Awaitility.await
 import java.time.Duration
+
+inline fun <reified Doc : Any> Mongo.randomTestCollection(): MongoCollection<Doc> = database.getCollection<Doc>(uuid7())
 
 /**
  * Waits for [count] documents to be indexed by checking the existed of a [field] in the specified [indexName].

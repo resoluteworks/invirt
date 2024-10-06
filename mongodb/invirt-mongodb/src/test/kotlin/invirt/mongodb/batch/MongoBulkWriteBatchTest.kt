@@ -2,10 +2,10 @@ package invirt.mongodb.batch
 
 import com.mongodb.client.model.BulkWriteOptions
 import com.mongodb.client.model.InsertOneModel
+import invirt.mongo.test.testMongoAtlas
 import invirt.mongodb.TimestampedDocument
 import invirt.mongodb.VersionedDocument
 import invirt.mongodb.mongoNow
-import invirt.testMongoAtlas
 import invirt.utils.uuid7
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe

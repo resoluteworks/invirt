@@ -1,8 +1,8 @@
 package invirt.mongodb
 
 import com.mongodb.MongoException
-import invirt.randomTestCollection
-import invirt.testMongo
+import invirt.mongo.test.randomTestCollection
+import invirt.mongo.test.testMongo
 import invirt.utils.uuid7
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe

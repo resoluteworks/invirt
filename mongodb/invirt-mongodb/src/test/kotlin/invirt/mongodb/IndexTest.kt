@@ -5,7 +5,7 @@ import invirt.mongo.test.shouldHaveAscIndex
 import invirt.mongo.test.shouldHaveDescIndex
 import invirt.mongo.test.shouldHaveTextIndex
 import invirt.mongo.test.shouldHaveUniqueIndex
-import invirt.testMongo
+import invirt.mongo.test.testMongo
 import invirt.utils.uuid7
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe

@@ -2,11 +2,11 @@ package invirt.mongodb
 
 import invirt.data.sortAsc
 import invirt.data.sortDesc
+import invirt.mongo.test.randomTestCollection
 import invirt.mongo.test.shouldBeNextUpdateOf
 import invirt.mongo.test.shouldBeSameDocument
 import invirt.mongo.test.shouldBeUpdateOf
-import invirt.randomTestCollection
-import invirt.testMongo
+import invirt.mongo.test.testMongo
 import invirt.utils.uuid7
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.throwables.shouldThrowWithMessage
