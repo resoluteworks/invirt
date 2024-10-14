@@ -43,3 +43,5 @@ fun errorResponse(
     }
     return errorResponse(null, ValidationErrors(errors.map { ValidationError(it.first, it.second) }), template)
 }
+
+fun ViewResponse.toErrorResponse(errors: ValidationErrors): Response = errorResponse(this, errors, this.template)

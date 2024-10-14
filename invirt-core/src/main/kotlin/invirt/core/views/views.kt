@@ -28,6 +28,6 @@ fun ViewModel.status(status: Status): Response = Response(status).with(Invirt.vi
 /**
  * Convenience class for a [ViewModel] that renders a view (template).
  */
-open class ViewResponse(private val template: String) : ViewModel {
+open class ViewResponse(val template: String) : ViewModel {
     override fun template() = template
 }
