@@ -111,6 +111,29 @@ class StringsTest : StringSpec({
         REGEX_ALPHA_AND_DASH_STARTS_WITH_LETTER.matches("12321321") shouldBe false
         REGEX_ALPHA_AND_DASH_STARTS_WITH_LETTER.matches("-abcde123") shouldBe false
     }
+
+    "isUrl" {
+        "test".isUrl() shouldBe false
+        "some words".isUrl() shouldBe false
+        "test .com".isUrl() shouldBe false
+        "http: // test.com".isUrl() shouldBe false
+
+        "www.test.com".isUrl() shouldBe true
+        "test.com".isUrl() shouldBe true
+        "http://test.com".isUrl() shouldBe true
+        "https://test.com".isUrl() shouldBe true
+        "https://test.com/something/else.file".isUrl() shouldBe true
+    }
+
+    "httpUrl" {
+        "test.com".httpUrl() shouldBe "https://test.com"
+        "instagram.com".httpUrl() shouldBe "https://instagram.com"
+        "instagram.com/myuser".httpUrl() shouldBe "https://instagram.com/myuser"
+        "gallery.com/art/events.html".httpUrl() shouldBe "https://gallery.com/art/events.html"
+        "gallery.com/art/events.html".httpUrl(false) shouldBe "http://gallery.com/art/events.html"
+        "http://instagram.com".httpUrl() shouldBe "http://instagram.com"
+        "https://instagram.com/myuser".httpUrl() shouldBe "https://instagram.com/myuser"
+    }
 })
 
 private enum class StringsTestEnum {
