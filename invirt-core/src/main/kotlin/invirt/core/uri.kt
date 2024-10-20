@@ -70,3 +70,12 @@ fun Uri.csvRemove(name: String, value: Any): Uri {
         replaceQuery(name to values.joinToString(","))
     }
 }
+
+fun Uri.csvToggle(name: String, value: Any): Uri {
+    val values = csvQuery(name)
+    return if (values.contains(value)) {
+        csvRemove(name, value)
+    } else {
+        csvAppend(name, value)
+    }
+}

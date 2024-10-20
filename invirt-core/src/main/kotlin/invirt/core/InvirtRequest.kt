@@ -23,6 +23,7 @@ class InvirtRequest(private val delegate: Request) : Request by delegate {
     fun removeQueries(names: Collection<String>): Uri = delegate.uri.removeQueries(names)
     fun csvAppend(name: String, value: Any): Uri = delegate.uri.csvAppend(name, value)
     fun csvRemove(name: String, value: Any): Uri = delegate.uri.csvRemove(name, value)
+    fun csvToggle(name: String, value: Any): Uri = delegate.uri.csvToggle(name, value)
 
     fun replaceSort(field: String, orderStr: String, resetPagination: Boolean): Uri =
         delegate.uri.replaceSort(Sort(field, SortOrder.fromString(orderStr)), resetPagination)

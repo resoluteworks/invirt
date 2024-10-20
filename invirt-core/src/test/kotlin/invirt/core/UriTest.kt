@@ -89,4 +89,12 @@ class UriTest : StringSpec({
         Uri.of("/test?q=John%2CJane").csvRemove("q", "Jane").toString() shouldBe "/test?q=John"
         Uri.of("/test?q=John,Jane").csvRemove("q", "John").toString() shouldBe "/test?q=Jane"
     }
+
+    "csvToggle" {
+        Uri.of("/test").csvToggle("q", "John").toString() shouldBe "/test?q=John"
+        Uri.of("/test?q=John").csvToggle("q", "John").toString() shouldBe "/test"
+        Uri.of("/test?q=John").csvToggle("q", "Jane").toString() shouldBe "/test?q=John%2CJane"
+        Uri.of("/test?q=John%2CJane").csvToggle("q", "Jane").toString() shouldBe "/test?q=John"
+        Uri.of("/test?q=John%2CJane").csvToggle("q", "John").toString() shouldBe "/test?q=Jane"
+    }
 })
