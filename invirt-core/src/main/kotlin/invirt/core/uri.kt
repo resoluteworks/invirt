@@ -5,8 +5,11 @@ import invirt.data.Sort
 import org.http4k.core.Uri
 import org.http4k.core.queries
 import org.http4k.core.query
+import org.http4k.core.removeQuery
 import org.http4k.core.toParameters
 import org.http4k.core.toUrlFormEncoded
+
+fun Uri.queryValue(name: String): String? = queries().firstOrNull { it.first == name }?.second
 
 fun Uri.hasQueryValue(name: String, value: String): Boolean = this.queries().any { it.first == name && it.second == value }
 
@@ -51,4 +54,19 @@ fun Uri.replaceQuery(queries: Map<String, Any>): Uri {
         uri = uri.query(name, value.toString())
     }
     return uri
+}
+
+fun Uri.csvQuery(name: String): List<String> = queryValue(name)?.split(",") ?: emptyList()
+
+fun Uri.csvAppend(name: String, value: Any): Uri = replaceQuery(
+    name to csvQuery(name).plus(value).toSet().joinToString(",")
+)
+
+fun Uri.csvRemove(name: String, value: Any): Uri {
+    val values = csvQuery(name).minus(value).toSet()
+    return if (values.isEmpty()) {
+        removeQuery(name)
+    } else {
+        replaceQuery(name to values.joinToString(","))
+    }
 }

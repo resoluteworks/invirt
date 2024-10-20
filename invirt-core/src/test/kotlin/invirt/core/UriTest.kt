@@ -76,4 +76,17 @@ class UriTest : StringSpec({
         Uri.of("/test?test=nothing&test=something&from=0&size=1").hasQueryValue("page", "1") shouldBe false
         Uri.of("/test?test=nothing&test=something&from=0&size=1").hasQueryValue("from", "01") shouldBe false
     }
+
+    "csvAppend" {
+        Uri.of("/test").csvAppend("q", "John").toString() shouldBe "/test?q=John"
+        Uri.of("/test?q=John").csvAppend("q", "Jane").toString() shouldBe "/test?q=John%2CJane"
+        Uri.of("/test?q=John,Jane").csvAppend("q", "Jane").toString() shouldBe "/test?q=John%2CJane"
+    }
+
+    "csvRemove" {
+        Uri.of("/test").csvRemove("q", "John").toString() shouldBe "/test"
+        Uri.of("/test?q=John").csvRemove("q", "John").toString() shouldBe "/test"
+        Uri.of("/test?q=John%2CJane").csvRemove("q", "Jane").toString() shouldBe "/test?q=John"
+        Uri.of("/test?q=John,Jane").csvRemove("q", "John").toString() shouldBe "/test?q=Jane"
+    }
 })
