@@ -13,6 +13,7 @@ import org.http4k.template.viewModel
 private val log = KotlinLogging.logger {}
 
 object Invirt {
+
     private lateinit var defaultViewLens: BiDiBodyLens<ViewModel>
     val viewLens: BiDiBodyLens<ViewModel> get() = defaultViewLens
 

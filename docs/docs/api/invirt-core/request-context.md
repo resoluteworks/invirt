@@ -43,6 +43,32 @@ and must use the one provided by Invirt.
   </TabItem>
 </Tabs>
 
+### optionalKey()
+Uses `http4kRequestContexts` to create an optional [RequestContextKey](https://www.http4k.org/api/http4k-core/org.http4k.lens/-request-context-key/index.html)
+with the specified value type. Exists mainly as a convenience for `RequestContextKey.optional(InvirtRequestContext.http4kRequestContexts)`.
+
+<Tabs>
+  <TabItem value="example" label="Example" default>
+    ```kotlin
+    val key = InvirtRequestContext.optionalKey<String>()
+    ```
+  </TabItem>
+</Tabs>
+
+
+### requiredKey()
+Uses `http4kRequestContexts` to create a required [RequestContextKey](https://www.http4k.org/api/http4k-core/org.http4k.lens/-request-context-key/index.html)
+with the specified value type. Exists mainly as a convenience for `RequestContextKey.required(InvirtRequestContext.http4kRequestContexts)`
+
+<Tabs>
+  <TabItem value="example" label="Example" default>
+    ```kotlin
+    val key = InvirtRequestContext.requiredKey<String>()
+    ```
+  </TabItem>
+</Tabs>
+
+
 ### validationErrors
 
 Returns the validation errors for the current request. This is used internally by Invirt

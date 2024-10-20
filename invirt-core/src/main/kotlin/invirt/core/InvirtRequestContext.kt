@@ -7,12 +7,13 @@ import org.http4k.core.Request
 import org.http4k.core.RequestContexts
 import org.http4k.core.then
 import org.http4k.filter.ServerFilters
+import org.http4k.lens.BiDiLens
 import org.http4k.lens.RequestContextKey
 
 object InvirtRequestContext {
     val http4kRequestContexts = RequestContexts()
     private val requestThreadLocal = ThreadLocal<Request>()
-    private val validationErrorContextKey = RequestContextKey.optional<ValidationErrors>(http4kRequestContexts)
+    private val validationErrorContextKey = optionalKey<ValidationErrors>()
 
     internal fun filter(): Filter {
         val storeRequestOnCurrentThread = Filter { next ->
@@ -33,4 +34,10 @@ object InvirtRequestContext {
     }
 
     val errors: ValidationErrors? get() = requestThreadLocal.get()?.let { validationErrorContextKey[it] }
+
+    fun <ValueType> optionalKey(): BiDiLens<Request, ValueType?> =
+        RequestContextKey.optional(http4kRequestContexts)
+
+    fun <ValueType> requiredKey(): BiDiLens<Request, ValueType> =
+        RequestContextKey.required(http4kRequestContexts)
 }
