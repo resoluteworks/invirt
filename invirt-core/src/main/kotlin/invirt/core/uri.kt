@@ -63,7 +63,7 @@ fun Uri.csvAppend(name: String, value: Any): Uri = replaceQuery(
 )
 
 fun Uri.csvRemove(name: String, value: Any): Uri {
-    val values = csvQuery(name).minus(value).toSet()
+    val values = csvQuery(name).toMutableSet().filter { it != value.toString() }
     return if (values.isEmpty()) {
         removeQuery(name)
     } else {
@@ -73,7 +73,7 @@ fun Uri.csvRemove(name: String, value: Any): Uri {
 
 fun Uri.csvToggle(name: String, value: Any): Uri {
     val values = csvQuery(name)
-    return if (values.contains(value)) {
+    return if (values.contains(value.toString())) {
         csvRemove(name, value)
     } else {
         csvAppend(name, value)
