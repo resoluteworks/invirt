@@ -21,6 +21,7 @@ object Invirt {
         val pebbleTemplates = InvirtPebbleTemplates(configure = { builder ->
             config.pebble.extensions.forEach { builder.extension(it) }
             builder.extension(InvirtPebbleExtension(config.pebble.globalVariables))
+            builder.greedyMatchMethod(true)
             builder
         })
 
