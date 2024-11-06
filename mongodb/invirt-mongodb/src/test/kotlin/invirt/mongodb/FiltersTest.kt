@@ -225,6 +225,15 @@ class FiltersTest : StringSpec() {
             ).toList() shouldContainExactlyInAnyOrder listOf(e1, e2, e3)
 
             collection.find(
+                TestDocument::location.mongoGeoBounds(
+                    GeoBoundingBox(
+                        southWest = GeoLocation(lng = -10.0, lat = -30.0),
+                        northEast = GeoLocation(lng = 25.1, lat = 55.0)
+                    )
+                )
+            ).toList() shouldContainExactlyInAnyOrder listOf(e1, e2, e3)
+
+            collection.find(
                 "location.lngLat".withinGeoBounds(
                     GeoBoundingBox(
                         southWest = GeoLocation(lng = -10.0, lat = -30.0),

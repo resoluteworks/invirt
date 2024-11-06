@@ -2,15 +2,12 @@ package invirt.mongodb
 
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Sorts
-import com.mongodb.client.model.geojson.Polygon
-import com.mongodb.client.model.geojson.Position
 import com.mongodb.kotlin.client.FindIterable
 import invirt.data.DataFilter
 import invirt.data.Page
 import invirt.data.Sort
 import invirt.data.SortOrder
 import invirt.data.geo.GeoBoundingBox
-import invirt.data.geo.GeoLocation
 import org.bson.conversions.Bson
 
 /**
@@ -63,8 +60,6 @@ fun DataFilter.mongoFilter(): Bson = when (this) {
     else -> throw IllegalArgumentException("Unknown filter type ${this::class}")
 }
 
-private fun GeoLocation.toPosition(): Position = Position(lng, lat)
-
 private fun DataFilter.Field<*>.fieldFilter(): Bson = when (operation) {
     DataFilter.Field.Operation.EQ -> Filters.eq(field, value)
     DataFilter.Field.Operation.GT -> Filters.gt(field, value)
@@ -74,9 +69,5 @@ private fun DataFilter.Field<*>.fieldFilter(): Bson = when (operation) {
     DataFilter.Field.Operation.NE -> Filters.ne(field, value)
     DataFilter.Field.Operation.EXISTS -> Filters.exists(field)
     DataFilter.Field.Operation.DOESNT_EXIST -> Filters.exists(field, false)
-    DataFilter.Field.Operation.WITHIN_GEO_BOUNDS -> {
-        val geoBounds = value as GeoBoundingBox
-        val positions = geoBounds.points.plus(geoBounds.southWest).map { it.toPosition() }
-        Filters.geoWithin(field, Polygon(positions))
-    }
+    DataFilter.Field.Operation.WITHIN_GEO_BOUNDS -> field.mongoGeoBounds(value as GeoBoundingBox)
 }
