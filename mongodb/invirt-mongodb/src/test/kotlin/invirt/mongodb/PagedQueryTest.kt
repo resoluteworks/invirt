@@ -11,7 +11,7 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import org.bson.codecs.pojo.annotations.BsonId
 
-class QueryTest : StringSpec() {
+class PagedQueryTest : StringSpec() {
 
     private val mongo = testMongo()
 
@@ -27,7 +27,7 @@ class QueryTest : StringSpec() {
             collection.insertMany((0 until 34).map { TestDocument("company") })
             collection.insertMany((0 until 23).map { TestDocument("individual") })
 
-            val result = collection.query()
+            val result = collection.pagedQuery()
             result.totalCount shouldBe 57
             result.records.size shouldBe 10
         }
@@ -43,7 +43,7 @@ class QueryTest : StringSpec() {
             collection.insertMany((0 until 10).map { TestDocument("folder") })
             collection.insertMany((0 until 10).map { TestDocument("document") })
 
-            val result = collection.query(TestDocument::type.mongoEq("something-else"), Page(0, 10))
+            val result = collection.pagedQuery(TestDocument::type.mongoEq("something-else"), Page(0, 10))
             result.totalCount shouldBe 0
             result.records.size shouldBe 0
         }
@@ -61,19 +61,19 @@ class QueryTest : StringSpec() {
             collection.insertMany((0 until companyCount).map { TestDocument("company", it) })
             collection.insertMany((0 until 100).map { TestDocument("individual", it) })
 
-            val result1 = collection.query(TestDocument::type.mongoEq("company"), Page(0, 10))
+            val result1 = collection.pagedQuery(TestDocument::type.mongoEq("company"), Page(0, 10))
             result1.totalCount shouldBe companyCount
             result1.records.size shouldBe 10
             result1.records.map { it.type }.toSet() shouldBe setOf("company")
             result1.records.map { it.index } shouldBe (0..9).toList()
 
-            val result2 = collection.query(TestDocument::type.mongoEq("company"), Page(10, 10))
+            val result2 = collection.pagedQuery(TestDocument::type.mongoEq("company"), Page(10, 10))
             result2.totalCount shouldBe companyCount
             result2.records.size shouldBe 10
             result2.records.map { it.type }.toSet() shouldBe setOf("company")
             result2.records.map { it.index } shouldBe (10..19).toList()
 
-            val result3 = collection.query(TestDocument::type.mongoEq("company"), Page(90, 10))
+            val result3 = collection.pagedQuery(TestDocument::type.mongoEq("company"), Page(90, 10))
             result3.totalCount shouldBe companyCount
             result3.records.size shouldBe 5
             result3.records.map { it.type }.toSet() shouldBe setOf("company")
@@ -92,7 +92,7 @@ class QueryTest : StringSpec() {
             val docCount = 95
             collection.insertMany((0 until docCount).map { TestDocument("company", it) })
 
-            val result1 = collection.query(
+            val result1 = collection.pagedQuery(
                 filter = TestDocument::type.mongoEq("company"),
                 page = Page(0, 10),
                 sort = listOf(TestDocument::index.sortAsc().mongoSort())
@@ -103,7 +103,7 @@ class QueryTest : StringSpec() {
             result1.records.map { it.type }.toSet() shouldBe setOf("company")
             result1.records.map { it.index } shouldBe (0..9).toList()
 
-            val result2 = collection.query(
+            val result2 = collection.pagedQuery(
                 filter = TestDocument::type.mongoEq("company"),
                 page = Page(0, 10),
                 sort = listOf(TestDocument::index.sortDesc().mongoSort())
@@ -134,11 +134,11 @@ class QueryTest : StringSpec() {
             )
 
             // The default won't be sorted
-            collection.query(sort = listOf(TestDocument::name.sortAsc().mongoSort()))
+            collection.pagedQuery(sort = listOf(TestDocument::name.sortAsc().mongoSort()))
                 .records.map { it.name } shouldContainExactly listOf("Apple", "Banana", "almond")
 
             // The case-insensitive index will sort correctly
-            collection.query(sort = listOf(TestDocument::name.sortAsc().mongoSort())) { caseInsensitive() }
+            collection.pagedQuery(sort = listOf(TestDocument::name.sortAsc().mongoSort())) { collation(caseInsensitive()) }
                 .records.map { it.name } shouldContainExactly listOf("almond", "Apple", "Banana")
         }
 
@@ -155,7 +155,7 @@ class QueryTest : StringSpec() {
             collection.insertMany((1..docCount).map { TestDocument("company", it) })
             collection.insertMany((1..docCount).map { TestDocument("individual", it) })
 
-            val result = collection.query(
+            val result = collection.pagedQuery(
                 filter = null,
                 page = Page(0, 10),
                 sort = listOf(TestDocument::index.sortAsc().mongoSort(), TestDocument::type.sortDesc().mongoSort())
@@ -184,7 +184,7 @@ class QueryTest : StringSpec() {
             val folderCount = 100
             collection.insertMany((0 until documentCount).map { TestDocument("document") })
             collection.insertMany((0 until folderCount).map { TestDocument("folder") })
-            val result = collection.query(null, Page(0, 10))
+            val result = collection.pagedQuery(null, Page(0, 10))
             result.totalCount shouldBe documentCount + folderCount
         }
 
@@ -197,7 +197,7 @@ class QueryTest : StringSpec() {
             val collection = mongo.randomTestCollection<TestDocument>()
             collection.insertMany((0 until 100).map { TestDocument() })
 
-            val result = collection.query(null, Page(0, 10), maxDocuments = 30)
+            val result = collection.pagedQuery(null, Page(0, 10), maxDocuments = 30)
             result.totalCount shouldBe 30
             result.records.size shouldBe 10
         }

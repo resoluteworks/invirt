@@ -130,7 +130,7 @@ class IndexTest : StringSpec() {
             collection.insert(Person("B"))
             collection.insert(Person("a"))
             collection.find().sort(Person::name.sortAsc())
-                .caseInsensitive()
+                .collation(caseInsensitive())
                 .map { it.name }.toList() shouldBe listOf("a", "B")
         }
     }
