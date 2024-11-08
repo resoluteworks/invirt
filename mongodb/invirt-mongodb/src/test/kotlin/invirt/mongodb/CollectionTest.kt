@@ -236,5 +236,22 @@ class CollectionTest : StringSpec() {
             collection.insert(doc)
             collection.get(doc.id)!!.id shouldBe doc.id
         }
+
+        "findByIds" {
+            data class TestDocument(
+                val name: String,
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0
+            ) : VersionedDocument
+
+            val collection = mongo.randomTestCollection<TestDocument>()
+            val doc1 = collection.insert(TestDocument("Mary"))
+            val doc2 = collection.insert(TestDocument("John"))
+            val doc3 = collection.insert(TestDocument("Jane"))
+
+            collection.findByIds(doc1.id, doc2.id, doc3.id).map { it.id } shouldBe listOf(doc1.id, doc2.id, doc3.id)
+            collection.findByIds(doc1.id, doc2.id, "test").map { it.id } shouldBe listOf(doc1.id, doc2.id)
+            collection.findByIds().size shouldBe 0
+        }
     }
 }

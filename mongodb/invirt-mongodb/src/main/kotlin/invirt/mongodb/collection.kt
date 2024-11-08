@@ -132,3 +132,17 @@ fun MongoCollection<*>.delete(id: String): Boolean = deleteOne(mongoById(id)).de
  */
 fun MongoCollection<*>.txDelete(session: ClientSession, id: String): Boolean =
     deleteOne(session, mongoById(id)).deletedCount == 1L
+
+/**
+ * Finds documents by their [ids] and returns a list of documents.
+ */
+fun <Doc : Any> MongoCollection<Doc>.findByIds(vararg ids: String): List<Doc> = findByIds(ids.toList())
+
+/**
+ * Finds documents by their [ids] and returns a list of documents.
+ */
+fun <Doc : Any> MongoCollection<Doc>.findByIds(ids: List<String>): List<Doc> = if (ids.isNotEmpty()) {
+    find(mongoByIds(ids)).toList()
+} else {
+    emptyList()
+}
