@@ -175,6 +175,7 @@ class FiltersTest : StringSpec() {
             }
 
             collection.find(mongoByIds(ids)).toList().map { it.id } shouldContainExactlyInAnyOrder ids
+            collection.find(mongoByIds(*ids.toTypedArray())).toList().map { it.id } shouldContainExactlyInAnyOrder ids
             collection.find(mongoByIds(ids.sorted().subList(0, 2))).toList().map { it.id } shouldContainExactlyInAnyOrder ids.sorted()
                 .subList(0, 2)
         }
