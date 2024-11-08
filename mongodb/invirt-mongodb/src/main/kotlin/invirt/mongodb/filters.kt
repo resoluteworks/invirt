@@ -10,8 +10,8 @@ import java.time.LocalDate
 import kotlin.reflect.KProperty
 
 fun mongoById(id: String) = Filters.eq("_id", id)
-fun mongoByIds(vararg ids: String) = Filters.`in`("_id", *ids)
-fun mongoByIds(ids: Collection<String>) = mongoByIds(*ids.toTypedArray())
+fun mongoByIds(ids: Collection<String>) = Filters.`in`("_id", ids)
+fun mongoByIds(vararg ids: String) = mongoByIds(ids.toList())
 
 fun KProperty<*>.mongoEq(value: Any): Bson = Filters.eq(this.name, value)
 fun KProperty<*>.mongoGt(value: Any): Bson = Filters.gt(this.name, value)

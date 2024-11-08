@@ -1,14 +1,19 @@
 package invirt.mongo.test
 
 import com.mongodb.kotlin.client.MongoCollection
+import invirt.data.RecordsPage
 import invirt.mongodb.TimestampedDocument
+import invirt.mongodb.VersionedDocument
 import io.kotest.assertions.withClue
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.equality.shouldBeEqualToIgnoringFields
 import io.kotest.matchers.longs.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.bson.Document
 import java.time.temporal.ChronoUnit
+import javax.print.Doc
 
 infix fun TimestampedDocument.shouldBeUpdateOf(other: TimestampedDocument) {
     val thisUpdatedAt = this.updatedAt.truncatedTo(ChronoUnit.MILLIS)
@@ -71,3 +76,15 @@ fun MongoCollection<*>.shouldHaveTextIndex(vararg fields: String) {
         (it["key"] as Document)["_fts"] == "text" && (it["name"] == indexName)
     } shouldNotBe null
 }
+
+fun <Doc : VersionedDocument> RecordsPage<Doc>.idsShouldBe(ids: List<String>) {
+    this.records.map { it.id } shouldContainExactlyInAnyOrder ids
+}
+
+fun <Doc : VersionedDocument> RecordsPage<Doc>.idsShouldBe(vararg ids: String) = idsShouldBe(ids.toList())
+
+fun <Doc : VersionedDocument> RecordsPage<Doc>.idsShouldBeInOrder(ids: List<String>) {
+    this.records.map { it.id } shouldContainExactly ids
+}
+
+fun <Doc : VersionedDocument> RecordsPage<Doc>.idsShouldBeInOrder(vararg ids: String) = idsShouldBeInOrder(ids.toList())
