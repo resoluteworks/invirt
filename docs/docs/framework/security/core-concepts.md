@@ -27,7 +27,7 @@ interface Principal {
         /**
          * Returns the [Principal] on the current thread if present, fails otherwise
          */
-        val current: Principal get() = currentSafe ?: throw IllegalStateException("No Principal found on current threads")
+        val current: Principal get() = currentSafe ?: throw IllegalStateException("No Principal found on current thread")
 
         /**
          * Checks if a [Principal] is present on the current thread.

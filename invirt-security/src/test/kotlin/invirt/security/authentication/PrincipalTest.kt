@@ -34,7 +34,7 @@ class PrincipalTest : StringSpec({
 
         Principal.isPresent shouldBe false
         Principal.currentSafe shouldBe null
-        shouldThrowWithMessage<IllegalStateException>("No Principal found on current threads") {
+        shouldThrowWithMessage<IllegalStateException>("No Principal found on current thread") {
             Principal.current
         }
     }
@@ -68,7 +68,7 @@ class PrincipalTest : StringSpec({
         Principal.isPresent shouldBe false
         Principal.currentSafe shouldBe null
         request.principal shouldBe null
-        shouldThrowWithMessage<IllegalStateException>("No Principal found on current threads") {
+        shouldThrowWithMessage<IllegalStateException>("No Principal found on current thread") {
             Principal.current
         }
     }
