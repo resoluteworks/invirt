@@ -96,12 +96,13 @@ including error messages and previously entered input values.
 ```kotlin
 "/signup" POST { request ->
     request.toForm<SignupForm>()
-        .validate {
+        .validate()
+        .map {
             error { form, errors ->
                 errorResponse(form, errors, "signup.peb")
             }
             success { form ->
-                // Signup user with the date on the form and redirect to /signup/success
+                // ...
                 httpSeeOther("/signup/success")
             }
         }

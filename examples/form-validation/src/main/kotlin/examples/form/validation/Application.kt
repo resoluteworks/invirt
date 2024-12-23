@@ -10,8 +10,8 @@ import invirt.core.views.renderTemplate
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.validk.ValidObject
 import io.validk.Validation
-import io.validk.email
-import io.validk.minLength
+import io.validk.constraints.email
+import io.validk.constraints.minLength
 import org.http4k.core.then
 import org.http4k.routing.routes
 import org.http4k.server.Netty
@@ -48,12 +48,13 @@ class Application {
 
                     "/signup" POST { request ->
                         request.toForm<SignupForm>()
-                            .validate {
+                            .validate()
+                            .map {
                                 error { form, errors ->
                                     errorResponse(form, errors, "signup.peb")
                                 }
                                 success { form ->
-                                    // Signup user with this form
+                                    // TODO: Create user, sign up, etc.
                                     httpSeeOther("/signup/success")
                                 }
                             }
