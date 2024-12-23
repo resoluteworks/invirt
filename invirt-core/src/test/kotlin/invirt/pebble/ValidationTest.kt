@@ -24,7 +24,13 @@ class ValidationTest : StringSpec() {
                 ValidationError("details.age", "Age must be 18 or over")
             )
             val httpHandler = Invirt()
-                .then(routes("/test" bind Method.GET to { errorResponse(Form(), errors, "validation/errors-from-context") }))
+                .then(
+                    routes(
+                        "/test" bind Method.GET to {
+                            errorResponse(Form(), errors, "validation/errors-from-context")
+                        }
+                    )
+                )
             val response = httpHandler(Request(Method.GET, "/test"))
             response.bodyString().trimIndent() shouldBe """
                 name - Name too short
