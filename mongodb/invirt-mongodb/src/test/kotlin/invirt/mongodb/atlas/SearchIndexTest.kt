@@ -10,6 +10,7 @@ import invirt.mongodb.mongoNow
 import invirt.utils.uuid7
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import org.bson.Document
@@ -234,6 +235,68 @@ class SearchIndexTest : StringSpec() {
             shouldNotThrowAny {
                 collection.waitForDocumentWithIdInDefaultSearchIndex(docId, 10)
             }
+        }
+
+        "recreateDefaultSearchIndex should create a new index with a new definition" {
+            data class TestDocument(
+                val title: String,
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0
+            ) : VersionedDocument
+
+            val collectionName = uuid7()
+            mongo.database.createCollection(collectionName)
+            val collection = mongo.database.getCollection<TestDocument>(collectionName)
+
+            collection.createDefaultSearchIndex(
+                """
+                {
+                    "mappings": {
+                        "dynamic": false,
+                        "fields": {
+                            "_id": {
+                                "type": "string",
+                                "analyzer": "lucene.keyword"
+                            }
+                        }
+                    }
+                }
+                """.trimIndent()
+            )
+
+            val docId = collection.insert(TestDocument("The quick brown fox jumps over the lazy dog")).id
+
+            // Check the document was indexed and searching by title doesn't return anything
+            collection.waitForDocumentWithIdInDefaultSearchIndex(docId, 10)
+            collection.aggregate(listOf(TestDocument::title.textSearch("dog").toAggregate())).toList().shouldBeEmpty()
+
+            // Now recreate the default index with a new definition
+            collection.recreateDefaultSearchIndex(
+                """
+                {
+                    "mappings": {
+                        "dynamic": false,
+                        "fields": {
+                            "_id": {
+                                "type": "string",
+                                "analyzer": "lucene.keyword"
+                            },
+                            "title": {
+                                "type": "string",
+                                "analyzer": "lucene.standard"
+                            }
+                        }
+                    }
+                }
+                """.trimIndent()
+            )
+
+            collection.waitForDefaultSearchIndexReady()
+
+            // Searching for title should now return the document
+            collection.aggregate(listOf(TestDocument::title.textSearch("dog").toAggregate()))
+                .toList()
+                .map { it.id } shouldContainExactly listOf(docId)
         }
     }
 }

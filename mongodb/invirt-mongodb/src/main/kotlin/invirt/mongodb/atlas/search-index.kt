@@ -21,18 +21,32 @@ fun MongoCollection<*>.createDefaultSearchIndex(definition: String) {
     log.info { "Created default Mongo search index" }
 }
 
+fun MongoCollection<*>.recreateDefaultSearchIndex(definition: String) {
+    recreateSearchIndex(DEFAULT_MONGO_SEARCH_INDEX, definition)
+}
+
+/**
+ * Recreates the search index [indexName] from the [definition] represented as a JSON string.
+ */
+fun MongoCollection<*>.recreateSearchIndex(indexName: String, definition: String) {
+    if (searchIndexExists(indexName)) {
+        dropSearchIndex(indexName)
+    }
+    await("Waiting for search index '${indexName}' to be removed")
+        .atMost(Duration.ofSeconds(60))
+        .until { !searchIndexExists(indexName) }
+
+    createSearchIndex(indexName, Document.parse(definition))
+    log.info { "Created default Mongo search index" }
+}
+
 /**
  * Waits for the search index with the given [indexName] to be ready.
  */
 fun MongoCollection<*>.waitForSearchIndexReady(indexName: String, seconds: Int = 60) {
     await("Mongo search index '${indexName}' ready")
         .atMost(Duration.ofSeconds(seconds.toLong()))
-        .until {
-            listSearchIndexes().toList()
-                .firstOrNull { it["name"] == indexName }
-                ?.let { it["status"] == "READY" }
-                ?: false
-        }
+        .until { searchIndexExists(indexName) }
 }
 
 /**
@@ -41,12 +55,10 @@ fun MongoCollection<*>.waitForSearchIndexReady(indexName: String, seconds: Int =
 fun MongoCollection<*>.waitForDefaultSearchIndexReady(seconds: Int = 60) {
     await("Mongo default search index ready")
         .atMost(Duration.ofSeconds(seconds.toLong()))
-        .until {
-            listSearchIndexes().toList()
-                .firstOrNull { it["name"] == DEFAULT_MONGO_SEARCH_INDEX }
-                ?.let { it["status"] == "READY" } == true
-        }
+        .until { searchIndexExists(DEFAULT_MONGO_SEARCH_INDEX) }
 }
+
+fun MongoCollection<*>.searchIndexExists(indexName: String): Boolean = listSearchIndexes().toList().any { it["name"] == indexName }
 
 /**
  * Waits for the default search index to contain a document with the given [id].
