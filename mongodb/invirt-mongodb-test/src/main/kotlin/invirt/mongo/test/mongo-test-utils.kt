@@ -14,7 +14,7 @@ import java.time.Duration
 inline fun <reified Doc : Any> Mongo.randomTestCollection(): MongoCollection<Doc> = database.getCollection<Doc>(uuid7())
 
 /**
- * Waits for [count] documents to be indexed by checking the existed of a [field] in the specified [indexName].
+ * Waits for [count] documents to be indexed by checking the existence of a [field] in the specified [indexName].
  */
 fun MongoCollection<*>.waitForSearchDocuments(
     field: String,

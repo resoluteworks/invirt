@@ -20,9 +20,9 @@ class Application {
             )
         )
 
-        val server = Netty(8080)
-        server.toServer(appHandler).start()
-        log.info { "Server started at http://localhost:${server.port}" }
+        val server = Netty(8080).toServer(appHandler)
+        server.start()
+        log.info { "Server started at http://localhost:${server.port()}" }
     }
 }
 

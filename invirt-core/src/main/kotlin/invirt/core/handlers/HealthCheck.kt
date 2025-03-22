@@ -1,9 +1,9 @@
 package invirt.core.handlers
 
 import invirt.core.GET
-import org.http4k.contract.openapi.OpenAPIJackson.json
 import org.http4k.core.Response
 import org.http4k.core.Status
+import org.http4k.format.Jackson.json
 import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.routes
 

@@ -8,6 +8,7 @@ import invirt.mongodb.VersionedDocument
 import invirt.mongodb.insert
 import invirt.mongodb.mongoNow
 import invirt.utils.uuid7
+import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -128,6 +129,111 @@ class SearchIndexTest : StringSpec() {
             collection.aggregate(listOf(SearchOperator.text(TestDocument::title.fieldPath(), "dogs").toAggregate()))
                 .toList()
                 .map { it.id } shouldContainExactly listOf(doc3Id, doc2Id, doc1Id)
+        }
+
+        "waitForDocumentInDefaultSearchIndex should succeed when searching for a field value" {
+            data class TestDocument(
+                val title: String,
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0
+            ) : VersionedDocument
+
+            val collectionName = uuid7()
+            mongo.database.createCollection(collectionName)
+            val collection = mongo.database.getCollection<TestDocument>(collectionName)
+
+            collection.createDefaultSearchIndex(
+                """
+                {
+                    "mappings": {
+                        "dynamic": false,
+                        "fields": {
+                            "title": {
+                                "type": "string",
+                                "analyzer": "lucene.standard"
+                            }
+                        }
+                    }
+                }
+                """.trimIndent()
+            )
+
+            collection.waitForDefaultSearchIndexReady()
+
+            collection.insert(TestDocument("The quick brown fox jumps over the lazy dog")).id
+            shouldNotThrowAny {
+                collection.waitForDocumentInDefaultSearchIndex("title", "quick", 10)
+            }
+        }
+
+        "waitForDocumentInDefaultSearchIndex should succeed when searching for the _id" {
+            data class TestDocument(
+                val title: String,
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0
+            ) : VersionedDocument
+
+            val collectionName = uuid7()
+            mongo.database.createCollection(collectionName)
+            val collection = mongo.database.getCollection<TestDocument>(collectionName)
+
+            collection.createDefaultSearchIndex(
+                """
+                {
+                    "mappings": {
+                        "dynamic": false,
+                        "fields": {
+                            "_id": {
+                                "type": "string",
+                                "analyzer": "lucene.keyword"
+                            }
+                        }
+                    }
+                }
+                """.trimIndent()
+            )
+
+            collection.waitForDefaultSearchIndexReady()
+
+            val docId = collection.insert(TestDocument("The quick brown fox jumps over the lazy dog")).id
+            shouldNotThrowAny {
+                collection.waitForDocumentInDefaultSearchIndex("_id", docId, 10)
+            }
+        }
+
+        "waitForDocumentWithIdInDefaultSearchIndex should succeed" {
+            data class TestDocument(
+                val title: String,
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0
+            ) : VersionedDocument
+
+            val collectionName = uuid7()
+            mongo.database.createCollection(collectionName)
+            val collection = mongo.database.getCollection<TestDocument>(collectionName)
+
+            collection.createDefaultSearchIndex(
+                """
+                {
+                    "mappings": {
+                        "dynamic": false,
+                        "fields": {
+                            "_id": {
+                                "type": "string",
+                                "analyzer": "lucene.keyword"
+                            }
+                        }
+                    }
+                }
+                """.trimIndent()
+            )
+
+            collection.waitForDefaultSearchIndexReady()
+
+            val docId = collection.insert(TestDocument("The quick brown fox jumps over the lazy dog")).id
+            shouldNotThrowAny {
+                collection.waitForDocumentWithIdInDefaultSearchIndex(docId, 10)
+            }
         }
     }
 }
