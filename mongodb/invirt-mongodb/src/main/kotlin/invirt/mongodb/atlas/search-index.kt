@@ -29,12 +29,12 @@ fun MongoCollection<*>.recreateDefaultSearchIndex(definition: String) {
  * Recreates the search index [indexName] from the [definition] represented as a JSON string.
  */
 fun MongoCollection<*>.recreateSearchIndex(indexName: String, definition: String) {
-    if (searchIndexExists(indexName)) {
+    if (searchIndexReady(indexName)) {
         dropSearchIndex(indexName)
     }
     await("Waiting for search index '${indexName}' to be removed")
         .atMost(Duration.ofSeconds(60))
-        .until { !searchIndexExists(indexName) }
+        .until { !searchIndexReady(indexName) }
 
     createSearchIndex(indexName, Document.parse(definition))
     log.info { "Created default Mongo search index" }
@@ -46,7 +46,7 @@ fun MongoCollection<*>.recreateSearchIndex(indexName: String, definition: String
 fun MongoCollection<*>.waitForSearchIndexReady(indexName: String, seconds: Int = 60) {
     await("Mongo search index '${indexName}' ready")
         .atMost(Duration.ofSeconds(seconds.toLong()))
-        .until { searchIndexExists(indexName) }
+        .until { searchIndexReady(indexName) }
 }
 
 /**
@@ -55,10 +55,11 @@ fun MongoCollection<*>.waitForSearchIndexReady(indexName: String, seconds: Int =
 fun MongoCollection<*>.waitForDefaultSearchIndexReady(seconds: Int = 60) {
     await("Mongo default search index ready")
         .atMost(Duration.ofSeconds(seconds.toLong()))
-        .until { searchIndexExists(DEFAULT_MONGO_SEARCH_INDEX) }
+        .until { searchIndexReady(DEFAULT_MONGO_SEARCH_INDEX) }
 }
 
-fun MongoCollection<*>.searchIndexExists(indexName: String): Boolean = listSearchIndexes().toList().any { it["name"] == indexName }
+fun MongoCollection<*>.searchIndexReady(indexName: String): Boolean =
+    listSearchIndexes().toList().any { it["name"] == indexName && it["status"] == "READY" }
 
 /**
  * Waits for the default search index to contain a document with the given [id].
