@@ -21,6 +21,11 @@ fun KProperty<*>.mongoLte(value: Any): Bson = Filters.lte(this.name, value)
 fun KProperty<*>.mongoIn(vararg values: Any): Bson = this.name.mongoIn(values.toList())
 fun KProperty<*>.mongoIn(values: Collection<Any>): Bson = this.name.mongoIn(values)
 
+fun String.mongoEq(value: Any): Bson = Filters.eq(this, value)
+fun String.mongoGt(value: Any): Bson = Filters.gt(this, value)
+fun String.mongoGte(value: Any): Bson = Filters.gte(this, value)
+fun String.mongoLt(value: Any): Bson = Filters.lt(this, value)
+fun String.mongoLte(value: Any): Bson = Filters.lte(this, value)
 fun String.mongoIn(vararg values: Any): Bson = mongoIn(values.toList())
 
 fun String.mongoIn(values: Collection<Any>): Bson {

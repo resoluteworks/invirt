@@ -32,13 +32,33 @@ class FiltersTest : StringSpec() {
             val documents = (1..100).map { TestDocument(it) }
             collection.insertMany(documents)
             collection.find(TestDocument::index.mongoGt(10)).toList().map { it.index } shouldContainExactlyInAnyOrder (11..100).toList()
+            collection.find("index".mongoGt(10)).toList().map { it.index } shouldContainExactlyInAnyOrder (11..100).toList()
             collection.find(TestDocument::index.mongoGte(10)).toList().map { it.index } shouldContainExactlyInAnyOrder (10..100).toList()
+            collection.find("index".mongoGte(10)).toList().map { it.index } shouldContainExactlyInAnyOrder (10..100).toList()
             collection.find(TestDocument::index.mongoGte(0)).toList().map { it.index } shouldContainExactlyInAnyOrder (1..100).toList()
+            collection.find("index".mongoGte(0)).toList().map { it.index } shouldContainExactlyInAnyOrder (1..100).toList()
             collection.find(TestDocument::index.mongoLt(54)).toList().map { it.index } shouldContainExactlyInAnyOrder (1..53).toList()
+            collection.find("index".mongoLt(54)).toList().map { it.index } shouldContainExactlyInAnyOrder (1..53).toList()
             collection.find(TestDocument::index.mongoLte(54)).toList().map { it.index } shouldContainExactlyInAnyOrder (1..54).toList()
+            collection.find("index".mongoLte(54)).toList().map { it.index } shouldContainExactlyInAnyOrder (1..54).toList()
         }
 
-        "exists and doesntExist" {
+        "eq" {
+            data class TestDocument(
+                val index: Int,
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0
+            ) : VersionedDocument
+
+            val collection = mongo.randomTestCollection<TestDocument>()
+            val documents = (1..100).map { TestDocument(it) }
+            collection.insertMany(documents)
+            collection.find(TestDocument::index.mongoEq(10)).toList().map { it.index } shouldBe listOf(10)
+            collection.find("index".mongoEq(10)).toList().map { it.index } shouldBe listOf(10)
+        }
+
+        "exists and doesntExist"
+        {
             data class Name(val firstName: String?, val lastName: String?)
             data class TestDocument(
                 val name: Name?,
@@ -66,7 +86,8 @@ class FiltersTest : StringSpec() {
                 listOf(e1, e4)
         }
 
-        "in" {
+        "in"
+        {
             data class TestDocument(
                 val index: Int,
                 @BsonId override val id: String = uuid7(),
@@ -117,7 +138,8 @@ class FiltersTest : StringSpec() {
             }
         }
 
-        "inYear" {
+        "inYear"
+        {
             data class TestDocument(
                 val index: Int,
                 val date: LocalDate,
@@ -142,7 +164,8 @@ class FiltersTest : StringSpec() {
             collection.find(TestDocument::date.inYear(2026)).toList().map { it.index } shouldContainExactlyInAnyOrder listOf(6)
         }
 
-        "byId" {
+        "byId"
+        {
             data class TestDocument(
                 @BsonId override val id: String = uuid7(),
                 override var version: Long = 0
@@ -160,7 +183,8 @@ class FiltersTest : StringSpec() {
             collection.find(mongoById(ids[3])).toList().map { it.id } shouldBe listOf(ids[3])
         }
 
-        "byIds" {
+        "byIds"
+        {
             data class TestDocument(
                 @BsonId override val id: String = uuid7(),
                 override var version: Long = 0
@@ -180,7 +204,8 @@ class FiltersTest : StringSpec() {
                 .subList(0, 2)
         }
 
-        "text search" {
+        "text search"
+        {
             data class TestDocument(
                 val name: String,
                 val description: String,
@@ -202,7 +227,8 @@ class FiltersTest : StringSpec() {
             collection.find(mongoTextSearch("cat")).toList() shouldBe listOf(doc2)
         }
 
-        "withinGeoBounds" {
+        "withinGeoBounds"
+        {
             data class TestDocument(
                 val location: GeoLocation,
                 @BsonId override val id: String = uuid7(),
