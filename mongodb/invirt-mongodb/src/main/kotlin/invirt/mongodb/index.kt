@@ -60,6 +60,8 @@ fun textIndex(vararg fields: String): IndexModel = IndexModel(Indexes.compoundIn
 
 /**
  * Creates indices for the collection using the provided index models.
+ * This is a convenience function that wraps the `createIndexes` method of
+ * the MongoDB collection to allow the user of vararg syntax.
  * Logs the creation of indices with the collection name and count of indices.
  *
  * @param indexModels The index models to create.
