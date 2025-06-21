@@ -48,7 +48,8 @@ class IndexTest : StringSpec() {
                 "gender.name".asc { unique(true) },
                 Person::lastName.desc(),
                 Person::indexedAndTextIndexed.asc(),
-                textIndex("address.city", "firstName", "indexedAndTextIndexed")
+                textIndex("address.city", "firstName", "indexedAndTextIndexed"),
+                *TimestampedDocument.allIndices()
             )
 
             collection shouldHaveAscIndex "age"

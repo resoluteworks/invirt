@@ -1,6 +1,7 @@
 package invirt.mongodb.mongock.migrations.model
 
 import invirt.mongodb.Mongo
+import invirt.mongodb.TimestampedDocument
 import invirt.mongodb.asc
 import invirt.mongodb.createIndices
 import invirt.mongodb.mongock.ModelMigration
@@ -15,7 +16,8 @@ class V1_CreateIndex : ModelMigration {
     @BeforeExecution
     override fun model(mongo: Mongo) {
         mongo.database.getCollection<Company>(Company.COLLECTION).createIndices(
-            Company::name.asc()
+            Company::name.asc(),
+            *TimestampedDocument.allIndices()
         )
     }
 }
