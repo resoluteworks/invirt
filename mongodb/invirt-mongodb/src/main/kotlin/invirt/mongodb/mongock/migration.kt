@@ -4,24 +4,34 @@ import com.mongodb.client.MongoClients
 import invirt.mongodb.JavaClientSession
 import invirt.mongodb.JavaMongoDatabase
 import invirt.mongodb.Mongo
+import invirt.utils.toHumanReadableString
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.mongock.api.annotations.Execution
 import io.mongock.api.annotations.RollbackBeforeExecution
 import io.mongock.api.annotations.RollbackExecution
 import io.mongock.driver.mongodb.sync.v4.driver.MongoSync4Driver
 import io.mongock.runner.standalone.MongockStandalone
+import kotlin.time.measureTime
+
+private val log = KotlinLogging.logger {}
 
 /**
  * Runs migrations for a MongoDB database using the Mongock library.
  * @param packageName The package to scan for migrations.
  */
 fun Mongo.runMigrations(packageName: String) {
-    MongockStandalone.builder()
-        .setDriver(MongoSync4Driver.withDefaultLock(MongoClients.create(connectionString), databaseName))
-        .addMigrationScanPackage(packageName)
-        .setTransactionEnabled(true)
-        .addDependency(this)
-        .buildRunner()
-        .execute()
+    val duration = measureTime {
+        MongockStandalone.builder()
+            .setDriver(MongoSync4Driver.withDefaultLock(MongoClients.create(connectionString), databaseName))
+            .addMigrationScanPackage(packageName)
+            .setTransactionEnabled(true)
+            .addDependency(this)
+            .buildRunner()
+            .execute()
+    }
+    log.atInfo {
+        message = "Ran MongoDB migrations for package ${packageName} in ${duration.toHumanReadableString()}"
+    }
 }
 
 /**
