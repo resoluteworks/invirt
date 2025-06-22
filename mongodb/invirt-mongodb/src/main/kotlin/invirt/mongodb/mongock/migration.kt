@@ -4,14 +4,13 @@ import com.mongodb.client.MongoClients
 import invirt.mongodb.JavaClientSession
 import invirt.mongodb.JavaMongoDatabase
 import invirt.mongodb.Mongo
-import invirt.utils.toHumanReadableString
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.mongock.api.annotations.Execution
 import io.mongock.api.annotations.RollbackBeforeExecution
 import io.mongock.api.annotations.RollbackExecution
 import io.mongock.driver.mongodb.sync.v4.driver.MongoSync4Driver
 import io.mongock.runner.standalone.MongockStandalone
-import kotlin.time.measureTime
+import kotlin.system.measureTimeMillis
 
 private val log = KotlinLogging.logger {}
 
@@ -20,7 +19,7 @@ private val log = KotlinLogging.logger {}
  * @param packageName The package to scan for migrations.
  */
 fun Mongo.runMigrations(packageName: String) {
-    val duration = measureTime {
+    val durationMs = measureTimeMillis {
         MongockStandalone.builder()
             .setDriver(MongoSync4Driver.withDefaultLock(MongoClients.create(connectionString), databaseName))
             .addMigrationScanPackage(packageName)
@@ -30,7 +29,7 @@ fun Mongo.runMigrations(packageName: String) {
             .execute()
     }
     log.atInfo {
-        message = "Ran MongoDB migrations for package ${packageName} in ${duration.toHumanReadableString()}"
+        message = "Ran MongoDB migrations for package $packageName in $durationMs ms"
     }
 }
 
