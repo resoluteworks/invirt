@@ -8,6 +8,7 @@ import com.mongodb.client.model.Indexes
 import com.mongodb.kotlin.client.MongoCollection
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlin.reflect.KProperty
+import kotlin.system.measureTimeMillis
 
 private val log = KotlinLogging.logger {}
 
@@ -67,16 +68,10 @@ fun textIndex(vararg fields: String): IndexModel = IndexModel(Indexes.compoundIn
  * @param indexModels The index models to create.
  */
 fun MongoCollection<*>.createIndices(vararg indexModels: IndexModel) {
-    val collectionName = this.namespace.collectionName
-    log.atInfo {
-        message = "Creating indexes for collection"
-        payload = mapOf(
-            "collection" to collectionName,
-            "count" to indexModels.size,
-            "indexes" to indexModels.map { it.keys }
-        )
+    val durationMs = measureTimeMillis {
+        createIndexes(indexModels.toList())
     }
-    createIndexes(indexModels.toList())
+    log.info { "Created ${indexModels.size} indices for collection ${this.namespace.collectionName} in $durationMs ms" }
 }
 
 /**

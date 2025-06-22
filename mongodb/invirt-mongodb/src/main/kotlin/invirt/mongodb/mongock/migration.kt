@@ -28,9 +28,7 @@ fun Mongo.runMigrations(packageName: String) {
             .buildRunner()
             .execute()
     }
-    log.atInfo {
-        message = "Ran MongoDB migrations for package $packageName in $durationMs ms"
-    }
+    log.info { "Ran MongoDB migrations for package $packageName in $durationMs ms" }
 }
 
 /**
