@@ -66,14 +66,14 @@ class DataTest : StringSpec() {
         }
 
         "Filter.mongoFilter()" {
-            DataFilter.Field.eq("type", "person").mongoFilter() shouldBe Filters.eq("type", "person")
-            DataFilter.Field.ne("status", "open").mongoFilter() shouldBe Filters.ne("status", "open")
-            DataFilter.Field.gt("age", 37).mongoFilter() shouldBe Filters.gt("age", 37)
-            DataFilter.Field.gte("age", 18).mongoFilter() shouldBe Filters.gte("age", 18)
-            DataFilter.Field.lt("age", 55).mongoFilter() shouldBe Filters.lt("age", 55)
-            DataFilter.Field.lte("age", 98).mongoFilter() shouldBe Filters.lte("age", 98)
+            DataFilter.eq("type", "person").mongoFilter() shouldBe Filters.eq("type", "person")
+            DataFilter.ne("status", "open").mongoFilter() shouldBe Filters.ne("status", "open")
+            DataFilter.gt("age", 37).mongoFilter() shouldBe Filters.gt("age", 37)
+            DataFilter.gte("age", 18).mongoFilter() shouldBe Filters.gte("age", 18)
+            DataFilter.lt("age", 55).mongoFilter() shouldBe Filters.lt("age", 55)
+            DataFilter.lte("age", 98).mongoFilter() shouldBe Filters.lte("age", 98)
 
-            DataFilter.Field.withingGeoBounds(
+            DataFilter.withingGeoBounds(
                 "location",
                 GeoBoundingBox(GeoLocation(lng = -8.596867, lat = 51.348611), GeoLocation(lng = 1.950008, lat = 56.435911))
             ).mongoFilter() shouldBe Filters.geoWithin(
@@ -89,10 +89,10 @@ class DataTest : StringSpec() {
                 )
             )
 
-            DataFilter.Compound.and(
-                DataFilter.Compound.or(DataFilter.Field.eq("status", "married"), DataFilter.Field.eq("status", "single")),
-                DataFilter.Compound.and(DataFilter.Field.gte("age", 18), DataFilter.Field.lt("age", 100)),
-                DataFilter.Field.eq("type", "person")
+            DataFilter.and(
+                DataFilter.or(DataFilter.eq("status", "married"), DataFilter.eq("status", "single")),
+                DataFilter.and(DataFilter.gte("age", 18), DataFilter.lt("age", 100)),
+                DataFilter.eq("type", "person")
             ).mongoFilter() shouldBe Filters.and(
                 Filters.or(Filters.eq("status", "married"), Filters.eq("status", "single")),
                 Filters.and(Filters.gte("age", 18), Filters.lt("age", 100)),

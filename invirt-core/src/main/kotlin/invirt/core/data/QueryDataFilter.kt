@@ -11,30 +11,60 @@ import org.http4k.lens.BiDiLens
  * The filter can be used to build complex filters by combining multiple query parameters with different operators.
  * @param operator the operator to use when combining multiple filters.
  */
-class QueryDataFilter(private val operator: DataFilter.Compound.Operator) {
+class QueryDataFilter(private val operator: Operator) {
+
+    enum class Operator { AND, OR }
 
     private val paramFilters = mutableListOf<QueryParamFilter<*>>()
 
+    /**
+     * Applies the filter to a [Request] and returns a [DataFilter] if any of the query parameters match.
+     * If no parameters match, it returns null.
+     *
+     * @param request the [Request] to filter.
+     * @return a [DataFilter] or null if no filters were applied.
+     */
     operator fun invoke(request: Request): DataFilter? {
         val filters = paramFilters.mapNotNull { it.getFilter(request) }
         if (filters.isEmpty()) {
             return null
         }
-        return DataFilter.Compound(operator, filters)
+        return when (operator) {
+            Operator.AND -> andFilter(filters)
+            Operator.OR -> orFilter(filters)
+        }
     }
 
+    /**
+     * Adds a query parameter filter to the [QueryDataFilter].
+     *
+     * @param [this] the [BiDiLens] used to extract the value from the request.
+     * @param filter the function that takes the value and returns a [DataFilter] or null.
+     */
     infix fun <Value : Any> BiDiLens<Request, Value?>.filter(filter: (Value) -> DataFilter?) {
         paramFilters.add(QueryParamFilter(this, null, filter))
     }
 
+    /**
+     * Adds a query parameter filter that applies when the value is missing.
+     *
+     * @param [this] the [BiDiLens] used to extract the value from the request.
+     * @param missing the function that returns a [DataFilter] when the value is missing.
+     */
     fun <Value : Any> BiDiLens<Request, Value?>.whenMissing(missing: () -> DataFilter) {
         paramFilters.add(QueryParamFilter(this, missing, null))
     }
 
+    /**
+     * Adds a query parameter filter that created an "or" [DataFilter] from the values extracted from the request.
+     *
+     * @param [this] the [BiDiLens] used to extract the value from the request.
+     * @param filter the function that takes the value and returns a [DataFilter].
+     */
     infix fun <Value : Any> BiDiLens<Request, List<Value>?>.or(filter: (Value) -> DataFilter) {
         paramFilters.add(
             QueryParamFilter(this) { values ->
-                values.map { value -> filter(value) }.orFilter()
+                orFilter(values.map { value -> filter(value) })
             }
         )
     }
@@ -42,7 +72,7 @@ class QueryDataFilter(private val operator: DataFilter.Compound.Operator) {
     infix fun <Value : Any> BiDiLens<Request, List<Value>?>.and(filter: (Value) -> DataFilter) {
         paramFilters.add(
             QueryParamFilter(this) { values ->
-                values.map { value -> filter(value) }.andFilter()
+                andFilter(values.map { value -> filter(value) })
             }
         )
     }
@@ -77,12 +107,12 @@ class QueryDataFilter(private val operator: DataFilter.Compound.Operator) {
 /**
  * Creates a new [QueryDataFilter] with the given [operator] and applies the [build] function to it.
  *
- * @param operator the operator to use when combining multiple filters. Default is [DataFilter.Compound.Operator.AND].
+ * @param operator the operator to use when combining multiple filters. Default is [QueryDataFilter.Operator.AND].
  * @param build a lambda function to build the filter, where you can define the query parameters and their filters.
  * @return a [QueryDataFilter] instance that can be used to filter requests based on query parameters.
  */
 fun queryDataFilter(
-    operator: DataFilter.Compound.Operator = DataFilter.Compound.Operator.AND,
+    operator: QueryDataFilter.Operator = QueryDataFilter.Operator.AND,
     build: QueryDataFilter.() -> Unit
 ): QueryDataFilter {
     val filter = QueryDataFilter(operator)

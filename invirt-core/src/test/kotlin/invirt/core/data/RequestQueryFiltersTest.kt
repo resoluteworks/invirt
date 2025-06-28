@@ -1,7 +1,6 @@
 package invirt.core.data
 
 import invirt.data.DataFilter
-import invirt.data.DataFilter.Compound
 import invirt.data.eq
 import invirt.data.gt
 import invirt.data.gte
@@ -37,40 +36,40 @@ class RequestQueryFiltersTest : StringSpec() {
             filter(Request(Method.GET, "/test")) shouldBe null
             filter(Request(Method.GET, "/test?q=test")) shouldBe null
 
-            filter(Request(Method.GET, "/test?type=person")) shouldBe Compound.and(
-                Compound.or("entity-type" eq "person")
+            filter(Request(Method.GET, "/test?type=person")) shouldBe DataFilter.and(
+                DataFilter.or("entity-type" eq "person")
             )
 
-            filter(Request(Method.GET, "/test?type=person&type=company")) shouldBe Compound.and(
-                Compound.or("entity-type" eq "person", "entity-type" eq "company")
+            filter(Request(Method.GET, "/test?type=person&type=company")) shouldBe DataFilter.and(
+                DataFilter.or("entity-type" eq "person", "entity-type" eq "company")
             )
 
-            filter(Request(Method.GET, "/test?type=person&min-age=18")) shouldBe Compound.and(
-                Compound.or("entity-type" eq "person"), "minAge".gte(18)
+            filter(Request(Method.GET, "/test?type=person&min-age=18")) shouldBe DataFilter.and(
+                DataFilter.or("entity-type" eq "person"), "minAge".gte(18)
             )
 
-            filter(Request(Method.GET, "/test?type=person&min-age=18&min-age=25")) shouldBe Compound.and(
-                Compound.or("entity-type" eq "person"), "minAge".gte(18)
+            filter(Request(Method.GET, "/test?type=person&min-age=18&min-age=25")) shouldBe DataFilter.and(
+                DataFilter.or("entity-type" eq "person"), "minAge".gte(18)
             )
 
             filter(
                 Request(
                     Method.GET, "/test?type=person&min-age=18&marital-status=MARRIED&marital-status=SINGLE"
                 )
-            ) shouldBe Compound.and(
-                Compound.or("entity-type" eq "person"),
+            ) shouldBe DataFilter.and(
+                DataFilter.or("entity-type" eq "person"),
                 "minAge".gte(18),
-                Compound.or("maritalStatus" eq MaritalStatus.MARRIED, "maritalStatus" eq MaritalStatus.SINGLE)
+                DataFilter.or("maritalStatus" eq MaritalStatus.MARRIED, "maritalStatus" eq MaritalStatus.SINGLE)
             )
 
             filter(
                 Request(
                     Method.GET, "/test?type=person&min-age=18&marital-status=MARRIED&marital-status=SINGLE&signed-up=last-month"
                 )
-            ) shouldBe Compound.and(
-                Compound.or("entity-type" eq "person"),
+            ) shouldBe DataFilter.and(
+                DataFilter.or("entity-type" eq "person"),
                 "minAge".gte(18),
-                Compound.or("maritalStatus" eq MaritalStatus.MARRIED, "maritalStatus" eq MaritalStatus.SINGLE),
+                DataFilter.or("maritalStatus" eq MaritalStatus.MARRIED, "maritalStatus" eq MaritalStatus.SINGLE),
                 "signupDate".gte(LocalDate.now().minusDays(30))
             )
 
@@ -79,17 +78,17 @@ class RequestQueryFiltersTest : StringSpec() {
                     Method.GET,
                     "/test?type=person&min-age=18&marital-status=MARRIED&marital-status=SINGLE&signed-up=last-month&subscription-type=premium&subscription-type=plus"
                 )
-            ) shouldBe Compound.and(
-                Compound.or("entity-type" eq "person"),
+            ) shouldBe DataFilter.and(
+                DataFilter.or("entity-type" eq "person"),
                 "minAge".gte(18),
-                Compound.or("maritalStatus" eq MaritalStatus.MARRIED, "maritalStatus" eq MaritalStatus.SINGLE),
+                DataFilter.or("maritalStatus" eq MaritalStatus.MARRIED, "maritalStatus" eq MaritalStatus.SINGLE),
                 "signupDate".gte(LocalDate.now().minusDays(30)),
-                Compound.and("subscriptionType" eq "premium", "subscriptionType" eq "plus")
+                DataFilter.and("subscriptionType" eq "premium", "subscriptionType" eq "plus")
             )
         }
 
         "query params to filter - AND" {
-            val filter = queryDataFilter(DataFilter.Compound.Operator.AND) {
+            val filter = queryDataFilter(QueryDataFilter.Operator.AND) {
                 Query.multi.optional("type").or { "entity-type".eq(it) }
                 Query.int().optional("min-age").filter { "minAge".gte(it) }
                 Query.enum<MaritalStatus>().multi.optional("marital-status").or { "maritalStatus".eq(it) }
@@ -110,12 +109,12 @@ class RequestQueryFiltersTest : StringSpec() {
                     Method.GET,
                     "/test?type=person&min-age=18&marital-status=MARRIED&marital-status=SINGLE&signed-up=last-month&subscription-type=premium&subscription-type=plus"
                 )
-            ) shouldBe Compound.and(
-                Compound.or("entity-type" eq "person"),
+            ) shouldBe DataFilter.and(
+                DataFilter.or("entity-type" eq "person"),
                 "minAge".gte(18),
-                Compound.or("maritalStatus" eq MaritalStatus.MARRIED, "maritalStatus" eq MaritalStatus.SINGLE),
+                DataFilter.or("maritalStatus" eq MaritalStatus.MARRIED, "maritalStatus" eq MaritalStatus.SINGLE),
                 "signupDate".gte(LocalDate.now().minusDays(30)),
-                Compound.and("subscriptionType" eq "premium", "subscriptionType" eq "plus")
+                DataFilter.and("subscriptionType" eq "premium", "subscriptionType" eq "plus")
             )
         }
 
@@ -125,12 +124,12 @@ class RequestQueryFiltersTest : StringSpec() {
                 Query.optional("include-empty-docs").whenMissing { "doc.size".gt(0) }
             }
 
-            filter(Request(Method.GET, "/test?type=person")) shouldBe Compound.and(
-                Compound.or("entity-type" eq "person"), DataFilter.Field.gt("doc.size", 0)
+            filter(Request(Method.GET, "/test?type=person")) shouldBe DataFilter.and(
+                DataFilter.or("entity-type" eq "person"), DataFilter.gt("doc.size", 0)
             )
 
-            filter(Request(Method.GET, "/test?type=person&include-empty-docs=nothing")) shouldBe Compound.and(
-                Compound.or("entity-type" eq "person")
+            filter(Request(Method.GET, "/test?type=person&include-empty-docs=nothing")) shouldBe DataFilter.and(
+                DataFilter.or("entity-type" eq "person")
             )
         }
     }

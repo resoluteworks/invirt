@@ -7,7 +7,6 @@ import invirt.data.DataFilter
 import invirt.data.Page
 import invirt.data.Sort
 import invirt.data.SortOrder
-import invirt.data.geo.GeoBoundingBox
 import org.bson.conversions.Bson
 
 /**
@@ -46,28 +45,22 @@ fun <T : Any> FindIterable<T>.sort(vararg sort: Sort = emptyArray()): FindIterab
 
 /**
  * Converts the specified [DataFilter] to a MongoDB [Bson] filter.
- * It handles both [DataFilter.Field] and [DataFilter.Compound] filters.
+ * It handles [DataFilter.Field], [DataFilter.Or] and [DataFilter.And] filters.
  */
 fun DataFilter.mongoFilter(): Bson = when (this) {
-    is DataFilter.Field<*> -> this.fieldFilter()
-    is DataFilter.Compound -> {
-        when (this.operator) {
-            DataFilter.Compound.Operator.OR -> Filters.or(this.subFilters.map { it.mongoFilter() })
-            DataFilter.Compound.Operator.AND -> Filters.and(this.subFilters.map { it.mongoFilter() })
-        }
-    }
-
-    else -> throw IllegalArgumentException("Unknown filter type ${this::class}")
+    is DataFilter.Field -> this.fieldFilter()
+    is DataFilter.Or -> Filters.or(this.filters.map { it.mongoFilter() })
+    is DataFilter.And -> Filters.and(this.filters.map { it.mongoFilter() })
 }
 
-private fun DataFilter.Field<*>.fieldFilter(): Bson = when (operation) {
-    DataFilter.Field.Operation.EQ -> Filters.eq(field, value)
-    DataFilter.Field.Operation.GT -> Filters.gt(field, value)
-    DataFilter.Field.Operation.GTE -> Filters.gte(field, value)
-    DataFilter.Field.Operation.LTE -> Filters.lte(field, value)
-    DataFilter.Field.Operation.LT -> Filters.lt(field, value)
-    DataFilter.Field.Operation.NE -> Filters.ne(field, value)
-    DataFilter.Field.Operation.EXISTS -> Filters.exists(field)
-    DataFilter.Field.Operation.DOESNT_EXIST -> Filters.exists(field, false)
-    DataFilter.Field.Operation.WITHIN_GEO_BOUNDS -> field.mongoGeoBounds(value as GeoBoundingBox)
+private fun DataFilter.Field.fieldFilter(): Bson = when (this) {
+    is DataFilter.Field.Eq<*> -> Filters.eq(field, value)
+    is DataFilter.Field.Ne<*> -> Filters.ne(field, value)
+    is DataFilter.Field.Gt<*> -> Filters.gt(field, value)
+    is DataFilter.Field.Gte<*> -> Filters.gte(field, value)
+    is DataFilter.Field.Lt<*> -> Filters.lt(field, value)
+    is DataFilter.Field.Lte<*> -> Filters.lte(field, value)
+    is DataFilter.Field.WithinGeoBounds -> field.mongoGeoBounds(value)
+    is DataFilter.Field.Exists -> Filters.exists(field)
+    is DataFilter.Field.DoesntExist -> Filters.exists(field, false)
 }

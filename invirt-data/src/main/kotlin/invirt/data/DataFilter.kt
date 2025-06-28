@@ -1,120 +1,100 @@
 package invirt.data
 
+import com.sun.tools.javac.code.TypeAnnotationPosition.field
+import invirt.data.DataFilter.Field
 import invirt.data.geo.GeoBoundingBox
 import kotlin.reflect.KProperty
 
-sealed class DataFilter {
+/**
+ * A filter that can be applied to data queries, allowing for complex filtering operations.
+ * It supports field-based filters, logical combinations (AND/OR), and geo-bound checks.
+ */
+sealed interface DataFilter {
 
-    data class Field<Value : Any>(
-        val field: String,
-        val operation: Operation,
-        val value: Value
-    ) : DataFilter() {
+    sealed class Field : DataFilter {
+//        fun <R : Any> map(convert: (Value) -> R): Field<R> = Field(
+//            field = field,
+//            operation = operation,
+//            value = convert(value)
+//        )
 
-        enum class Operation {
-            EQ,
-            NE,
-            GT,
-            GTE,
-            LT,
-            LTE,
-            WITHIN_GEO_BOUNDS,
-            EXISTS,
-            DOESNT_EXIST
-        }
-
-        fun <R : Any> map(convert: (Value) -> R): Field<R> = Field(
-            field = field,
-            operation = operation,
-            value = convert(value)
-        )
-
-        companion object {
-            fun <Value : Any> eq(field: String, value: Value): Field<Value> = Field(field, Operation.EQ, value)
-            fun <Value : Any> ne(field: String, value: Value): Field<Value> = Field(field, Operation.NE, value)
-            fun <Value : Any> gt(field: String, value: Value): Field<Value> = Field(field, Operation.GT, value)
-            fun <Value : Any> gte(field: String, value: Value): Field<Value> = Field(field, Operation.GTE, value)
-            fun <Value : Any> lt(field: String, value: Value): Field<Value> = Field(field, Operation.LT, value)
-            fun <Value : Any> lte(field: String, value: Value): Field<Value> = Field(field, Operation.LTE, value)
-            fun exists(field: String): Field<Unit> = Field(field, Operation.EXISTS, Unit)
-            fun doesntExist(field: String): Field<Unit> = Field(field, Operation.DOESNT_EXIST, Unit)
-
-            fun withingGeoBounds(field: String, value: GeoBoundingBox): Field<GeoBoundingBox> =
-                Field(field, Operation.WITHIN_GEO_BOUNDS, value)
-        }
+        data class Eq<Value : Any>(val field: String, val value: Value) : Field()
+        data class Ne<Value : Any>(val field: String, val value: Value) : Field()
+        data class Gt<Value : Any>(val field: String, val value: Value) : Field()
+        data class Gte<Value : Any>(val field: String, val value: Value) : Field()
+        data class Lt<Value : Any>(val field: String, val value: Value) : Field()
+        data class Lte<Value : Any>(val field: String, val value: Value) : Field()
+        data class WithinGeoBounds(val field: String, val value: GeoBoundingBox) : Field()
+        data class Exists(val field: String) : Field()
+        data class DoesntExist(val field: String) : Field()
     }
 
-    data class Compound(
-        val operator: Operator,
-        val subFilters: Collection<DataFilter>
-    ) : DataFilter() {
-
+    data class Or(val filters: List<DataFilter>) : DataFilter {
         init {
-            if (subFilters.isEmpty()) {
-                throw IllegalArgumentException("children argument cannot be an empty collection")
+            if (filters.isEmpty()) {
+                throw IllegalArgumentException("Filter collection cannot be empty for an OR filter")
             }
         }
+    }
 
-        enum class Operator {
-            OR,
-            AND
+    data class And(val filters: List<DataFilter>) : DataFilter {
+        init {
+            if (filters.isEmpty()) {
+                throw IllegalArgumentException("Filter collection cannot be empty for an AND filter")
+            }
         }
+    }
 
-        companion object {
-            fun or(vararg filters: DataFilter): Compound = or(filters.toList())
-
-            fun or(filters: Collection<DataFilter>): Compound = Compound(Operator.OR, filters)
-
-            fun and(vararg filters: DataFilter): Compound = and(filters.toList())
-
-            fun and(filters: Collection<DataFilter>): Compound = Compound(Operator.AND, filters)
-        }
+    companion object {
+        fun or(filters: List<DataFilter>) = Or(filters)
+        fun or(vararg filters: DataFilter) = or(filters.toList())
+        fun and(filters: List<DataFilter>) = And(filters)
+        fun and(vararg filters: DataFilter) = and(filters.toList())
+        fun <Value : Any> eq(field: String, value: Value): Field = Field.Eq(field, value)
+        fun <Value : Any> ne(field: String, value: Value): Field = Field.Ne(field, value)
+        fun <Value : Any> gt(field: String, value: Value): Field = Field.Gt(field, value)
+        fun <Value : Any> gte(field: String, value: Value): Field = Field.Gte(field, value)
+        fun <Value : Any> lt(field: String, value: Value): Field = Field.Lt(field, value)
+        fun <Value : Any> lte(field: String, value: Value): Field = Field.Lte(field, value)
+        fun exists(field: String): Field = Field.Exists(field)
+        fun doesntExist(field: String): Field = Field.DoesntExist(field)
+        fun withingGeoBounds(field: String, value: GeoBoundingBox): Field.WithinGeoBounds =
+            Field.WithinGeoBounds(field, value)
     }
 }
 
-fun andFilter(vararg filters: DataFilter): DataFilter = filters.toList().andFilter()
-fun orFilter(vararg filters: DataFilter): DataFilter = filters.toList().orFilter()
+fun andFilter(vararg filters: DataFilter): DataFilter = DataFilter.And(filters.toList())
+fun andFilter(filters: Collection<DataFilter>): DataFilter = DataFilter.And(filters.toList())
+fun orFilter(vararg filters: DataFilter): DataFilter = DataFilter.Or(filters.toList())
+fun orFilter(filters: Collection<DataFilter>): DataFilter = DataFilter.Or(filters.toList())
 
-fun Collection<DataFilter>.orFilter(): DataFilter = if (isEmpty()) {
-    throw IllegalArgumentException("Filter colletion cannot be empty for an OR filter")
-} else {
-    DataFilter.Compound.or(this)
-}
+infix fun <Value : Any> String.eq(value: Value) = Field.Eq(this, value)
+infix fun <Value : Any> String.ne(value: Value) = Field.Ne(this, value)
+infix fun <Value : Any> String.gt(value: Value) = Field.Gt(this, value)
+infix fun <Value : Any> String.gte(value: Value) = Field.Gte(this, value)
+infix fun <Value : Any> String.lt(value: Value) = Field.Lt(this, value)
+infix fun <Value : Any> String.lte(value: Value) = Field.Lte(this, value)
+infix fun String.withinGeoBounds(value: GeoBoundingBox) = Field.WithinGeoBounds(this, value)
+fun String.exists() = Field.Exists(this)
+fun String.doesntExist() = Field.DoesntExist(this)
 
-fun Collection<DataFilter>.andFilter(): DataFilter = if (isEmpty()) {
-    throw IllegalArgumentException("Filter colletion cannot be empty for an AND filter")
-} else {
-    DataFilter.Compound.and(this)
-}
-
-infix fun <Value : Any> String.eq(value: Value): DataFilter.Field<Value> = DataFilter.Field.eq(this, value)
-infix fun <Value : Any> String.ne(value: Value): DataFilter.Field<Value> = DataFilter.Field.ne(this, value)
-infix fun <Value : Any> String.gt(value: Value): DataFilter.Field<Value> = DataFilter.Field.gt(this, value)
-infix fun <Value : Any> String.gte(value: Value): DataFilter.Field<Value> = DataFilter.Field.gte(this, value)
-infix fun <Value : Any> String.lt(value: Value): DataFilter.Field<Value> = DataFilter.Field.lt(this, value)
-infix fun <Value : Any> String.lte(value: Value): DataFilter.Field<Value> = DataFilter.Field.lte(this, value)
-infix fun String.withinGeoBounds(value: GeoBoundingBox): DataFilter.Field<GeoBoundingBox> = DataFilter.Field.withingGeoBounds(this, value)
-fun String.exists(): DataFilter.Field<Unit> = DataFilter.Field.exists(this)
-fun String.doesntExist(): DataFilter.Field<Unit> = DataFilter.Field.doesntExist(this)
-
-infix fun <Value : Any> KProperty<Value?>.eq(value: Value): DataFilter.Field<Value> = DataFilter.Field.eq(this.name, value)
-infix fun <Value : Any> KProperty<Value?>.ne(value: Value): DataFilter.Field<Value> = DataFilter.Field.ne(this.name, value)
-infix fun <Value : Any> KProperty<Value?>.gt(value: Value): DataFilter.Field<Value> = DataFilter.Field.gt(this.name, value)
-infix fun <Value : Any> KProperty<Value?>.gte(value: Value): DataFilter.Field<Value> = DataFilter.Field.gte(this.name, value)
-infix fun <Value : Any> KProperty<Value?>.lt(value: Value): DataFilter.Field<Value> = DataFilter.Field.lt(this.name, value)
-infix fun <Value : Any> KProperty<Value?>.lte(value: Value): DataFilter.Field<Value> = DataFilter.Field.lte(this.name, value)
-fun KProperty<*>.exists(): DataFilter.Field<Unit> = DataFilter.Field.exists(this.name)
-fun KProperty<*>.doesntExist(): DataFilter.Field<Unit> = DataFilter.Field.doesntExist(this.name)
+infix fun <Value : Any> KProperty<Value?>.eq(value: Value) = Field.Eq(this.name, value)
+infix fun <Value : Any> KProperty<Value?>.ne(value: Value) = Field.Ne(this.name, value)
+infix fun <Value : Any> KProperty<Value?>.gt(value: Value) = Field.Gt(this.name, value)
+infix fun <Value : Any> KProperty<Value?>.gte(value: Value) = Field.Gte(this.name, value)
+infix fun <Value : Any> KProperty<Value?>.lt(value: Value) = Field.Lt(this.name, value)
+infix fun <Value : Any> KProperty<Value?>.lte(value: Value) = Field.Lte(this.name, value)
+fun KProperty<*>.exists() = Field.Exists(this.name)
+fun KProperty<*>.doesntExist() = Field.DoesntExist(this.name)
 
 /**
- * Returns the underlying filter when the or/and clause contains a single filter
+ * A recursive function to flatten a [DataFilter.Or] and [DataFilter.And] when these contain
+ * a single filter. This is useful to simplify the filter structure and complexity.
  */
-fun DataFilter.flatten(): DataFilter = if (this is DataFilter.Compound) {
-    if (subFilters.size == 1) {
-        subFilters.first().flatten()
-    } else {
-        DataFilter.Compound(this.operator, subFilters.map { it.flatten() })
-    }
-} else {
-    this
+fun DataFilter.flatten(): DataFilter = when {
+    this is DataFilter.Or && filters.size == 1 -> filters.first().flatten()
+    this is DataFilter.Or && filters.size > 1 -> DataFilter.Or(filters.map { it.flatten() })
+    this is DataFilter.And && filters.size == 1 -> filters.first().flatten()
+    this is DataFilter.And && filters.size > 1 -> DataFilter.And(filters.map { it.flatten() })
+    else -> this
 }
