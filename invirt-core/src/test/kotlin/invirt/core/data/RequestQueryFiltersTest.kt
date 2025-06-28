@@ -18,7 +18,7 @@ class RequestQueryFiltersTest : StringSpec() {
 
     init {
         "query params to filter - OR" {
-            val filter = queryValuesFilter {
+            val filter = queryDataFilter {
                 Query.multi.optional("type").or { "entity-type".eq(it) }
                 Query.int().optional("min-age").filter { "minAge".gte(it) }
                 Query.enum<MaritalStatus>().multi.optional("marital-status").or { "maritalStatus".eq(it) }
@@ -89,7 +89,7 @@ class RequestQueryFiltersTest : StringSpec() {
         }
 
         "query params to filter - AND" {
-            val filter = queryValuesFilter(DataFilter.Compound.Operator.AND) {
+            val filter = queryDataFilter(DataFilter.Compound.Operator.AND) {
                 Query.multi.optional("type").or { "entity-type".eq(it) }
                 Query.int().optional("min-age").filter { "minAge".gte(it) }
                 Query.enum<MaritalStatus>().multi.optional("marital-status").or { "maritalStatus".eq(it) }
@@ -120,7 +120,7 @@ class RequestQueryFiltersTest : StringSpec() {
         }
 
         "query params to filter - missing" {
-            val filter = queryValuesFilter {
+            val filter = queryDataFilter {
                 Query.multi.optional("type").or { "entity-type".eq(it) }
                 Query.optional("include-empty-docs").whenMissing { "doc.size".gt(0) }
             }

@@ -1,11 +1,12 @@
 package examples.data.handlers
 
+import examples.data.handlers.ordersFilter
 import examples.data.model.Order
 import examples.data.model.OrderStatus
 import examples.data.service.OrderService
 import invirt.core.GET
 import invirt.core.data.page
-import invirt.core.data.queryValuesFilter
+import invirt.core.data.queryDataFilter
 import invirt.core.data.sort
 import invirt.core.views.ViewResponse
 import invirt.core.views.ok
@@ -34,7 +35,7 @@ object OrderHandler {
     )
 }
 
-private val ordersFilter = queryValuesFilter(DataFilter.Compound.Operator.AND) {
+private val ordersFilter = queryDataFilter(DataFilter.Compound.Operator.AND) {
     Query.optional("total-order-value").filter { value ->
         when (value) {
             "less-than-1000" -> Order::totalMinorUnit.lt(1000_00)

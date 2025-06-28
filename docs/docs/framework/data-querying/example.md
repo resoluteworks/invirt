@@ -75,10 +75,10 @@ val page = request.page()
 ```
 ### Filtering logic
 For filtering we need to first define the handling of the filter query parameters `total-order-value` and `status`
-based on the logic described earlier. For this, we will use Invirt's built-in `queryValuesFilter`.
+based on the logic described earlier. For this, we will use Invirt's built-in `queryDataFilter`.
 
 ```kotlin
-val ordersFilter = queryValuesFilter {
+val ordersFilter = queryDataFilter {
    Query.optional("total-order-value").filter { value ->
       when (value) {
          "less-than-1000" -> Order::totalMinorUnit.lt(1000_00)
@@ -93,14 +93,14 @@ val ordersFilter = queryValuesFilter {
 }
 ```
 
-Several things to unpack here, so let's start with `queryValuesFilter()` itself.
-This function builds a `QueryValuesFilter` object which stores the configuration
+Several things to unpack here, so let's start with `queryDataFilter()` itself.
+This function builds a `QueryDataFilter` object which stores the configuration
 (lambdas) for how query parameters are converted to [DataFilter](/docs/api/invirt-data/data-filter)
 objects at runtime. This object can then be applied to a `Request` to produce the final
 `DataFilter`, or `null` if none of the expected parameters are present.
 
 ```kotlin
-val ordersFilter = queryValuesFilter {...}
+val ordersFilter = queryDataFilter {...}
 
 "/" GET { request ->
    val filter: DataFilter? = ordersFilter(request)
@@ -111,12 +111,12 @@ val ordersFilter = queryValuesFilter {...}
 The constructs inside the lambda will use http4k's built-in [parameter lensing](https://www.http4k.org/guide/howto/typesafe_your_api_with_lenses/)
 to start defining an expression for processing a parameter, hence the `Query.` chained calls.
 
-By default, `queryValuesFilter` builds an `AND` compound filter from the individual parameter filters defined in its lambda.
+By default, `queryDataFilter` builds an `AND` compound filter from the individual parameter filters defined in its lambda.
 This can be overridden by passing `DataFilter.Compound.Operator.OR`.
 ```kotlin
-queryValuesFilter { ... } // Defaults to DataFilter.Compound.Operator.AND
-queryValuesFilter(DataFilter.Compound.Operator.AND) { ... }
-queryValuesFilter(DataFilter.Compound.Operator.OR) { ... }
+queryDataFilter { ... } // Defaults to DataFilter.Compound.Operator.AND
+queryDataFilter(DataFilter.Compound.Operator.AND) { ... }
+queryDataFilter(DataFilter.Compound.Operator.OR) { ... }
 ```
 
 #### Handling total-order-value
@@ -183,7 +183,7 @@ object OrderHandler {
     )
 }
 
-private val filter = queryValuesFilter {
+private val filter = queryDataFilter {
     Query.optional("total-order-value").filter { value ->
         when (value) {
             "less-than-1000" -> Order::totalMinorUnit.lt(1000_00)

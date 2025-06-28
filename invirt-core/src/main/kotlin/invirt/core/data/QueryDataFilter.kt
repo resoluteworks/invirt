@@ -11,7 +11,7 @@ import org.http4k.lens.BiDiLens
  * The filter can be used to build complex filters by combining multiple query parameters with different operators.
  * @param operator the operator to use when combining multiple filters.
  */
-class QueryValuesFilter(private val operator: DataFilter.Compound.Operator) {
+class QueryDataFilter(private val operator: DataFilter.Compound.Operator) {
 
     private val paramFilters = mutableListOf<QueryParamFilter<*>>()
 
@@ -75,13 +75,17 @@ class QueryValuesFilter(private val operator: DataFilter.Compound.Operator) {
 }
 
 /**
- * Creates a new [QueryValuesFilter] with the given [operator] and applies the [build] function to it.
+ * Creates a new [QueryDataFilter] with the given [operator] and applies the [build] function to it.
+ *
+ * @param operator the operator to use when combining multiple filters. Default is [DataFilter.Compound.Operator.AND].
+ * @param build a lambda function to build the filter, where you can define the query parameters and their filters.
+ * @return a [QueryDataFilter] instance that can be used to filter requests based on query parameters.
  */
-fun queryValuesFilter(
+fun queryDataFilter(
     operator: DataFilter.Compound.Operator = DataFilter.Compound.Operator.AND,
-    build: QueryValuesFilter.() -> Unit
-): QueryValuesFilter {
-    val filter = QueryValuesFilter(operator)
+    build: QueryDataFilter.() -> Unit
+): QueryDataFilter {
+    val filter = QueryDataFilter(operator)
     build(filter)
     return filter
 }
