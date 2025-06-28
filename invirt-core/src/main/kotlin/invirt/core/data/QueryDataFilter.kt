@@ -1,8 +1,8 @@
 package invirt.core.data
 
 import invirt.data.DataFilter
-import invirt.data.andFilter
-import invirt.data.orFilter
+import invirt.data.andDataFilter
+import invirt.data.orDataFilter
 import org.http4k.core.Request
 import org.http4k.lens.BiDiLens
 
@@ -30,8 +30,8 @@ class QueryDataFilter(private val operator: Operator) {
             return null
         }
         return when (operator) {
-            Operator.AND -> andFilter(filters)
-            Operator.OR -> orFilter(filters)
+            Operator.AND -> andDataFilter(filters)
+            Operator.OR -> orDataFilter(filters)
         }
     }
 
@@ -56,7 +56,7 @@ class QueryDataFilter(private val operator: Operator) {
     }
 
     /**
-     * Adds a query parameter filter that created an "or" [DataFilter] from the values extracted from the request.
+     * Adds a query parameter filter that creates a [DataFilter.Or] from the values extracted from the request.
      *
      * @param [this] the [BiDiLens] used to extract the value from the request.
      * @param filter the function that takes the value and returns a [DataFilter].
@@ -64,15 +64,21 @@ class QueryDataFilter(private val operator: Operator) {
     infix fun <Value : Any> BiDiLens<Request, List<Value>?>.or(filter: (Value) -> DataFilter) {
         paramFilters.add(
             QueryParamFilter(this) { values ->
-                orFilter(values.map { value -> filter(value) })
+                orDataFilter(values.map { value -> filter(value) })
             }
         )
     }
 
+    /**
+     * Adds a query parameter filter that creates a [DataFilter.And] from the values extracted from the request.
+     *
+     * @param [this] the [BiDiLens] used to extract the value from the request.
+     * @param filter the function that takes the value and returns a [DataFilter].
+     */
     infix fun <Value : Any> BiDiLens<Request, List<Value>?>.and(filter: (Value) -> DataFilter) {
         paramFilters.add(
             QueryParamFilter(this) { values ->
-                andFilter(values.map { value -> filter(value) })
+                andDataFilter(values.map { value -> filter(value) })
             }
         )
     }

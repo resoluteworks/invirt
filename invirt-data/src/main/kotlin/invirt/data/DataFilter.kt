@@ -1,6 +1,5 @@
 package invirt.data
 
-import com.sun.tools.javac.code.TypeAnnotationPosition.field
 import invirt.data.DataFilter.Field
 import invirt.data.geo.GeoBoundingBox
 import kotlin.reflect.KProperty
@@ -63,10 +62,10 @@ sealed interface DataFilter {
     }
 }
 
-fun andFilter(vararg filters: DataFilter): DataFilter = DataFilter.And(filters.toList())
-fun andFilter(filters: Collection<DataFilter>): DataFilter = DataFilter.And(filters.toList())
-fun orFilter(vararg filters: DataFilter): DataFilter = DataFilter.Or(filters.toList())
-fun orFilter(filters: Collection<DataFilter>): DataFilter = DataFilter.Or(filters.toList())
+fun andDataFilter(vararg filters: DataFilter): DataFilter = DataFilter.And(filters.toList())
+fun andDataFilter(filters: Collection<DataFilter>): DataFilter = DataFilter.And(filters.toList())
+fun orDataFilter(vararg filters: DataFilter): DataFilter = DataFilter.Or(filters.toList())
+fun orDataFilter(filters: Collection<DataFilter>): DataFilter = DataFilter.Or(filters.toList())
 
 infix fun <Value : Any> String.eq(value: Value) = Field.Eq(this, value)
 infix fun <Value : Any> String.ne(value: Value) = Field.Ne(this, value)
