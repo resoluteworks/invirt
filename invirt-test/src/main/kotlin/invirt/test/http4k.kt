@@ -22,16 +22,6 @@ infix fun Response.shouldBeRedirectTo(url: String) {
     this.header("Location") shouldBe url
 }
 
-fun Request.cookiesFrom(response: Response): Request = cookies(response.cookies())
-
-fun Request.cookies(cookies: List<Cookie>): Request {
-    var request = this
-    cookies.forEach {
-        request = request.cookie(it)
-    }
-    return request
-}
-
 fun postForm(uri: String, fields: Map<String, String>): Request {
     val strictFormBody = Body.webForm(Validator.Ignore).toLens()
     return Request(Method.POST, uri)
