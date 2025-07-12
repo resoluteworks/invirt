@@ -3,7 +3,7 @@ package invirt.security.authentication
 import org.http4k.core.Request
 import org.http4k.core.cookie.Cookie
 
-interface Authenticator {
+fun interface Authenticator {
     /**
      * Authenticates an HTTP request, usually by extracting headers/cookies and returning them as AuthTokens
      * along with the authenticated Principal.
