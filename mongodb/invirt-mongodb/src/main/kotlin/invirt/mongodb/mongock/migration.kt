@@ -17,16 +17,26 @@ private val log = KotlinLogging.logger {}
 /**
  * Runs migrations for a MongoDB database using the Mongock library.
  * @param packageName The package to scan for migrations.
+ * @param dependencies Optional dependencies to inject into the migrations.
  */
-fun Mongo.runMigrations(packageName: String) {
+fun Mongo.runMigrations(
+    packageName: String,
+    vararg dependencies: Any
+) {
     val durationMs = measureTimeMillis {
-        MongockStandalone.builder()
+        val builder = MongockStandalone.builder()
             .setDriver(MongoSync4Driver.withDefaultLock(MongoClients.create(connectionString), databaseName))
             .addMigrationScanPackage(packageName)
             .setTransactionEnabled(true)
             .addDependency(this)
+        builder
             .buildRunner()
             .execute()
+
+        if (dependencies.isNotEmpty()) {
+            dependencies.forEach { builder.addDependency(it) }
+        }
+        builder.buildRunner().execute()
     }
     log.info { "Ran MongoDB migrations for package $packageName in $durationMs ms" }
 }
