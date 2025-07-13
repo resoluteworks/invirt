@@ -28,11 +28,8 @@ fun Mongo.runMigrations(
             .setDriver(MongoSync4Driver.withDefaultLock(MongoClients.create(connectionString), databaseName))
             .addMigrationScanPackage(packageName)
             .setTransactionEnabled(true)
-            .addDependency(this)
-        builder
-            .buildRunner()
-            .execute()
 
+        builder.addDependency(this)
         if (dependencies.isNotEmpty()) {
             dependencies.forEach { builder.addDependency(it) }
         }
