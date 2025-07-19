@@ -102,11 +102,26 @@ class InvirtRequestTest : StringSpec() {
             testRequestFunction("hasQueryValue", "/test?type=company&size=10&type=person", "true")
             testRequestFunction("hasQueryValue", "/test?type=company&size=10&type=entity", "false")
         }
+
+        "hasQueryParam" {
+            testRequestFunction("hasQueryParam", "/test", "false")
+            testRequestFunction("hasQueryParam", "/test?type=person", "true")
+            testRequestFunction("hasQueryParam", "/test?type", "true")
+            testRequestFunction("hasQueryParam", "/test?types", "false")
+        }
+
+        "host" {
+            testRequestFunction("host", Request(Method.GET, "/test").header("Host", "example.com"), "example.com")
+        }
     }
 
-    private fun testRequestFunction(function: String, request: String, expectedBody: String) {
+    private fun testRequestFunction(function: String, requestUri: String, expectedBody: String) {
+        testRequestFunction(function, Request(Method.GET, requestUri), expectedBody)
+    }
+
+    private fun testRequestFunction(function: String, request: Request, expectedBody: String) {
         val httpHandler = Invirt().then(routes("/test" bind Method.GET to { renderTemplate("request-function-${function}") }))
-        val response = httpHandler(Request(Method.GET, request))
+        val response = httpHandler(request)
         response.bodyString().trim() shouldBe expectedBody
     }
 

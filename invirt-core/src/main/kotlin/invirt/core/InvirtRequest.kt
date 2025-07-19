@@ -15,6 +15,8 @@ class InvirtRequest(private val delegate: Request) : Request by delegate {
 
     val sort: Sort? = delegate.sort()
 
+    fun host(): String? = header("Host")
+
     fun hasQueryParam(name: String): Boolean = delegate.uri.hasQueryParam(name)
     fun hasQueryValue(name: String, value: String): Boolean = delegate.uri.hasQueryValue(name, value)
     fun toggleQueryValue(name: String, value: Any): Uri = delegate.uri.toggleQueryValue(name, value)
