@@ -11,6 +11,7 @@ import org.http4k.core.toUrlFormEncoded
 
 fun Uri.queryValue(name: String): String? = queries().firstOrNull { it.first == name }?.second
 
+fun Uri.hasQuery(name: String): Boolean = this.queries().any { it.first == name }
 fun Uri.hasQueryValue(name: String, value: String): Boolean = this.queries().any { it.first == name && it.second == value }
 
 fun Uri.removeQueryValue(name: String, value: Any): Uri = copy(
