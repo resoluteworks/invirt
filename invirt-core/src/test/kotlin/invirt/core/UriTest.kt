@@ -64,11 +64,11 @@ class UriTest : StringSpec({
             .toString() shouldBe "/test?q=nothing&size=5&from=100"
     }
 
-    "hasQuery" {
-        Uri.of("/test?q=nothing&from=0&size=1").hasQuery("q") shouldBe true
-        Uri.of("/test?test&from=0&size=1").hasQuery("test") shouldBe true
-        Uri.of("/test?test&test=something&from&size=1").hasQuery("from") shouldBe true
-        Uri.of("/test?test&test=something&from").hasQuery("size") shouldBe false
+    "hasQueryParam" {
+        Uri.of("/test?q=nothing&from=0&size=1").hasQueryParam("q") shouldBe true
+        Uri.of("/test?test&from=0&size=1").hasQueryParam("test") shouldBe true
+        Uri.of("/test?test&test=something&from&size=1").hasQueryParam("from") shouldBe true
+        Uri.of("/test?test&test=something&from").hasQueryParam("size") shouldBe false
     }
 
     "hasQueryValue" {
