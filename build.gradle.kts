@@ -56,4 +56,5 @@ val Project.hasCoverage
     get() = name != "invirt-bom" &&
         name != "invirt-test" &&
         name != "invirt-mongodb-test" &&
-        name != "invirt-kafka-test"
+        name != "invirt-kafka-test" &&
+        name != "invirt-security-test"

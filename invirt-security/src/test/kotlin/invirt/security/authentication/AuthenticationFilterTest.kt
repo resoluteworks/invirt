@@ -3,8 +3,8 @@ package invirt.security.authentication
 import invirt.core.Invirt
 import invirt.security.TestPrincipal
 import invirt.security.authTestRoute
-import invirt.security.failingAuthenticator
-import invirt.security.successAuthenticator
+import invirt.security.test.failingAuthenticator
+import invirt.security.test.successAuthenticator
 import invirt.utils.uuid7
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldBeEmpty

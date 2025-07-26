@@ -1,8 +1,6 @@
 package invirt.security
 
 import invirt.core.GET
-import invirt.security.authentication.AuthenticationResponse
-import invirt.security.authentication.Authenticator
 import invirt.security.authentication.Principal
 import invirt.security.authentication.principal
 import invirt.security.authentication.useOnThisThread
@@ -13,21 +11,8 @@ import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Response
 import org.http4k.core.Status
-import org.http4k.core.cookie.Cookie
 import org.http4k.core.then
 import org.http4k.routing.routes
-
-val failingAuthenticator: Authenticator = object : Authenticator {
-    override fun authenticate(request: Request) = AuthenticationResponse.Unauthenticated
-}
-
-fun successAuthenticator(principal: Principal, newCookies: List<Cookie> = emptyList()): Authenticator = object : Authenticator {
-    override fun authenticate(request: Request): AuthenticationResponse.Authenticated<Principal> = if (newCookies.isNotEmpty()) {
-        AuthenticationResponse.Authenticated(principal, newCookies)
-    } else {
-        AuthenticationResponse.Authenticated(principal)
-    }
-}
 
 data class TestPrincipal(
     val id: String,

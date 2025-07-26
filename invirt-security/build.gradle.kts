@@ -15,5 +15,6 @@ dependencies {
     implementation("org.http4k:http4k-core")
 
     testImplementation(project(":invirt-test"))
+    testImplementation(project(":invirt-security-test"))
     testImplementation("org.http4k:http4k-testing-kotest:${http4kVersion}")
 }
