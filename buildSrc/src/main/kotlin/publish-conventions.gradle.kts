@@ -1,7 +1,6 @@
 plugins {
     id("signing")
     `maven-publish`
-    id("com.gradleup.nmcp")
 }
 
 publishing {
@@ -42,12 +41,4 @@ publishing {
 
 signing {
     sign(publishing.publications["mavenJava"])
-}
-
-nmcp {
-    publish("mavenJava") {
-        username = System.getenv("SONATYPE_PUBLISH_USERNAME")
-        password = System.getenv("SONATYPE_PUBLISH_PASSWORD")
-        publicationType = "AUTOMATIC"
-    }
 }

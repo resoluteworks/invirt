@@ -2,7 +2,7 @@ plugins {
     base
     id("jacoco-report-aggregation")
     id("com.github.nbaztec.coveralls-jacoco") version "1.2.19"
-    id("com.gradleup.nmcp")
+    id("com.gradleup.nmcp.aggregation").version("1.0.2")
 }
 
 group = "dev.invirt"
@@ -50,6 +50,16 @@ coverallsJacoco {
         }
 
     reportPath = project.layout.buildDirectory.file("reports/jacoco/jacocoRootReport/jacocoRootReport.xml").get().asFile.absolutePath
+}
+
+nmcpAggregation {
+    centralPortal {
+        username = System.getenv("SONATYPE_PUBLISH_USERNAME")
+        password = System.getenv("SONATYPE_PUBLISH_PASSWORD")
+        publishingType = "AUTOMATIC"
+    }
+
+    publishAllProjectsProbablyBreakingProjectIsolation()
 }
 
 val Project.hasCoverage

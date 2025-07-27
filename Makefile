@@ -21,7 +21,7 @@ docs-build:
 	cd docs; npm install; npm run build
 
 publish:
-	./gradlew publishAllPublicationsToCentralPortal
+	./gradlew publishAggregationToCentralPortal
 
 publish-local:
 	./gradlew publish
