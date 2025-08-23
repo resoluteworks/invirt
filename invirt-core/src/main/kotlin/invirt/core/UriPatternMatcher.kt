@@ -7,8 +7,10 @@ import org.http4k.core.Request
  * that a URI starts with the pattern.
  * For example "/login" will match "/login", "/login?a=b", "/login/me", "/login/me?param=true"
  *
- * Regular expressions can be used as well:
- * Example: "/auth.*" will match "/authenticate", "/authorise", "/auth/1", "/authorise/1"
+ * Wildcard matching can be used as well:
+ * Example:
+ *      "/auth*" will match "/authenticate", "/authorise", "/auth/1", "/authorise/1"
+ *      "/auth{@literal /}*" will match "/auth/", "/auth/1", "/auth/something/else" but not "/authenticate"
  *
  * This isn't usable for complex logic like matching for "/login" but not for "/login/dont-match-this"
  */
@@ -35,6 +37,6 @@ data class UriPatternMatcher(val patterns: Set<String>) {
 }
 
 private fun String.toUriPathRegex(): Regex {
-    val lowercase = this.lowercase()
+    val lowercase = this.lowercase().replace("*", ".*")
     return "$lowercase((/.*)|(\\?.*)|$)".toRegex()
 }

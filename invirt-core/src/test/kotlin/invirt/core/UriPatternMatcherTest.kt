@@ -31,8 +31,9 @@ class UriPatternMatcherTest : StringSpec({
         matcher.matches("/authenticate(3)") shouldBe false
     }
 
-    "regex pattern" {
-        val matcher = UriPatternMatcher("/auth.*")
+    "pattern matching with *" {
+        val matcher = UriPatternMatcher("/auth*")
+        matcher.matches("/auth") shouldBe true
         matcher.matches("/authenticate") shouldBe true
         matcher.matches("/authorise") shouldBe true
         matcher.matches("/auth/1") shouldBe true
@@ -40,8 +41,17 @@ class UriPatternMatcherTest : StringSpec({
         matcher.matches("/nonauth") shouldBe false
     }
 
+    "pattern matching with /*" {
+        val matcher = UriPatternMatcher("/auth/*")
+        matcher.matches("/auth") shouldBe false
+        matcher.matches("/authenticate") shouldBe false
+        matcher.matches("/authorise") shouldBe false
+        matcher.matches("/auth/1") shouldBe true
+        matcher.matches("/authorise/1") shouldBe false
+    }
+
     "@" {
-        val matcher = UriPatternMatcher("/@.*")
+        val matcher = UriPatternMatcher("/@*")
         matcher.matches("/@john-smith") shouldBe true
         matcher.matches("/@john-smith/abcd") shouldBe true
         matcher.matches("/@mack") shouldBe true
@@ -99,5 +109,13 @@ class UriPatternMatcherTest : StringSpec({
         matcher.matches(Request(Method.GET, "/auth?a=b")) shouldBe false
         matcher.matches(Request(Method.GET, "/auth/login")) shouldBe false
         matcher.matches(Request(Method.GET, "/auth/login?a=b")) shouldBe false
+    }
+
+    "/auth/* should match /auth/ /auth/1 /auth/something/else but not /authenticate" {
+        val matcher = UriPatternMatcher("/auth/*")
+        matcher.matches("/auth/") shouldBe true
+        matcher.matches("/auth/1") shouldBe true
+        matcher.matches("/auth/something/else") shouldBe true
+        matcher.matches("/authenticate") shouldBe false
     }
 })
