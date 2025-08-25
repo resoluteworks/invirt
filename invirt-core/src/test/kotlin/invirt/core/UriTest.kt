@@ -66,17 +66,21 @@ class UriTest : StringSpec({
 
     "hasQueryParam" {
         Uri.of("/test?q=nothing&from=0&size=1").hasQueryParam("q") shouldBe true
+        Uri.of("/test?Q=nothing&from=0&size=1").hasQueryParam("q") shouldBe true
         Uri.of("/test?test&from=0&size=1").hasQueryParam("test") shouldBe true
         Uri.of("/test?test&test=something&from&size=1").hasQueryParam("from") shouldBe true
+        Uri.of("/test?test&test=something&fRom&size=1").hasQueryParam("from") shouldBe true
         Uri.of("/test?test&test=something&from").hasQueryParam("size") shouldBe false
     }
 
     "hasQueryValue" {
         Uri.of("/test?q=nothing&from=0&size=1").hasQueryValue("q", "nothing") shouldBe true
         Uri.of("/test?test=nothing&test=something&from=0&size=1").hasQueryValue("test", "nothing") shouldBe true
+        Uri.of("/test?test=nothing&tEsT=something&from=0&size=1").hasQueryValue("test", "nothing") shouldBe true
         Uri.of("/test?test=nothing&test=something&from=0&size=1").hasQueryValue("test", "something") shouldBe true
         Uri.of("/test?test=nothing&test=something&from=0&size=1").hasQueryValue("from", "0") shouldBe true
         Uri.of("/test?test=nothing&test=something&from=0&size=1").hasQueryValue("size", "1") shouldBe true
+        Uri.of("/test?test=nothing&test=something&from=0&sIze=11").hasQueryValue("size", "11") shouldBe true
 
         Uri.of("/test?test=nothing&test=something&from=0&size=1").hasQueryValue("size", "11") shouldBe false
         Uri.of("/test?test=nothing&test=something&from=0&size=1").hasQueryValue("test", "something,nothing") shouldBe false

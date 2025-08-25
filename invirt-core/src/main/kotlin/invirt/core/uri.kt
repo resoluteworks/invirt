@@ -9,10 +9,12 @@ import org.http4k.core.removeQuery
 import org.http4k.core.toParameters
 import org.http4k.core.toUrlFormEncoded
 
-fun Uri.queryValue(name: String): String? = queries().firstOrNull { it.first == name }?.second
+fun Uri.queryValue(name: String): String? = queries().firstOrNull { it.first.equals(name, ignoreCase = true) }?.second
 
-fun Uri.hasQueryParam(name: String): Boolean = this.queries().any { it.first == name }
-fun Uri.hasQueryValue(name: String, value: String): Boolean = this.queries().any { it.first == name && it.second == value }
+fun Uri.hasQueryParam(name: String): Boolean = this.queries().any { it.first.equals(name, ignoreCase = true) }
+fun Uri.hasQueryValue(name: String, value: String): Boolean = this.queries().any {
+    it.first.equals(name, ignoreCase = true) && it.second.equals(value, ignoreCase = true)
+}
 
 fun Uri.removeQueryValue(name: String, value: Any): Uri = copy(
     query = query.toParameters().filterNot {
