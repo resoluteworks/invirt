@@ -18,22 +18,27 @@ fun Uri.hasQueryValue(name: String, value: String): Boolean = this.queries().any
 
 fun Uri.removeQueryValue(name: String, value: Any): Uri = copy(
     query = query.toParameters().filterNot {
-        it.first == name && it.second.toString() == value
+        it.first.equals(name, ignoreCase = true) && it.second.toString().equals(value.toString(), ignoreCase = true)
     }.toUrlFormEncoded()
 )
 
 fun Uri.toggleQueryValue(name: String, value: Any): Uri {
-    val query = queries().firstOrNull { it.first == name && it.second.toString() == value }
+    val query = queries().firstOrNull {
+        it.first.equals(name, ignoreCase = true) && it.second.toString().equals(value.toString(), ignoreCase = true)
+    }
     return query
         ?.let { this.removeQueryValue(name, value) }
         ?: query(name, value.toString())
 }
 
-fun Uri.removeQueries(names: Collection<String>): Uri = copy(
-    query = query.toParameters().filterNot {
-        it.first in names
-    }.toUrlFormEncoded()
-)
+fun Uri.removeQueries(names: Collection<String>): Uri {
+    val lowercaseNames = names.map { name -> name.lowercase() }
+    return copy(
+        query = query.toParameters()
+            .filterNot { it.first.lowercase() in lowercaseNames }
+            .toUrlFormEncoded()
+    )
+}
 
 fun Uri.replacePage(page: Page): Uri = replaceQuery(
     "from" to page.from,
@@ -53,7 +58,7 @@ fun Uri.replaceQuery(vararg queryValues: Pair<String, Any>): Uri = replaceQuery(
 
 fun Uri.replaceQuery(queries: Map<String, Any>): Uri {
     var uri = removeQueries(queries.keys)
-    queries.forEach { name, value ->
+    queries.forEach { (name, value) ->
         uri = uri.query(name, value.toString())
     }
     return uri
@@ -66,7 +71,7 @@ fun Uri.csvAppend(name: String, value: Any): Uri = replaceQuery(
 )
 
 fun Uri.csvRemove(name: String, value: Any): Uri {
-    val values = csvQuery(name).toMutableSet().filter { it != value.toString() }
+    val values = csvQuery(name).toMutableSet().filter { it.lowercase() != value.toString().lowercase() }
     return if (values.isEmpty()) {
         removeQuery(name)
     } else {

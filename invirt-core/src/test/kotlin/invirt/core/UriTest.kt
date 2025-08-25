@@ -23,6 +23,7 @@ class UriTest : StringSpec({
         Uri.of("/test").removeQueries(listOf("q", "filter")).toString() shouldBe "/test"
         Uri.of("/test?q=john&filter=name").removeQueries(listOf("q", "filter")).toString() shouldBe "/test"
         Uri.of("/test?q=john&filter=name&size=10").removeQueries(listOf("q", "filter")).toString() shouldBe "/test?size=10"
+        Uri.of("/test?Q=john&fIlteR=name&size=10").removeQueries(listOf("q", "filter")).toString() shouldBe "/test?size=10"
     }
 
     "replacePage" {
@@ -46,8 +47,12 @@ class UriTest : StringSpec({
     "toggleQuery" {
         Uri.of("/test").toggleQueryValue("q", "John").toString() shouldBe "/test?q=John"
         Uri.of("/test?q=John").toggleQueryValue("q", "John").toString() shouldBe "/test"
+        Uri.of("/test?Q=John").toggleQueryValue("q", "John").toString() shouldBe "/test"
 
         Uri.of("/test?q=nothing&from=0&filter=one&size=1&filter=two").toggleQueryValue("filter", "one")
+            .toString() shouldBe "/test?q=nothing&from=0&size=1&filter=two"
+
+        Uri.of("/test?q=nothing&from=0&fILTER=one&size=1&filter=two").toggleQueryValue("filter", "one")
             .toString() shouldBe "/test?q=nothing&from=0&size=1&filter=two"
 
         Uri.of("/test?q=nothing&from=0&filter=one&size=1").toggleQueryValue("filter", "two")
