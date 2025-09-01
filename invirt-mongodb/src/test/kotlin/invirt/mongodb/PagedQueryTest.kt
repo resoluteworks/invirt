@@ -188,7 +188,7 @@ class PagedQueryTest : StringSpec() {
             result.totalCount shouldBe documentCount + folderCount
         }
 
-        "collection.query with maxDocuments" {
+        "maxDocuments should limit totalCount" {
             data class TestDocument(
                 @BsonId override val id: String = uuid7(),
                 override var version: Long = 0
