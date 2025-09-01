@@ -1,8 +1,7 @@
 package invirt.mongodb.mongock
 
-import com.mongodb.client.MongoClients
+import com.mongodb.kotlin.client.MongoClient
 import invirt.mongodb.JavaClientSession
-import invirt.mongodb.JavaMongoDatabase
 import invirt.mongodb.Mongo
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.mongock.api.annotations.Execution
@@ -10,6 +9,8 @@ import io.mongock.api.annotations.RollbackBeforeExecution
 import io.mongock.api.annotations.RollbackExecution
 import io.mongock.driver.mongodb.sync.v4.driver.MongoSync4Driver
 import io.mongock.runner.standalone.MongockStandalone
+import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.jvm.isAccessible
 import kotlin.system.measureTimeMillis
 
 private val log = KotlinLogging.logger {}
@@ -24,15 +25,19 @@ fun Mongo.runMigrations(
     vararg dependencies: Any
 ) {
     val durationMs = measureTimeMillis {
+        // We use the same underlying Java MongoClient as the Kotlin one
+        // in order for transactions to work properly across both libraries.
+        val wrappedField = MongoClient::class.declaredMemberProperties.find { it.name == "wrapped" }!!
+        wrappedField.isAccessible = true
+        val jMongoClient = wrappedField.get(mongoClient) as com.mongodb.client.MongoClient
+
         val builder = MongockStandalone.builder()
-            .setDriver(MongoSync4Driver.withDefaultLock(MongoClients.create(connectionString), databaseName))
+            .setDriver(MongoSync4Driver.withDefaultLock(jMongoClient, databaseName))
             .addMigrationScanPackage(packageName)
-            .setTransactionEnabled(true)
+            .setTransactional(true)
 
         builder.addDependency(this)
-        if (dependencies.isNotEmpty()) {
-            dependencies.forEach { builder.addDependency(it) }
-        }
+        dependencies.forEach { builder.addDependency(it) }
         builder.buildRunner().execute()
     }
     log.info { "Ran MongoDB migrations for package $packageName in $durationMs ms" }
@@ -65,9 +70,9 @@ interface ModelMigration {
  */
 interface DataMigration {
 
-    fun data(database: JavaMongoDatabase, session: JavaClientSession)
+    fun data(mongo: Mongo, javaSession: JavaClientSession)
 
-    fun rollbackData(database: JavaMongoDatabase, session: JavaClientSession)
+    fun rollbackData(mongo: Mongo, javaSession: JavaClientSession)
 }
 
 /**
@@ -76,6 +81,6 @@ interface DataMigration {
 interface ModelAndDataMigration {
     fun model(mongo: Mongo)
     fun rollbackModel(mongo: Mongo)
-    fun data(database: JavaMongoDatabase, session: JavaClientSession)
-    fun rollbackData(database: JavaMongoDatabase, session: JavaClientSession)
+    fun data(mongo: Mongo, javaSession: JavaClientSession)
+    fun rollbackData(mongo: Mongo, javaSession: JavaClientSession)
 }

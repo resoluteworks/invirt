@@ -1,7 +1,6 @@
 package invirt.mongodb.mongock.migrations.modelrollback
 
 import invirt.mongodb.JavaClientSession
-import invirt.mongodb.JavaMongoDatabase
 import invirt.mongodb.Mongo
 import invirt.mongodb.asc
 import invirt.mongodb.createIndices
@@ -31,11 +30,11 @@ class V1_CreateIndexWithRollback : ModelAndDataMigration {
 
     @Execution
     override fun data(
-        database: JavaMongoDatabase,
-        session: JavaClientSession
+        mongo: Mongo,
+        javaSession: JavaClientSession
     ): Unit = throw RuntimeException("Failing artificially to trigger rollback")
 
     @RollbackExecution
-    override fun rollbackData(database: JavaMongoDatabase, session: JavaClientSession) {
+    override fun rollbackData(mongo: Mongo, javaSession: JavaClientSession) {
     }
 }

@@ -12,7 +12,7 @@ dependencies {
 
     api("org.mongodb:mongodb-driver-kotlin-sync:${mongoDriverVersion}")
 
-    api(platform("io.mongock:mongock-bom:5.4.4"))
+    api(platform("io.mongock:mongock-bom:5.5.1"))
     api("io.mongock:mongock-api")
     implementation("io.mongock:mongock-standalone")
     implementation("io.mongock:mongodb-sync-v4-driver")
