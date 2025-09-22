@@ -1,6 +1,6 @@
 package invirt.utils
 
-private val REGEX_URL = """(http(s)?://.)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)""".toRegex()
+private val REGEX_URL = """(http(s)?://.)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,32}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)""".toRegex()
 
 fun String.isUrl(): Boolean = matches(REGEX_URL)
 

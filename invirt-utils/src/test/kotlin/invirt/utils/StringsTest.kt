@@ -122,6 +122,7 @@ class StringsTest : StringSpec({
         "test.com".isUrl() shouldBe true
         "http://test.com".isUrl() shouldBe true
         "https://test.com".isUrl() shouldBe true
+        "https://test.artgallery".isUrl() shouldBe true
         "https://test.com/something/else.file".isUrl() shouldBe true
     }
 
