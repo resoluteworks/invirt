@@ -14,7 +14,7 @@ import org.http4k.template.ViewModel
  * @param errors The validation errors to display in the view.
  * @param template The template to render.
  */
-internal class ErrorResponseView(
+class ErrorViewModel(
     val model: Any?,
     val errors: ValidationErrors,
     val template: String
@@ -23,7 +23,7 @@ internal class ErrorResponseView(
 }
 
 /**
- * Creates an [ErrorResponseView] from the given model object and the specified validation [errors].
+ * Creates an [ErrorViewModel] from the given model object and the specified validation [errors].
  * This will render a page with the specified [template] and exposes the [errors] directly into
  * the page's Pebble context to be queried for display.
  */
@@ -32,10 +32,10 @@ fun errorResponse(
     errors: ValidationErrors,
     template: String,
     status: Status = Status.UNPROCESSABLE_ENTITY
-): Response = ErrorResponseView(model, errors, template).status(status)
+): Response = ErrorViewModel(model, errors, template).status(status)
 
 /**
- * Creates an [ErrorResponseView] from the given validation [errors].
+ * Creates an [ErrorViewModel] from the given validation [errors].
  * This will render a page with the specified [template] and exposes the [errors] directly into
  * the page's Pebble context to be queried for display.
  */

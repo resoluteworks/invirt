@@ -7,6 +7,7 @@ plugins {
 
 dependencies {
     val http4kVersion: String by project
+    val validkVersion: String by project
 
     implementation(project(":invirt-core"))
 
@@ -20,4 +21,5 @@ dependencies {
     implementation("org.http4k:http4k-template-pebble")
 
     implementation("org.http4k:http4k-testing-kotest:${http4kVersion}")
+    implementation("io.resoluteworks:validk:${validkVersion}")
 }

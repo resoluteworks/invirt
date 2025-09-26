@@ -32,7 +32,7 @@ class InvirtPebbleTemplates(
             return try {
                 val writer = StringWriter()
 
-                val context = if (viewModel is ErrorResponseView) {
+                val context = if (viewModel is ErrorViewModel) {
                     InvirtRequestContext.setErrors(viewModel.errors)
                     mapOf(
                         "model" to viewModel.model, "errors" to viewModel.errors
