@@ -24,7 +24,7 @@ internal class ErrorResponseView(
 
 /**
  * Creates an [ErrorResponseView] from the given model object and the specified validation [errors].
- * This will render a page with the specified [template] and exposed the [errors] directly into
+ * This will render a page with the specified [template] and exposes the [errors] directly into
  * the page's Pebble context to be queried for display.
  */
 fun errorResponse(
@@ -34,6 +34,11 @@ fun errorResponse(
     status: Status = Status.UNPROCESSABLE_ENTITY
 ): Response = ErrorResponseView(model, errors, template).status(status)
 
+/**
+ * Creates an [ErrorResponseView] from the given validation [errors].
+ * This will render a page with the specified [template] and exposes the [errors] directly into
+ * the page's Pebble context to be queried for display.
+ */
 fun errorResponse(
     template: String,
     vararg errors: Pair<String, String>
