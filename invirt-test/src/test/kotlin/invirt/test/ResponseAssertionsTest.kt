@@ -4,9 +4,11 @@ import invirt.core.GET
 import invirt.core.Invirt
 import invirt.core.InvirtConfig
 import invirt.core.InvirtPebbleConfig
-import invirt.core.views.ViewResponse
+import invirt.core.views.InvirtView
+import invirt.core.views.asErrorResponse
 import invirt.core.views.errorResponse
 import invirt.core.views.ok
+import invirt.core.views.renderTemplate
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.validk.ValidationError
@@ -23,22 +25,28 @@ class ResponseAssertionsTest : StringSpec() {
 
     init {
 
-        "shouldHaveViewModel extracts and checks the ViewModel" {
-            data class TestViewModel(val name: String) : ViewResponse("test-view")
+        "shouldHaveModel extracts and checks the model" {
+            data class TestViewModel(val name: String) : InvirtView("test-view")
 
-            val httpHandler = invirt.then(routes("/test" GET { TestViewModel("test name").ok() }))
+            val httpHandler = invirt.then(routes("/test" GET { TestViewModel("test name").ok(it) }))
             val response = httpHandler(Request(Method.GET, "/test"))
-            val viewModel = response.shouldHaveViewModel<TestViewModel>()
+            val viewModel = response.shouldHaveModel<TestViewModel>()
             viewModel.name shouldBe "test name"
         }
 
+        "shouldHaveTemplate extracts and checks the template" {
+            val httpHandler = invirt.then(routes("/test" GET { renderTemplate(it, "test-view") }))
+            val response = httpHandler(Request(Method.GET, "/test"))
+            response shouldHaveTemplate "test-view"
+        }
+
         "shouldBeErrorResponse extracts and inner view model and validation errors" {
-            data class TestViewModel(val name: String) : ViewResponse("test-view")
+            data class TestViewModel(val name: String) : InvirtView("test-view")
 
             val httpHandler = invirt.then(
                 routes(
                     "/test" GET {
-                        errorResponse(TestViewModel("test name"), ValidationErrors(ValidationError("name", "Name too short")), "test-view")
+                        TestViewModel("test name").asErrorResponse(it, ValidationErrors(ValidationError("name", "Name too short")))
                     }
                 )
             )
@@ -53,7 +61,7 @@ class ResponseAssertionsTest : StringSpec() {
             val httpHandler = invirt.then(
                 routes(
                     "/test" GET {
-                        errorResponse(null, ValidationErrors(ValidationError("name", "Name too long")), "test-view")
+                        errorResponse(it, ValidationErrors(ValidationError("name", "Name too long")), "test-view")
                     }
                 )
             )

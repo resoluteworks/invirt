@@ -5,7 +5,6 @@ import org.http4k.core.Response
 import org.http4k.core.cookie.Cookie
 import org.http4k.core.cookie.cookie
 import org.http4k.core.cookie.cookies
-import kotlin.collections.forEach
 
 /**
  * Creates a request with cookies from the given [Response].

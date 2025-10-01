@@ -1,8 +1,6 @@
 package invirt.utils
 
-inline fun <reified E : Enum<E>> valueOfOrNull(name: String): E? {
-    return enumValues<E>().firstOrNull { it.name == name }
-}
+inline fun <reified E : Enum<E>> valueOfOrNull(name: String): E? = enumValues<E>().firstOrNull { it.name == name }
 
 /**
  * Parses a comma separated string of enum names into a list of enum values

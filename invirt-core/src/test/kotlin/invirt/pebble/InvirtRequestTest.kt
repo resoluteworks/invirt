@@ -1,9 +1,9 @@
 package invirt.pebble
 
 import invirt.core.Invirt
+import invirt.core.views.InvirtView
 import invirt.core.views.ok
 import invirt.core.views.renderTemplate
-import invirt.core.views.withView
 import invirt.data.Page
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -12,7 +12,6 @@ import org.http4k.core.Request
 import org.http4k.core.then
 import org.http4k.routing.bind
 import org.http4k.routing.routes
-import org.http4k.template.ViewModel
 
 class InvirtRequestTest : StringSpec() {
 
@@ -120,7 +119,7 @@ class InvirtRequestTest : StringSpec() {
     }
 
     private fun testRequestFunction(function: String, request: Request, expectedBody: String) {
-        val httpHandler = Invirt().then(routes("/test" bind Method.GET to { renderTemplate("request-function-${function}") }))
+        val httpHandler = Invirt().then(routes("/test" bind Method.GET to { renderTemplate(it, "request-function-${function}") }))
         val response = httpHandler(request)
         response.bodyString().trim() shouldBe expectedBody
     }
@@ -129,10 +128,10 @@ class InvirtRequestTest : StringSpec() {
         val httpHandler = Invirt().then(
             routes(
                 "/test" bind Method.GET to {
-                    if (model is ViewModel) {
-                        model.ok()
+                    if (model is InvirtView) {
+                        model.ok(it)
                     } else if (model is Map<*, *>) {
-                        (model as Map<String, Any>) withView "request-function-${function}"
+                        renderTemplate(it, "request-function-${function}", (model as Map<String, Any>))
                     } else {
                         throw IllegalArgumentException("Can't handle model $model")
                     }

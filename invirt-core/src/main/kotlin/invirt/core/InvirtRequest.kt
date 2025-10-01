@@ -11,7 +11,7 @@ import org.http4k.core.Uri
  * A thin wrapper of http4k's [Request] object.
  * @param delegate The underlying http4k [Request]
  */
-class InvirtRequest(private val delegate: Request) : Request by delegate {
+internal class InvirtRequest(private val delegate: Request) : Request by delegate {
 
     val sort: Sort? = delegate.sort()
 

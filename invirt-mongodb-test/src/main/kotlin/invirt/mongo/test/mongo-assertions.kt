@@ -13,7 +13,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.bson.Document
 import java.time.temporal.ChronoUnit
-import javax.print.Doc
 
 infix fun TimestampedDocument.shouldBeUpdateOf(other: TimestampedDocument) {
     val thisUpdatedAt = this.updatedAt.truncatedTo(ChronoUnit.MILLIS)

@@ -1,37 +1,48 @@
 package invirt.core.views
 
 import invirt.core.Invirt
+import io.validk.ValidationErrors
+import org.http4k.core.Request
 import org.http4k.core.Response
 import org.http4k.core.Status
 import org.http4k.core.with
 import org.http4k.routing.ResponseWithContext
-import org.http4k.template.ViewModel
 
 /**
- * Renders the specified template with the given model object.
+ * Renders the specified [template] with the given [model] object.
  */
-fun renderTemplate(template: String): Response {
-    val viewModel = object : ViewModel {
-        override fun template() = template
-    }
-    return viewModel.ok()
-}
+fun renderTemplate(
+    request: Request,
+    template: String,
+    model: Any? = null
+): Response = viewResponse(
+    request = request,
+    model = model,
+    template = template,
+    errors = null,
+    status = Status.OK
+)
 
 /**
  * A response that renders a view (template) from a model object and a status OK.
  */
-fun ViewModel.ok(): Response = this.status(Status.OK)
+fun InvirtView.ok(request: Request): Response = this.status(request, Status.OK)
 
 /**
  * A response that renders a view (template) from a model object and a status.
  */
-fun ViewModel.status(status: Status): Response =
-    ResponseWithContext(Response(status).with(Invirt.viewLens of this), mapOf("viewModel" to this))
+fun InvirtView.status(request: Request, status: Status): Response = viewResponse(request, this, this.template, null, status)
 
 /**
- * Convenience implementation for a [ViewModel] that renders a view (template)
- * and provides the template name in the constructor.
+ * Renders the specified [template] with the given [model] object and optional validation [errors].
  */
-open class ViewResponse(val template: String) : ViewModel {
-    override fun template() = template
+internal fun viewResponse(
+    request: Request,
+    model: Any?,
+    template: String,
+    errors: ValidationErrors?,
+    status: Status
+): Response {
+    val invirtRenderModel = InvirtRenderModel(request, template, model, errors)
+    return ResponseWithContext(Response(status).with(Invirt.viewLens of invirtRenderModel), mapOf("invirtRenderModel" to invirtRenderModel))
 }

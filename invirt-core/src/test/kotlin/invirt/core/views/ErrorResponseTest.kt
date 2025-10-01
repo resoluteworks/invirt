@@ -22,31 +22,31 @@ class ErrorResponseTest : StringSpec({
         val errors = ValidationErrors(ValidationError("test", "test"))
 
         Invirt()
-            .then(routes("/test" bind Method.GET to { errorResponse("model", errors, "errorResponse-utils-test") }))
+            .then(routes("/test" bind Method.GET to { errorResponse(it, errors, "errorResponse-utils-test") }))
             .invoke(Request(Method.GET, "/test"))
             .status shouldBe Status.UNPROCESSABLE_ENTITY
 
         Invirt()
-            .then(routes("/test" bind Method.GET to { errorResponse("model", errors, "errorResponse-utils-test", Status.BAD_REQUEST) }))
+            .then(routes("/test" bind Method.GET to { errorResponse(it, errors, "errorResponse-utils-test", null, Status.BAD_REQUEST) }))
             .invoke(Request(Method.GET, "/test"))
             .status shouldBe Status.BAD_REQUEST
     }
 
     "errorResponse - error pairs" {
         Invirt()
-            .then(routes("/test" bind Method.GET to { errorResponse("errorResponse-utils-test", "test" to uuid7()) }))
+            .then(routes("/test" bind Method.GET to { errorResponse(it, "errorResponse-utils-test", "test" to uuid7()) }))
             .invoke(Request(Method.GET, "/test"))
             .status shouldBe Status.UNPROCESSABLE_ENTITY
     }
 
     "ViewResponse.toErrorResponse" {
-        data class TestViewResponse(val name: String) : ViewResponse("errorResponse-view-response-to-error-response")
+        data class TestViewResponse(val name: String) : InvirtView("errorResponse-view-response-to-error-response")
 
         val response = Invirt()
             .then(
                 routes(
                     "/test" bind Method.GET to {
-                        TestViewResponse("an-incorrect-name").toErrorResponse(ValidationErrors(ValidationError("name", "Invalid name")))
+                        TestViewResponse("an-incorrect-name").asErrorResponse(it, ValidationErrors(ValidationError("name", "Invalid name")))
                     }
                 )
             )
@@ -58,7 +58,7 @@ class ErrorResponseTest : StringSpec({
 
     "errorResponse - fail on empty errors" {
         shouldThrow<IllegalArgumentException> {
-            errorResponse("test")
+            errorResponse(Request(Method.GET, "/test"), "test")
         }
     }
 })

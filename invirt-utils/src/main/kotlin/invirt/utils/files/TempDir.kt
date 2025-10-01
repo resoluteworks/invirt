@@ -70,6 +70,4 @@ class TempDir(parentDirectory: File = tempDirectory()) : Closeable {
 fun <T> withTempDir(
     currentDirectory: File = tempDirectory(),
     block: (TempDir) -> T
-): T {
-    return TempDir(currentDirectory).use(block)
-}
+): T = TempDir(currentDirectory).use(block)

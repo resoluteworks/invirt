@@ -2,51 +2,55 @@ package invirt.core.views
 
 import io.validk.ValidationError
 import io.validk.ValidationErrors
+import org.http4k.core.Request
 import org.http4k.core.Response
 import org.http4k.core.Status
-import org.http4k.template.ViewModel
 
 /**
- * A response that renders a view (template) from a model object when an error occurs.
- * Typically used to render a form with validation errors.
- *
- * @param model The model object to render in the view.
- * @param errors The validation errors to display in the view.
- * @param template The template to render.
+ * Creates a [Response] from the given [InvirtView] and the specified validation [errors].
+ * This function treats the [InvirtView] as the model object to be rendered.
  */
-class ErrorViewModel(
-    val model: Any?,
-    val errors: ValidationErrors,
-    val template: String
-) : ViewModel {
-    override fun template() = template
-}
+fun InvirtView.asErrorResponse(
+    request: Request,
+    errors: ValidationErrors,
+    status: Status = Status.UNPROCESSABLE_ENTITY
+): Response = errorResponse(request, errors, this.template, this, status)
 
 /**
- * Creates an [ErrorViewModel] from the given model object and the specified validation [errors].
- * This will render a page with the specified [template] and exposes the [errors] directly into
- * the page's Pebble context to be queried for display.
+ * Creates a [Response] from the given [model] object and the specified validation [errors]
+ * and renders it with the given [template].
  */
 fun errorResponse(
-    model: Any?,
+    request: Request,
     errors: ValidationErrors,
     template: String,
+    model: Any? = null,
     status: Status = Status.UNPROCESSABLE_ENTITY
-): Response = ErrorViewModel(model, errors, template).status(status)
+): Response = viewResponse(
+    request = request,
+    model = model,
+    template = template,
+    errors = errors,
+    status = status
+)
 
 /**
- * Creates an [ErrorViewModel] from the given validation [errors].
- * This will render a page with the specified [template] and exposes the [errors] directly into
- * the page's Pebble context to be queried for display.
+ * Creates a [Response] from the given key-value pair representing a model object
+ * and the specified validation [errors] and renders it with the given [template].
  */
 fun errorResponse(
+    request: Request,
     template: String,
     vararg errors: Pair<String, String>
 ): Response {
     if (errors.isEmpty()) {
         throw IllegalArgumentException("Errors cannot be empty")
     }
-    return errorResponse(null, ValidationErrors(errors.map { ValidationError(it.first, it.second) }), template)
+    return errorResponse(
+        request = request,
+        errors = ValidationErrors(errors.map { ValidationError(it.first, it.second) }),
+        template = template,
+        model = null,
+        status = Status.UNPROCESSABLE_ENTITY
+    )
 }
-
-fun ViewResponse.toErrorResponse(errors: ValidationErrors): Response = errorResponse(this, errors, this.template)

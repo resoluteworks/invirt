@@ -9,9 +9,7 @@ object Currencies {
 
     private val symbols = resourceAsProps("currency/currency-symbols.properties")
 
-    fun getSymbol(code: String): String {
-        return symbols.getProperty(code, code)
-    }
+    fun getSymbol(code: String): String = symbols.getProperty(code, code)
 }
 
 fun Currency.minorUnitToString(decimalAmount: Long): String {

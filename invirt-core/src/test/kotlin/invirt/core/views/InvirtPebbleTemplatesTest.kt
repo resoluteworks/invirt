@@ -2,6 +2,7 @@ package invirt.core.views
 
 import invirt.core.GET
 import invirt.core.Invirt
+import invirt.core.InvirtException
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import org.http4k.core.Method
@@ -11,14 +12,13 @@ import org.http4k.core.then
 import org.http4k.kotest.shouldHaveBody
 import org.http4k.kotest.shouldHaveStatus
 import org.http4k.routing.routes
-import org.http4k.template.ViewNotFound
 
 class InvirtPebbleTemplatesTest : StringSpec({
 
     "request object in pebble templates" {
         val handler = Invirt().then(
             routes(
-                "/test" GET { renderTemplate("invirt-pebble-filter-request-object") }
+                "/test" GET { renderTemplate(it, "invirt-pebble-filter-request-object") }
             )
         )
 
@@ -34,10 +34,10 @@ class InvirtPebbleTemplatesTest : StringSpec({
     "view not found error" {
         val handler = Invirt().then(
             routes(
-                "/test" GET { renderTemplate("not-existent-template") }
+                "/test" GET { renderTemplate(it, "not-existent-template") }
             )
         )
-        shouldThrow<ViewNotFound> {
+        shouldThrow<InvirtException> {
             handler(Request(Method.GET, "/test"))
         }
     }

@@ -18,6 +18,8 @@ dependencies {
     val invirtVersion: String by project
     val http4kVersion: String by project
     val validkVersion: String by project
+    val awaitilityVersion: String by project
+    val kotlinLoggingVersion: String by project
 
     // Core, minimal dependencies
     implementation(platform("dev.invirt:invirt-bom:${invirtVersion}"))
@@ -35,7 +37,7 @@ dependencies {
     implementation("io.resoluteworks:validk:${validkVersion}")
 
     // Logging
-    implementation("io.github.oshai:kotlin-logging-jvm:6.0.9")
+    implementation("io.github.oshai:kotlin-logging-jvm:${kotlinLoggingVersion}")
 
     // Testing
     val kotestVersion: String by project
@@ -46,7 +48,7 @@ dependencies {
     testImplementation("io.kotest.extensions:kotest-extensions-clock:1.0.0")
     testImplementation("io.kotest:kotest-runner-junit5-jvm:${kotestVersion}")
     testImplementation("io.mockk:mockk:${mockkVersion}")
-    testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
+    testImplementation("org.awaitility:awaitility-kotlin:${awaitilityVersion}")
 }
 
 tasks.named<JavaExec>("run") {

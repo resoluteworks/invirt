@@ -27,7 +27,7 @@ class ViewsTest : StringSpec() {
                     developmentMode = true,
                     pebble = InvirtPebbleConfig(hotReloadDirectory = "src/test/resources/hot-reload-views")
                 )
-                val httpHandler = Invirt(config).then(routes("/test" GET { renderTemplate("hot-reload-template") }))
+                val httpHandler = Invirt(config).then(routes("/test" GET { renderTemplate(it, "hot-reload-template") }))
                 httpHandler(Request(Method.GET, "/test")).bodyString() shouldBe initialContent
 
                 val updatedContent = uuid7()
@@ -46,19 +46,14 @@ class ViewsTest : StringSpec() {
                 pebble = InvirtPebbleConfig(classpathLocation = "classpath-views")
             )
 
-            val httpHandler = Invirt(config).then(routes("/test" GET { renderTemplate("classpath-view") }))
+            val httpHandler = Invirt(config).then(routes("/test" GET { renderTemplate(it, "classpath-view") }))
             httpHandler(Request(Method.GET, "/test")).bodyString().trim() shouldBe "Classpath view content"
         }
 
         "renderTemplate" {
-            val config = InvirtConfig(
-                developmentMode = false,
-                pebble = InvirtPebbleConfig(classpathLocation = "webapp/views")
-            )
-
-            val httpHandler = Invirt(config).then(
+            val httpHandler = Invirt().then(
                 routes(
-                    "/test" GET { renderTemplate("render-template") }
+                    "/test" GET { renderTemplate(it, "render-template") }
                 )
             )
 
@@ -66,11 +61,20 @@ class ViewsTest : StringSpec() {
             response.bodyString().trim() shouldBe "Spiceworld!"
         }
 
+        "renderTemplate with model" {
+            val httpHandler = Invirt().then(
+                routes("/test" bind Method.GET to { renderTemplate(it, "map-view", mapOf("key" to "test-value")) })
+            )
+
+            val response = httpHandler(Request(Method.GET, "/test"))
+            response.bodyString().trim() shouldBe "test-value"
+        }
+
         "ViewModel.ok" {
             val httpHandler = Invirt().then(
                 routes(
                     "/test" bind Method.GET to {
-                        renderTemplate("view-model-ok")
+                        renderTemplate(it, "view-model-ok")
                     }
                 )
             )
@@ -96,7 +100,7 @@ class ViewsTest : StringSpec() {
             val httpHandler = Invirt(config).then(
                 routes(
                     "/test" bind Method.GET to {
-                        renderTemplate("custom-pebble-extension")
+                        renderTemplate(it, "custom-pebble-extension")
                     }
                 )
             )

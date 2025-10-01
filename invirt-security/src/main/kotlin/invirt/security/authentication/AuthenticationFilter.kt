@@ -15,8 +15,8 @@ object AuthenticationFilter {
         { request ->
             val authResponse = authenticator.authenticate(request)
             if (authResponse is AuthenticationResponse.Authenticated<*>) {
-                val response = authResponse.principal.useOnThreadAndRequest(request) {
-                    next(request)
+                val response = authResponse.principal.useOnThisThread {
+                    next(request.withPrincipal(authResponse.principal))
                 }
 
                 // Set cookies if any have been set by Authenticator

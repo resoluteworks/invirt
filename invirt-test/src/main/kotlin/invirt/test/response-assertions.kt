@@ -1,6 +1,6 @@
 package invirt.test
 
-import invirt.core.views.ErrorViewModel
+import invirt.core.views.InvirtRenderModel
 import io.kotest.matchers.equality.shouldBeEqualToIgnoringFields
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -12,7 +12,6 @@ import org.http4k.core.cookie.Cookie
 import org.http4k.core.cookie.cookies
 import org.http4k.kotest.shouldHaveStatus
 import org.http4k.lens.ResponseKey
-import org.http4k.template.ViewModel
 
 /**
  * Asserts that the response has a status code of 303 that redirects to the specified [url].
@@ -38,39 +37,38 @@ infix fun Response.shouldHaveCookieIgnoringExpiry(cookie: Cookie) {
 }
 
 /**
- * Asserts that the response contains a view model of the expected type [V].
- *
- * @param V The expected type of the view model.
+ * Asserts that the response contains a model of the expected type [M].
  */
-inline fun <reified V : ViewModel> Response.shouldHaveViewModel(): V {
-    val viewModel = ResponseKey.of<ViewModel>("viewModel")(this)
-    return viewModel.shouldBeInstanceOf<V>()
+inline fun <reified M : Any> Response.shouldHaveModel(): M {
+    val renderModal = ResponseKey.of<InvirtRenderModel>("invirtRenderModel")(this)
+    return renderModal.model.shouldBeInstanceOf<M>()
 }
 
 /**
- * Asserts that the response contains an [ErrorViewModel] with a non-null model of the expected type [V]
+ * Asserts that the response is rendered with the specified [template].
+ */
+infix fun Response.shouldHaveTemplate(template: String) {
+    val renderModal = ResponseKey.of<InvirtRenderModel>("invirtRenderModel")(this)
+    renderModal.template shouldBe template
+}
+
+/**
+ * Asserts that the response contains a non-null model of the expected type [M] and validation errors,
  * and returns a pair of the model and the validation errors.
- *
- * @param V The expected type of the model within the [ErrorViewModel].
- * @return A pair containing the model of type [V] and the associated [ValidationErrors].
  */
-inline fun <reified V : ViewModel> Response.shouldBeErrorResponse(): Pair<V, ValidationErrors> {
-    val viewModel = ResponseKey.of<ViewModel>("viewModel")(this)
-    viewModel.shouldBeInstanceOf<ErrorViewModel>()
-    viewModel.model shouldNotBe null
-    viewModel.model.shouldBeInstanceOf<V>()
-    return Pair(viewModel.model as V, viewModel.errors)
+inline fun <reified M : Any> Response.shouldBeErrorResponse(): Pair<M, ValidationErrors> {
+    val invirtRenderModel = ResponseKey.of<InvirtRenderModel>("invirtRenderModel")(this)
+    invirtRenderModel.model shouldNotBe null
+    invirtRenderModel.model.shouldBeInstanceOf<M>()
+    invirtRenderModel.errors shouldNotBe null
+    return Pair(invirtRenderModel.model as M, invirtRenderModel.errors!!)
 }
 
 /**
- * Asserts that the response contains an [ErrorViewModel] with a null model
- * and returns the associated validation errors.
- *
- * @return The [ValidationErrors] associated with the [ErrorViewModel].
+ * Asserts that the response contains validation errors and returns them.
  */
 fun Response.shouldBeErrorResponse(): ValidationErrors {
-    val viewModel = ResponseKey.of<ViewModel>("viewModel")(this)
-    viewModel.shouldBeInstanceOf<ErrorViewModel>()
-    viewModel.model shouldBe null
-    return viewModel.errors
+    val invirtRenderModel = ResponseKey.of<InvirtRenderModel>("invirtRenderModel")(this)
+    invirtRenderModel.errors shouldNotBe null
+    return invirtRenderModel.errors!!
 }

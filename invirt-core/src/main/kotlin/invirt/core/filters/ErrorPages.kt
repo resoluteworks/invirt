@@ -16,7 +16,7 @@ object ErrorPages {
             val response = next(request)
             val view = statusViewMappings[response.status]
             if (view != null) {
-                renderTemplate(view).status(response.status)
+                renderTemplate(request, view).status(response.status)
             } else {
                 response
             }

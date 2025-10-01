@@ -27,7 +27,7 @@ class ValidationTest : StringSpec() {
                 .then(
                     routes(
                         "/test" bind Method.GET to {
-                            errorResponse(Form(), errors, "validation/errors-from-context")
+                            errorResponse(it, errors, "validation/errors-from-context", Form())
                         }
                     )
                 )
@@ -44,7 +44,7 @@ class ValidationTest : StringSpec() {
 
             fun testErrors(errors: ValidationErrors, expect: Boolean) {
                 val httpHandler = Invirt()
-                    .then(routes("/test" bind Method.GET to { errorResponse(Form(), errors, "validation/has-errors") }))
+                    .then(routes("/test" bind Method.GET to { errorResponse(it, errors, "validation/has-errors", Form()) }))
                 val response = httpHandler(Request(Method.GET, "/test"))
                 response.bodyString().trim() shouldBe expect.toString()
             }
@@ -58,7 +58,18 @@ class ValidationTest : StringSpec() {
 
             fun testErrors(errors: ValidationErrors, expect: String) {
                 val httpHandler = Invirt()
-                    .then(routes("/test" bind Method.GET to { errorResponse(Form(), errors, "validation/errors-function-in-macro.peb") }))
+                    .then(
+                        routes(
+                            "/test" bind Method.GET to {
+                                errorResponse(
+                                    it,
+                                    errors,
+                                    "validation/errors-function-in-macro.peb",
+                                    Form()
+                                )
+                            }
+                        )
+                    )
                 val response = httpHandler(Request(Method.GET, "/test"))
                 response.bodyString().trim() shouldBe expect
             }

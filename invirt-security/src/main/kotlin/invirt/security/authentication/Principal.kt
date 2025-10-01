@@ -1,11 +1,12 @@
 package invirt.security.authentication
 
-import invirt.core.InvirtRequestContext
 import invirt.utils.threads.withValue
 import org.http4k.core.Request
+import org.http4k.core.with
+import org.http4k.lens.RequestKey
 
 internal val principalThreadLocal = ThreadLocal<Principal>()
-internal val principalContextKey = InvirtRequestContext.optionalKey<Principal>()
+internal val principalContextKey = RequestKey.optional<Principal>("currentPrincipal")
 
 interface Principal {
 
@@ -31,23 +32,6 @@ fun <T> Principal.useOnThisThread(block: (Principal) -> T): T = principalThreadL
     block(this)
 }
 
-fun <T> Principal.useOnThreadAndRequest(request: Request, block: (Principal) -> T): T {
-    try {
-        principalThreadLocal.set(this)
-        request.setPrincipal(this)
-        return block(this)
-    } finally {
-        principalThreadLocal.remove()
-        request.clearPrincipal()
-    }
-}
+fun Request.withPrincipal(principal: Principal): Request = this.with(principalContextKey of principal)
 
-fun Request.setPrincipal(principal: Principal) {
-    principalContextKey[this] = principal
-}
-
-fun Request.clearPrincipal() {
-    principalContextKey[this] = null
-}
-
-val Request.principal: Principal? get() = principalContextKey[this]
+val Request.principal: Principal? get() = principalContextKey(this)
