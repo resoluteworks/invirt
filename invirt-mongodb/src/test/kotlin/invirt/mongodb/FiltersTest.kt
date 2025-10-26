@@ -57,6 +57,21 @@ class FiltersTest : StringSpec() {
             collection.find("index".mongoEq(10)).toList().map { it.index } shouldBe listOf(10)
         }
 
+        "mongoExists" {
+            data class TestDocument(
+                val index: Int,
+                val name: String?,
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0
+            ) : VersionedDocument
+
+            val collection = mongo.randomTestCollection<TestDocument>()
+            val documents = (1..10).map { TestDocument(it, if (it % 2 == 0) uuid7() else null) }
+            collection.insertMany(documents)
+            collection.find(TestDocument::name.mongoExists()).toList().map { it.index } shouldBe listOf(2, 4, 6, 8, 10)
+            collection.find("name".mongoExists()).toList().map { it.index } shouldBe listOf(2, 4, 6, 8, 10)
+        }
+
         "exists and doesntExist"
         {
             data class Name(val firstName: String?, val lastName: String?)

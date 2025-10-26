@@ -14,9 +14,6 @@ fun <Doc : Any> MongoCollection<Doc>.insert(document: Doc): Doc {
         document.createdAt = mongoNow()
         document.updatedAt = mongoNow()
     }
-    if (document is VersionedDocument) {
-        document.version = 1
-    }
     insertOne(document)
     return document
 }

@@ -116,7 +116,7 @@ class CollectionTest : StringSpec() {
 
             collection.countDocuments() shouldBe 1
             val createdDoc = collection.get(doc.id)!!
-            createdDoc.version shouldBe 1
+            createdDoc.version shouldBe 0
             createdDoc.name shouldBe doc.name
         }
 
@@ -158,7 +158,7 @@ class CollectionTest : StringSpec() {
             val collection = mongo.randomTestCollection<TestDocument>()
             val v1 = collection.insert(TestDocument("document"))
 
-            v1.version shouldBe 1
+            v1.version shouldBe 0
 
             // This update will succeed and update the version to 2
             collection.update(v1.copy(type = "folder"))
@@ -171,7 +171,7 @@ class CollectionTest : StringSpec() {
             // The initial update to "folder" would not be overwrritten by the failed update attempt
             val lastVersion = collection.get(v1.id)!!
             lastVersion.type shouldBe "folder"
-            lastVersion.version shouldBe 2
+            lastVersion.version shouldBe 1
         }
 
         "update document - optimistic lock failure with successful retry" {
@@ -195,7 +195,7 @@ class CollectionTest : StringSpec() {
 
             val lastVersion = collection.get(v1.id)!!
             lastVersion.email shouldBe "johnsmith3@test.com"
-            lastVersion.version shouldBe 3
+            lastVersion.version shouldBe 2
         }
 
         "update document - optimistic lock failure with failed retry" {
@@ -221,7 +221,7 @@ class CollectionTest : StringSpec() {
             // other thread/process is the last version
             val lastVersion = collection.get(v1.id)!!
             lastVersion.email shouldBe "jonhsmith3@test.com"
-            lastVersion.version shouldBe 3
+            lastVersion.version shouldBe 2
         }
 
         "id consistency" {
