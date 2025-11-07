@@ -67,7 +67,7 @@ class MongockMigrationTest : StringSpec() {
 }
 
 @ChangeUnit(id = "1-create-index", order = "1")
-private class SingleClassMigration : ModelMigration {
+class SingleClassMigration : ModelMigration {
 
     @BeforeExecution
     override fun model(mongo: Mongo) {
