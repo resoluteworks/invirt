@@ -10,6 +10,7 @@ import io.mongock.api.annotations.RollbackExecution
 import io.mongock.driver.mongodb.sync.v4.driver.MongoSync4Driver
 import io.mongock.runner.standalone.MongockStandalone
 import io.mongock.runner.standalone.RunnerStandaloneBuilder
+import kotlin.reflect.KClass
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.jvm.isAccessible
 import kotlin.system.measureTimeMillis
@@ -38,11 +39,11 @@ fun Mongo.runMigrations(
  * @param dependencies Optional dependencies to inject into the migration.
  */
 fun Mongo.runMigration(
-    migrationClass: Class<*>,
+    migrationClass: KClass<*>,
     vararg dependencies: Any
 ) {
     runMigrations(dependencies.toList(), "class ${migrationClass.simpleName}") {
-        addMigrationClass(migrationClass)
+        addMigrationClass(migrationClass.java)
     }
 }
 

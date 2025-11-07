@@ -57,7 +57,7 @@ class MongockMigrationTest : StringSpec() {
 
         "single class migration" {
             val mongo = testMongo()
-            mongo.runMigration(SingleClassMigration::class.java)
+            mongo.runMigration(SingleClassMigration::class)
             val collection = mongo.database.getCollection<Company>(Company.COLLECTION)
             collection.shouldHaveAscIndex("name")
             collection.shouldHaveAscIndex("version")
