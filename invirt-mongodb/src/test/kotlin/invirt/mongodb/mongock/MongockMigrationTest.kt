@@ -4,10 +4,16 @@ import invirt.mongo.test.shouldHaveAscIndex
 import invirt.mongo.test.shouldHaveDescIndex
 import invirt.mongo.test.shouldNotHaveAscIndex
 import invirt.mongo.test.testMongo
+import invirt.mongodb.Mongo
+import invirt.mongodb.TimestampedDocument
+import invirt.mongodb.asc
+import invirt.mongodb.createIndices
 import invirt.mongodb.mongock.migrations.Company
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
+import io.mongock.api.annotations.BeforeExecution
+import io.mongock.api.annotations.ChangeUnit
 import io.mongock.api.exception.MongockException
 
 class MongockMigrationTest : StringSpec() {
@@ -48,5 +54,26 @@ class MongockMigrationTest : StringSpec() {
             val collection = mongo.database.getCollection<Company>(Company.COLLECTION)
             collection.shouldNotHaveAscIndex("name")
         }
+
+        "single class migration" {
+            val mongo = testMongo()
+            mongo.runMigration(SingleClassMigration::class.java)
+            val collection = mongo.database.getCollection<Company>(Company.COLLECTION)
+            collection.shouldHaveAscIndex("name")
+            collection.shouldHaveAscIndex("version")
+            collection.shouldHaveDescIndex("createdAt")
+        }
+    }
+}
+
+@ChangeUnit(id = "1-create-index", order = "1")
+private class SingleClassMigration : ModelMigration {
+
+    @BeforeExecution
+    override fun model(mongo: Mongo) {
+        mongo.database.getCollection<Company>(Company.COLLECTION).createIndices(
+            Company::name.asc(),
+            *TimestampedDocument.allIndices()
+        )
     }
 }

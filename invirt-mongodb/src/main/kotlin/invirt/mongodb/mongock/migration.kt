@@ -9,6 +9,7 @@ import io.mongock.api.annotations.RollbackBeforeExecution
 import io.mongock.api.annotations.RollbackExecution
 import io.mongock.driver.mongodb.sync.v4.driver.MongoSync4Driver
 import io.mongock.runner.standalone.MongockStandalone
+import io.mongock.runner.standalone.RunnerStandaloneBuilder
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.jvm.isAccessible
 import kotlin.system.measureTimeMillis
@@ -17,12 +18,38 @@ private val log = KotlinLogging.logger {}
 
 /**
  * Runs migrations for a MongoDB database using the Mongock library.
+ *
  * @param packageName The package to scan for migrations.
  * @param dependencies Optional dependencies to inject into the migrations.
  */
 fun Mongo.runMigrations(
     packageName: String,
     vararg dependencies: Any
+) {
+    runMigrations(dependencies.toList(), "package ") {
+        addMigrationScanPackage(packageName)
+    }
+}
+
+/**
+ * Runs a specific migration class for a MongoDB database using the Mongock library.
+ *
+ * @param migrationClass The migration class to run.
+ * @param dependencies Optional dependencies to inject into the migration.
+ */
+fun Mongo.runMigration(
+    migrationClass: Class<*>,
+    vararg dependencies: Any
+) {
+    runMigrations(dependencies.toList(), "class ${migrationClass.simpleName}") {
+        addMigrationClass(migrationClass)
+    }
+}
+
+private fun Mongo.runMigrations(
+    dependencies: List<Any>,
+    logName: String,
+    createBuilder: RunnerStandaloneBuilder.() -> RunnerStandaloneBuilder
 ) {
     val durationMs = measureTimeMillis {
         // We use the same underlying Java MongoClient as the Kotlin one
@@ -33,14 +60,14 @@ fun Mongo.runMigrations(
 
         val builder = MongockStandalone.builder()
             .setDriver(MongoSync4Driver.withDefaultLock(jMongoClient, databaseName))
-            .addMigrationScanPackage(packageName)
             .setTransactional(true)
+            .createBuilder()
 
         builder.addDependency(this)
         dependencies.forEach { builder.addDependency(it) }
         builder.buildRunner().execute()
     }
-    log.info { "Ran MongoDB migrations for package $packageName in $durationMs ms" }
+    log.info { "Ran MongoDB migrations for $logName in $durationMs ms" }
 }
 
 /**
