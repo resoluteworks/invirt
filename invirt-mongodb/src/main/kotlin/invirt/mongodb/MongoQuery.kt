@@ -15,7 +15,7 @@ import kotlin.reflect.KProperty
  */
 class MongoQuery<Doc : Any>(private val collection: MongoCollection<Doc>) {
 
-    private var filter: Bson? = null
+    private var filter: Bson = Filters.empty()
     private var page: Page = Page(0, 10)
     private var sort: List<Bson> = emptyList()
     private var collation: Collation? = null
@@ -23,7 +23,7 @@ class MongoQuery<Doc : Any>(private val collection: MongoCollection<Doc>) {
     /**
      * Sets the filter for the query.
      */
-    fun filter(filter: Bson?): MongoQuery<Doc> {
+    fun filter(filter: Bson): MongoQuery<Doc> {
         this.filter = filter
         return this
     }
@@ -96,3 +96,5 @@ class MongoQuery<Doc : Any>(private val collection: MongoCollection<Doc>) {
         }
     )
 }
+
+fun <Doc : Any> MongoCollection<Doc>.query(): MongoQuery<Doc> = MongoQuery(this)

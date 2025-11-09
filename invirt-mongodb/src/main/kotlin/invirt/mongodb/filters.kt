@@ -49,3 +49,42 @@ fun String.mongoGeoBounds(geoBounds: GeoBoundingBox): Bson {
     val positions = geoBounds.points.plus(geoBounds.southWest).map { it.toPosition() }
     return Filters.geoWithin(this, Polygon(positions))
 }
+
+/**
+ * Combines the given [filters] using a logical AND, ignoring any null filters.
+ * Returns [Filters.empty] when no non-null filters are provided.
+ *
+ */
+fun mongoAnd(filters: List<Bson?>): Bson {
+    val nonNullFilters = filters.filterNotNull()
+    return if (nonNullFilters.isEmpty()) {
+        Filters.empty()
+    } else {
+        Filters.and(nonNullFilters)
+    }
+}
+
+/**
+ * Combines the given [filters] using a logical AND, ignoring any null filters.
+ * Returns [Filters.empty] when no non-null filters are provided.
+ */
+fun mongoAnd(vararg filters: Bson?): Bson = mongoAnd(filters.toList())
+
+/**
+ * Combines the given [filters] using a logical OR, ignoring any null filters.
+ * Returns [Filters.empty] when no non-null filters are provided.
+ */
+fun mongoOr(filters: List<Bson?>): Bson {
+    val nonNullFilters = filters.filterNotNull()
+    return if (nonNullFilters.isEmpty()) {
+        Filters.empty()
+    } else {
+        Filters.or(nonNullFilters)
+    }
+}
+
+/**
+ * Combines the given [filters] using a logical OR, ignoring any null filters.
+ * Returns [Filters.empty] when no non-null filters are provided.
+ */
+fun mongoOr(vararg filters: Bson?): Bson = mongoOr(filters.toList())

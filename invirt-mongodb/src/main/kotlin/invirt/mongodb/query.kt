@@ -16,15 +16,13 @@ import org.bson.conversions.Bson
  * @return a [RecordsPage] with the documents matching the filter and page.
  */
 fun <Doc : Any> MongoCollection<Doc>.pagedQuery(
-    filter: Bson? = null,
+    filter: Bson = Filters.empty(),
     page: Page = Page(0, 10),
     sort: List<Bson> = emptyList(),
     maxDocuments: Int = 0,
     buildFind: FindIterable<Doc>.() -> FindIterable<Doc> = { this }
 ): RecordsPage<Doc> {
-    val docFilter = filter ?: Filters.empty()
-
-    var find = this.find(docFilter)
+    var find = this.find(filter)
     if (sort.isNotEmpty()) {
         find = find.sort(Sorts.orderBy(sort))
     }
@@ -32,9 +30,24 @@ fun <Doc : Any> MongoCollection<Doc>.pagedQuery(
 
     return RecordsPage(
         records = find.page(page).toList(),
-        totalCount = this.countDocuments(docFilter, CountOptions().limit(maxDocuments)),
+        totalCount = this.countDocuments(filter, CountOptions().limit(maxDocuments)),
         page = page
     )
 }
 
-fun <Doc : Any> MongoCollection<Doc>.query(): MongoQuery<Doc> = MongoQuery(this)
+/**
+ * Convenience overload of [pagedQuery] for a single [sort] parameter.
+ */
+fun <Doc : Any> MongoCollection<Doc>.pagedQuery(
+    filter: Bson = Filters.empty(),
+    page: Page = Page(0, 10),
+    sort: Bson,
+    maxDocuments: Int = 0,
+    buildFind: FindIterable<Doc>.() -> FindIterable<Doc> = { this }
+): RecordsPage<Doc> = pagedQuery(
+    filter = filter,
+    page = page,
+    sort = listOf(sort),
+    maxDocuments = maxDocuments,
+    buildFind = buildFind
+)

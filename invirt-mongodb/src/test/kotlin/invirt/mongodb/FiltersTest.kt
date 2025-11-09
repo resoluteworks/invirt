@@ -1,5 +1,6 @@
 package invirt.mongodb
 
+import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Indexes
 import invirt.data.doesntExist
 import invirt.data.exists
@@ -72,8 +73,7 @@ class FiltersTest : StringSpec() {
             collection.find("name".mongoExists()).toList().map { it.index } shouldBe listOf(2, 4, 6, 8, 10)
         }
 
-        "exists and doesntExist"
-        {
+        "exists and doesntExist" {
             data class Name(val firstName: String?, val lastName: String?)
             data class TestDocument(
                 val name: Name?,
@@ -101,8 +101,7 @@ class FiltersTest : StringSpec() {
                 listOf(e1, e4)
         }
 
-        "in"
-        {
+        "in" {
             data class TestDocument(
                 val index: Int,
                 @BsonId override val id: String = uuid7(),
@@ -153,8 +152,7 @@ class FiltersTest : StringSpec() {
             }
         }
 
-        "inYear"
-        {
+        "inYear" {
             data class TestDocument(
                 val index: Int,
                 val date: LocalDate,
@@ -179,8 +177,7 @@ class FiltersTest : StringSpec() {
             collection.find(TestDocument::date.inYear(2026)).toList().map { it.index } shouldContainExactlyInAnyOrder listOf(6)
         }
 
-        "byId"
-        {
+        "byId" {
             data class TestDocument(
                 @BsonId override val id: String = uuid7(),
                 override var version: Long = 0
@@ -198,8 +195,7 @@ class FiltersTest : StringSpec() {
             collection.find(mongoById(ids[3])).toList().map { it.id } shouldBe listOf(ids[3])
         }
 
-        "byIds"
-        {
+        "byIds" {
             data class TestDocument(
                 @BsonId override val id: String = uuid7(),
                 override var version: Long = 0
@@ -219,8 +215,7 @@ class FiltersTest : StringSpec() {
                 .subList(0, 2)
         }
 
-        "text search"
-        {
+        "text search" {
             data class TestDocument(
                 val name: String,
                 val description: String,
@@ -242,8 +237,7 @@ class FiltersTest : StringSpec() {
             collection.find(mongoTextSearch("cat")).toList() shouldBe listOf(doc2)
         }
 
-        "withinGeoBounds"
-        {
+        "withinGeoBounds" {
             data class TestDocument(
                 val location: GeoLocation,
                 @BsonId override val id: String = uuid7(),
@@ -292,6 +286,22 @@ class FiltersTest : StringSpec() {
                     )
                 ).mongoFilter()
             ).toList() shouldContainExactlyInAnyOrder listOf(e2, e3)
+        }
+
+        "mongoAnd" {
+            mongoAnd(null, Filters.eq("a", 1), null, Filters.eq("b", 2)) shouldBe
+                Filters.and(Filters.eq("a", 1), Filters.eq("b", 2))
+            mongoAnd(listOf(null, Filters.eq("a", 1), null, Filters.eq("b", 2))) shouldBe
+                Filters.and(Filters.eq("a", 1), Filters.eq("b", 2))
+            mongoAnd(null, null, null) shouldBe Filters.empty()
+        }
+
+        "mongoOr" {
+            mongoOr(null, Filters.eq("a", 1), null, Filters.eq("b", 2)) shouldBe
+                Filters.or(Filters.eq("a", 1), Filters.eq("b", 2))
+            mongoOr(listOf(null, Filters.eq("a", 1), null, Filters.eq("b", 2))) shouldBe
+                Filters.or(Filters.eq("a", 1), Filters.eq("b", 2))
+            mongoOr(null, null, null) shouldBe Filters.empty()
         }
     }
 }

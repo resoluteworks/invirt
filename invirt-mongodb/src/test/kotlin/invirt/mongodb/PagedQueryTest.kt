@@ -136,6 +136,8 @@ class PagedQueryTest : StringSpec() {
             // The default won't be sorted
             collection.pagedQuery(sort = listOf(TestDocument::name.sortAsc().mongoSort()))
                 .records.map { it.name } shouldContainExactly listOf("Apple", "Banana", "almond")
+            collection.pagedQuery(sort = TestDocument::name.sortAsc().mongoSort())
+                .records.map { it.name } shouldContainExactly listOf("Apple", "Banana", "almond")
 
             // The case-insensitive index will sort correctly
             collection.pagedQuery(sort = listOf(TestDocument::name.sortAsc().mongoSort())) { collation(caseInsensitive()) }
@@ -156,7 +158,6 @@ class PagedQueryTest : StringSpec() {
             collection.insertMany((1..docCount).map { TestDocument("individual", it) })
 
             val result = collection.pagedQuery(
-                filter = null,
                 page = Page(0, 10),
                 sort = listOf(TestDocument::index.sortAsc().mongoSort(), TestDocument::type.sortDesc().mongoSort())
             )
@@ -184,7 +185,7 @@ class PagedQueryTest : StringSpec() {
             val folderCount = 100
             collection.insertMany((0 until documentCount).map { TestDocument("document") })
             collection.insertMany((0 until folderCount).map { TestDocument("folder") })
-            val result = collection.pagedQuery(null, Page(0, 10))
+            val result = collection.pagedQuery(page = Page(0, 10))
             result.totalCount shouldBe documentCount + folderCount
         }
 
@@ -197,7 +198,7 @@ class PagedQueryTest : StringSpec() {
             val collection = mongo.randomTestCollection<TestDocument>()
             collection.insertMany((0 until 100).map { TestDocument() })
 
-            val result = collection.pagedQuery(null, Page(0, 10), maxDocuments = 30)
+            val result = collection.pagedQuery(page = Page(0, 10), maxDocuments = 30)
             result.totalCount shouldBe 30
             result.records.size shouldBe 10
         }
