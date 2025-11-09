@@ -3,6 +3,7 @@ package invirt.pebble.functions
 import invirt.utils.minorUnitToString
 import io.pebbletemplates.pebble.template.EvaluationContext
 import io.pebbletemplates.pebble.template.EvaluationContextImpl
+import org.http4k.core.Request
 import java.util.*
 
 fun EvaluationContext.findObject(key: String): Any? {
@@ -10,12 +11,14 @@ fun EvaluationContext.findObject(key: String): Any? {
     return scope?.get(key)
 }
 
+val EvaluationContext.request: Request get() = findObject("request") as Request
+
 /**
  * Used mainly for access inside macros, otherwise request is exposed
  * in the current model for a template
  */
 val requestFunction = pebbleFunction("request") {
-    context.findObject("request") ?: throw IllegalStateException("No request object found in context")
+    context.request
 }
 
 /**

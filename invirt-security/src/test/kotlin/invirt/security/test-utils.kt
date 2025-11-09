@@ -20,35 +20,30 @@ data class TestPrincipal(
 val TestPrincipal.roles: Set<String> get() = this.attributes["roles"]?.let { it as Set<String> } ?: emptySet()
 
 fun Filter.authTestRoute(): AuthTestResult {
-    var threadPrincipal: Principal? = null
     var requestPrincipal: Principal? = null
 
     val httpHandler = this.then(
         routes(
             "/test" GET {
-                threadPrincipal = Principal.currentSafe
                 requestPrincipal = it.principal
                 Response(Status.OK)
             }
         )
     )
     val response = httpHandler(Request(Method.GET, "/test"))
-    return AuthTestResult(threadPrincipal, requestPrincipal, response)
+    return AuthTestResult(requestPrincipal, response)
 }
 
 data class AuthTestResult(
-    val threadPrincipal: Principal?,
     val requestPrincipal: Principal?,
     val response: Response
 ) {
     infix fun shouldHavePrincipal(principal: Principal): AuthTestResult {
-        this.threadPrincipal shouldBe principal
         this.requestPrincipal shouldBe principal
         return this
     }
 
     fun shouldHaveNullPrincipal(): AuthTestResult {
-        this.threadPrincipal shouldBe null
         this.requestPrincipal shouldBe null
         return this
     }

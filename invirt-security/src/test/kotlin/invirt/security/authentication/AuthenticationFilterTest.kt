@@ -31,9 +31,6 @@ class AuthenticationFilterTest : StringSpec({
             .then(AuthenticationFilter(authenticator))
             .authTestRoute()
             .shouldHavePrincipal(principal)
-
-        // Authentication always cleared after request finishes
-        Principal.isPresent shouldBe false
     }
 
     "newCookies updates cookies" {
