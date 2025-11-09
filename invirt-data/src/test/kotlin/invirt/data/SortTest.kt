@@ -41,7 +41,9 @@ class SortTest : StringSpec({
             val name: String
         )
         Pojo::name.sortAsc() shouldBe Sort("name", SortOrder.ASC)
+        "name".sortAsc() shouldBe Sort("name", SortOrder.ASC)
         Pojo::name.sortDesc() shouldBe Sort("name", SortOrder.DESC)
+        "name".sortDesc() shouldBe Sort("name", SortOrder.DESC)
     }
 
     "Sort.asc/Sort.desc" {

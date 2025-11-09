@@ -39,4 +39,8 @@ enum class SortOrder {
 
 fun KProperty<*>.sortAsc(): Sort = Sort(this.name, SortOrder.ASC)
 
+fun String.sortAsc(): Sort = Sort(this, SortOrder.ASC)
+
 fun KProperty<*>.sortDesc(): Sort = Sort(this.name, SortOrder.DESC)
+
+fun String.sortDesc(): Sort = Sort(this, SortOrder.DESC)
