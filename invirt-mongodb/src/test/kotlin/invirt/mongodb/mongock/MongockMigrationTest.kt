@@ -43,7 +43,7 @@ class MongockMigrationTest : StringSpec() {
             collection.shouldHaveAscIndex("name")
             collection.shouldHaveAscIndex("version")
             collection.shouldHaveDescIndex("createdAt")
-            collection.shouldHaveDescIndex("createdAt")
+            collection.shouldHaveDescIndex("updatedAt")
         }
 
         "model migration rollback" {
@@ -62,6 +62,7 @@ class MongockMigrationTest : StringSpec() {
             collection.shouldHaveAscIndex("name")
             collection.shouldHaveAscIndex("version")
             collection.shouldHaveDescIndex("createdAt")
+            collection.shouldHaveDescIndex("updatedAt")
         }
     }
 }

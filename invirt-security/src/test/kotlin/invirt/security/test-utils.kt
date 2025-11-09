@@ -3,8 +3,6 @@ package invirt.security
 import invirt.core.GET
 import invirt.security.authentication.Principal
 import invirt.security.authentication.principal
-import invirt.security.authentication.useOnThisThread
-import invirt.utils.uuid7
 import io.kotest.matchers.shouldBe
 import org.http4k.core.Filter
 import org.http4k.core.Method
@@ -19,13 +17,7 @@ data class TestPrincipal(
     val attributes: Map<String, Any> = emptyMap()
 ) : Principal
 
-fun withRoles(vararg roles: String, block: () -> Unit) {
-    TestPrincipal(uuid7(), attributes = mapOf("roles" to roles.toSet())).useOnThisThread {
-        block()
-    }
-}
-
-val Principal.roles: Set<String> get() = (this as TestPrincipal).attributes["roles"]?.let { it as Set<String> } ?: emptySet()
+val TestPrincipal.roles: Set<String> get() = this.attributes["roles"]?.let { it as Set<String> } ?: emptySet()
 
 fun Filter.authTestRoute(): AuthTestResult {
     var threadPrincipal: Principal? = null

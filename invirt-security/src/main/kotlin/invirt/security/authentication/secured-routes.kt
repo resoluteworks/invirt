@@ -10,14 +10,14 @@ import org.http4k.routing.routes
 /**
  * Used to secure routes with authentication/authorisation checks
  */
-fun securedRoutes(
-    check: (Principal) -> Boolean,
+inline fun <reified P : Principal> securedRoutes(
+    crossinline check: (P) -> Boolean,
     route: RoutingHttpHandler
 ): RoutingHttpHandler {
     val filter =
         Filter { next ->
             { request ->
-                if (Principal.isPresent && check(Principal.current)) {
+                if (request.principal != null && check(request.principal as P)) {
                     next(request)
                 } else {
                     Response(Status.FORBIDDEN)
@@ -34,7 +34,7 @@ fun authenticatedRoutes(vararg routes: RoutingHttpHandler): RoutingHttpHandler {
     val filter =
         Filter { next ->
             { request ->
-                if (Principal.isPresent) {
+                if (request.principal != null) {
                     next(request)
                 } else {
                     Response(Status.FORBIDDEN)

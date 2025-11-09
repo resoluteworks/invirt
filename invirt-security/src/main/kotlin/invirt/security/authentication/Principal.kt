@@ -35,3 +35,5 @@ fun <T> Principal.useOnThisThread(block: (Principal) -> T): T = principalThreadL
 fun Request.withPrincipal(principal: Principal): Request = this.with(principalContextKey of principal)
 
 val Request.principal: Principal? get() = principalContextKey(this)
+
+val Request.hasPrincipal: Boolean get() = principalContextKey(this) != null

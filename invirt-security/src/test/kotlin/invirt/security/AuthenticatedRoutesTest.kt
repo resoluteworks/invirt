@@ -2,7 +2,7 @@ package invirt.security
 
 import invirt.core.GET
 import invirt.security.authentication.authenticatedRoutes
-import invirt.security.authentication.useOnThisThread
+import invirt.security.authentication.withPrincipal
 import invirt.utils.uuid7
 import io.kotest.core.spec.style.StringSpec
 import org.http4k.core.Method
@@ -26,12 +26,8 @@ class AuthenticatedRoutesTest : StringSpec({
             )
         )
 
-        TestPrincipal(uuid7()).useOnThisThread {
-            handler(Request(Method.GET, "/test")) shouldHaveStatus Status.OK
-        }
-        TestPrincipal(uuid7()).useOnThisThread {
-            handler(Request(Method.GET, "/dashboard")) shouldHaveStatus Status.ACCEPTED
-        }
+        handler(Request(Method.GET, "/test").withPrincipal(TestPrincipal(uuid7()))) shouldHaveStatus Status.OK
+        handler(Request(Method.GET, "/dashboard").withPrincipal(TestPrincipal(uuid7()))) shouldHaveStatus Status.ACCEPTED
     }
 
     "block if no principal present" {

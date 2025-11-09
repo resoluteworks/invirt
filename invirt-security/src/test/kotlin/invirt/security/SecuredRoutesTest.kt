@@ -1,8 +1,9 @@
 package invirt.security
 
 import invirt.core.GET
-import invirt.security.authentication.Principal
 import invirt.security.authentication.securedRoutes
+import invirt.security.authentication.withPrincipal
+import invirt.utils.uuid7
 import io.kotest.core.spec.style.StringSpec
 import org.http4k.core.Method
 import org.http4k.core.Request
@@ -15,7 +16,7 @@ class SecuredRoutesTest : StringSpec({
 
     "allowed" {
         val handler = routes(
-            securedRoutes(
+            securedRoutes<TestPrincipal>(
                 { "ADMIN" in it.roles },
                 routes(
                     "/admin" GET { Response(Status.OK) },
@@ -24,14 +25,13 @@ class SecuredRoutesTest : StringSpec({
             )
         )
 
-        withRoles("ADMIN") {
-            handler(Request(Method.GET, "/admin")) shouldHaveStatus Status.OK
-            handler(Request(Method.GET, "/admin/test")) shouldHaveStatus Status.OK
-        }
+        val principal = TestPrincipal(uuid7(), attributes = mapOf("roles" to setOf("ADMIN")))
+        handler(Request(Method.GET, "/admin").withPrincipal(principal)) shouldHaveStatus Status.OK
+        handler(Request(Method.GET, "/admin/test").withPrincipal(principal)) shouldHaveStatus Status.OK
     }
 
     "not allowed" {
-        val permissionChecker: (Principal) -> Boolean = { principal ->
+        val permissionChecker: (TestPrincipal) -> Boolean = { principal ->
             "ADMIN" in principal.roles
         }
         val handler = securedRoutes(
@@ -42,15 +42,15 @@ class SecuredRoutesTest : StringSpec({
             )
         )
 
-        withRoles("USER") {
-            handler(Request(Method.GET, "/admin")) shouldHaveStatus Status.FORBIDDEN
-            handler(Request(Method.GET, "/admin/test")) shouldHaveStatus Status.FORBIDDEN
-        }
+        val principal = TestPrincipal(uuid7(), attributes = mapOf("roles" to setOf("USER")))
+
+        handler(Request(Method.GET, "/admin").withPrincipal(principal)) shouldHaveStatus Status.FORBIDDEN
+        handler(Request(Method.GET, "/admin/test").withPrincipal(principal)) shouldHaveStatus Status.FORBIDDEN
     }
 
     "block if no principal present" {
         val handler = routes(
-            securedRoutes(
+            securedRoutes<TestPrincipal>(
                 { "ADMIN" in it.roles },
                 routes(
                     "/admin" GET { Response(Status.OK) }
@@ -62,7 +62,7 @@ class SecuredRoutesTest : StringSpec({
 
     "allow if public endpoint" {
         val handler = routes(
-            securedRoutes(
+            securedRoutes<TestPrincipal>(
                 { "ADMIN" in it.roles },
                 routes(
                     "/admin" GET { Response(Status.OK) }
@@ -79,48 +79,89 @@ class SecuredRoutesTest : StringSpec({
     }
 
     "multiple roles - allowed if you have the right one" {
-        val check: (Principal) -> Boolean = { "USER" in it.roles || "ADMIN" in it.roles }
+        val check: (TestPrincipal) -> Boolean = { "USER" in it.roles || "ADMIN" in it.roles }
         val testRoutes = routes("/test" GET { Response(Status.OK) })
         val request = Request(Method.GET, "/test")
 
         // Someone with role "ADMIN" is allowed
-        withRoles("ADMIN") {
-            securedRoutes(check, testRoutes)(request) shouldHaveStatus Status.OK
-        }
+        securedRoutes(check, testRoutes)(
+            request.withPrincipal(
+                TestPrincipal(
+                    uuid7(),
+                    attributes = mapOf("roles" to setOf("ADMIN"))
+                )
+            )
+        ) shouldHaveStatus Status.OK
 
         // Someone with role "USER" is allowed
-        withRoles("USER") {
-            securedRoutes(check, testRoutes)(request) shouldHaveStatus Status.OK
-        }
+        securedRoutes(check, testRoutes)(
+            request.withPrincipal(
+                TestPrincipal(
+                    uuid7(),
+                    attributes = mapOf("roles" to setOf("USER"))
+                )
+            )
+        ) shouldHaveStatus Status.OK
 
         // Someone with either "ADMIN" or "USER" is allowed
-        withRoles("USER", "HR", "CEO") {
-            securedRoutes(check, testRoutes)(request) shouldHaveStatus Status.OK
-        }
-        withRoles("ADMIN", "HR", "CEO") {
-            securedRoutes(check, testRoutes)(request) shouldHaveStatus Status.OK
-        }
-        withRoles("ADMIN", "USER", "HR", "CEO") {
-            securedRoutes(check, testRoutes)(request) shouldHaveStatus Status.OK
-        }
+        securedRoutes(check, testRoutes)(
+            request.withPrincipal(
+                TestPrincipal(uuid7(), attributes = mapOf("roles" to setOf("USER", "HR", "CEO")))
+            )
+        ) shouldHaveStatus Status.OK
+
+        securedRoutes(check, testRoutes)(
+            request.withPrincipal(
+                TestPrincipal(uuid7(), attributes = mapOf("roles" to setOf("ADMIN", "HR", "CEO")))
+            )
+        ) shouldHaveStatus Status.OK
+
+        securedRoutes(check, testRoutes)(
+            request.withPrincipal(
+                TestPrincipal(uuid7(), attributes = mapOf("roles" to setOf("ADMIN", "USER", "HR", "CEO")))
+            )
+        ) shouldHaveStatus Status.OK
     }
 
     "multiple roles - not allowed if you don't have the right one" {
-        val check: (Principal) -> Boolean = { "USER" in it.roles || "ADMIN" in it.roles }
+        val check: (TestPrincipal) -> Boolean = { "USER" in it.roles || "ADMIN" in it.roles }
         val testRoutes = routes("/test" GET { Response(Status.OK) })
         val request = Request(Method.GET, "/test")
 
-        withRoles("HR") {
-            securedRoutes(check, testRoutes)(request) shouldHaveStatus Status.FORBIDDEN
-        }
-        withRoles("CEO") {
-            securedRoutes(check, testRoutes)(request) shouldHaveStatus Status.FORBIDDEN
-        }
-        withRoles("HR", "IT", "CEO") {
-            securedRoutes(check, testRoutes)(request) shouldHaveStatus Status.FORBIDDEN
-        }
-        withRoles("ADMINISTRATOR", "HR", "CEO") {
-            securedRoutes(check, testRoutes)(request) shouldHaveStatus Status.FORBIDDEN
-        }
+        securedRoutes(check, testRoutes)(
+            request.withPrincipal(
+                TestPrincipal(
+                    uuid7(),
+                    attributes = mapOf("roles" to setOf("HR"))
+                )
+            )
+        ) shouldHaveStatus Status.FORBIDDEN
+
+        securedRoutes(check, testRoutes)(
+            request.withPrincipal(
+                TestPrincipal(
+                    uuid7(),
+                    attributes = mapOf("roles" to setOf("CEO"))
+                )
+            )
+        ) shouldHaveStatus Status.FORBIDDEN
+
+        securedRoutes(check, testRoutes)(
+            request.withPrincipal(
+                TestPrincipal(
+                    uuid7(),
+                    attributes = mapOf("roles" to setOf("HR", "IT", "CEO"))
+                )
+            )
+        ) shouldHaveStatus Status.FORBIDDEN
+
+        securedRoutes(check, testRoutes)(
+            request.withPrincipal(
+                TestPrincipal(
+                    uuid7(),
+                    attributes = mapOf("roles" to setOf("ADMINISTRATOR", "HR", "CEO"))
+                )
+            )
+        ) shouldHaveStatus Status.FORBIDDEN
     }
 })
