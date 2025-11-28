@@ -25,7 +25,10 @@ object CatchAll {
             try {
                 next(request)
             } catch (t: Exception) {
-                log.error(t) { t.message }
+                log.atError {
+                    cause = t
+                    message = t.message ?: "Unknown error"
+                }
                 exceptionStatusMappings[t::class]
                     ?.let { Response(it) }
                     ?: Response(Status.INTERNAL_SERVER_ERROR)

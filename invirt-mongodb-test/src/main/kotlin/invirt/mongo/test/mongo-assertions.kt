@@ -61,6 +61,12 @@ infix fun MongoCollection<*>.shouldNotHaveAscIndex(field: String) {
     listIndexes().toList().find { it.isAscIndex(field) } shouldBe null
 }
 
+fun <Doc : TimestampedDocument> MongoCollection<Doc>.shouldHaveTimestampedIndices() {
+    shouldHaveAscIndex("version")
+    shouldHaveDescIndex("createdAt")
+    shouldHaveDescIndex("updatedAt")
+}
+
 infix fun <Entity : Any> MongoCollection<Entity>.shouldHaveUniqueIndex(field: String) {
     listIndexes().toList().find { index -> (index["key"] as Document)[field] != null && index["unique"] == true } shouldNotBe null
 }

@@ -250,6 +250,11 @@ class FormsTest : StringSpec() {
                 )
             )
         }
+
+        "Request.queryToForm should extract form from query parameters" {
+            data class Form(val name: String, val age: Int)
+            Request(Method.GET, "/test?name=John%20Smith&age=45").queryToForm<Form>() shouldBe Form("John Smith", 45)
+        }
     }
 
     private inline fun <reified F : Any> post(vararg data: Pair<String, Any>): F = post(data.toMap())

@@ -7,6 +7,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.http4k.core.Body
 import org.http4k.core.Request
+import org.http4k.core.q
+import org.http4k.core.toParameters
+import org.http4k.core.toParametersMap
 import org.http4k.lens.BiDiBodyLens
 import org.http4k.lens.Validator
 import org.http4k.lens.WebForm
@@ -21,6 +24,7 @@ private val formsObjectMapper: ObjectMapper = jacksonObjectMapper()
     .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
 
 inline fun <reified T : Any> Request.toForm(): T = this.toForm(T::class)
+inline fun <reified T : Any> Request.queryToForm(): T = this.queryToForm(T::class)
 
 /**
  * This function converts a form POSTed with 'application/x-www-form-urlencoded' to an object.
@@ -31,6 +35,23 @@ inline fun <reified T : Any> Request.toForm(): T = this.toForm(T::class)
  */
 fun <T : Any> Request.toForm(formClass: KClass<T>): T {
     val formTree = formFieldsToMapTree(bodyFormLens(this).fields)
+
+    // Use this tree of maps to create a Json structure
+    val tree = formsObjectMapper.valueToTree<JsonNode>(formTree)!!
+
+    // Convert this Json structure to a Pojo
+    return formsObjectMapper.treeToValue(tree, formClass.java)
+}
+
+/**
+ * This function converts query parameters in the URL to an object.
+ *
+ * It supports arrays, maps and nested objects. For example:
+ *      ?parent.children[0].name=John
+ *      ?departments[HR].employees[0].age=32
+ */
+fun <T : Any> Request.queryToForm(formClass: KClass<T>): T {
+    val formTree = formFieldsToMapTree(this.uri.query.toParameters().toParametersMap())
 
     // Use this tree of maps to create a Json structure
     val tree = formsObjectMapper.valueToTree<JsonNode>(formTree)!!

@@ -11,5 +11,5 @@ dependencies {
     implementation(project(":invirt-utils"))
     implementation(project(":invirt-kafka"))
 
-    implementation("org.testcontainers:redpanda:${testContainersVersion}")
+    implementation("org.testcontainers:testcontainers-redpanda:${testContainersVersion}")
 }

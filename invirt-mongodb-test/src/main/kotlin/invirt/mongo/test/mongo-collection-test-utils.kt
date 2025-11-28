@@ -23,6 +23,7 @@ inline fun <reified Document : Any> Mongo.spyCollection(
     val collection = spyk(this.database.getCollection<Document>(collectionName))
     val spyDb = spyk(this.database)
     every { spyDb.getCollection<Document>(collectionName) } returns collection
+    every { spyDb.getCollection(collectionName, Document::class.java) } returns collection
     buildCollectionSpy(collection)
     every { spyMongo.database } returns spyDb
     return spyMongo

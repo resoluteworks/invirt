@@ -2,6 +2,7 @@ package invirt.mongodb.mongock
 
 import invirt.mongo.test.shouldHaveAscIndex
 import invirt.mongo.test.shouldHaveDescIndex
+import invirt.mongo.test.shouldHaveTimestampedIndices
 import invirt.mongo.test.shouldNotHaveAscIndex
 import invirt.mongo.test.testMongo
 import invirt.mongodb.Mongo
@@ -41,9 +42,7 @@ class MongockMigrationTest : StringSpec() {
             mongo.runMigrations("invirt.mongodb.mongock.migrations.model")
             val collection = mongo.database.getCollection<Company>(Company.COLLECTION)
             collection.shouldHaveAscIndex("name")
-            collection.shouldHaveAscIndex("version")
-            collection.shouldHaveDescIndex("createdAt")
-            collection.shouldHaveDescIndex("updatedAt")
+            collection.shouldHaveTimestampedIndices()
         }
 
         "model migration rollback" {
@@ -60,9 +59,7 @@ class MongockMigrationTest : StringSpec() {
             mongo.runMigration(SingleClassMigration::class)
             val collection = mongo.database.getCollection<Company>(Company.COLLECTION)
             collection.shouldHaveAscIndex("name")
-            collection.shouldHaveAscIndex("version")
-            collection.shouldHaveDescIndex("createdAt")
-            collection.shouldHaveDescIndex("updatedAt")
+            collection.shouldHaveTimestampedIndices()
         }
     }
 }

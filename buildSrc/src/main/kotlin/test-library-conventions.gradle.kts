@@ -14,6 +14,6 @@ dependencies {
     api("io.kotest:kotest-extensions-testcontainers:${kotestVersion}")
     api("io.mockk:mockk:${mockkVersion}")
     api("org.testcontainers:testcontainers:${testContainersVersion}")
-    api("org.testcontainers:mongodb:${testContainersVersion}")
+    api("org.testcontainers:testcontainers-mongodb:${testContainersVersion}")
     api("org.awaitility:awaitility-kotlin:${awaitilityVersion}")
 }
