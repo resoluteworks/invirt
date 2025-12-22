@@ -98,12 +98,24 @@ private fun <Doc : VersionedDocument> MongoCollection<Doc>.updateOne(clientSessi
  * Retrieves a document by its [id] or `null` if no document is found.
  */
 fun <Doc : Any> MongoCollection<Doc>.get(id: String): Doc? = findOne(mongoById(id))
+fun <Doc : Any> MongoCollection<Doc>.txGet(session: ClientSession, id: String): Doc? = txFindOne(session, mongoById(id))
 
 /**
  * Find the first document matching the specified [filter] or `null` if no document is found.
  */
 fun <Doc : Any> MongoCollection<Doc>.findOne(filter: Bson): Doc? {
     val list = find(filter).toList()
+    if (list.size > 1) {
+        throw IllegalStateException("Multiple MongoDB documents found for filter $filter")
+    }
+    return list.firstOrNull()
+}
+
+/**
+ * Find the first document matching the specified [filter] or `null` if no document is found.
+ */
+fun <Doc : Any> MongoCollection<Doc>.txFindOne(session: ClientSession, filter: Bson): Doc? {
+    val list = find(session, filter).toList()
     if (list.size > 1) {
         throw IllegalStateException("Multiple MongoDB documents found for filter $filter")
     }

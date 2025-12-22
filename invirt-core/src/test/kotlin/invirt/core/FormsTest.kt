@@ -252,8 +252,11 @@ class FormsTest : StringSpec() {
         }
 
         "Request.queryToForm should extract form from query parameters" {
-            data class Form(val name: String, val age: Int)
-            Request(Method.GET, "/test?name=John%20Smith&age=45").queryToForm<Form>() shouldBe Form("John Smith", 45)
+            data class Form(val name: String, val age: Int, val metadata: Map<String, String>)
+            Request(Method.GET, "/test?name=John%20Smith&age=45&metadata[a]=one&metadata[a/b]=two").queryToForm<Form>() shouldBe Form(
+                "John Smith", 45,
+                mapOf("a" to "one", "a/b" to "two")
+            )
         }
     }
 

@@ -51,11 +51,8 @@ data class Pagination(
     val prevPageIndex: Int? = if (hasPrev) currentPageIndex - 1 else null
     val nextPageIndex: Int? = if (hasNext) currentPageIndex + 1 else null
 
-    val prevPage: Page? = prevPageIndex
-        ?.let { Page(prevPageIndex * currentPage.size, currentPage.size) }
-
-    val nextPage: Page? = nextPageIndex
-        ?.let { Page(nextPageIndex * currentPage.size, currentPage.size) }
+    val prevPage: Page? = prevPageIndex?.let { Page(prevPageIndex * currentPage.size, currentPage.size) }
+    val nextPage: Page? = nextPageIndex?.let { Page(nextPageIndex * currentPage.size, currentPage.size) }
 
     fun getPage(index: Int): Page? = if (index < totalPages) {
         val from = index * currentPage.size

@@ -8,9 +8,11 @@ import org.http4k.lens.RequestKey
 internal val principalContextKey = RequestKey.optional<Principal>("currentPrincipal")
 
 /**
- * A marker interface representing an authenticated entity.
+ * An interface representing an authenticated entity.
  */
-interface Principal
+interface Principal {
+    val userId: String
+}
 
 fun Request.withPrincipal(principal: Principal): Request = this.with(principalContextKey of principal)
 

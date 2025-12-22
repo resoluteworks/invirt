@@ -18,7 +18,7 @@ private val log = KotlinLogging.logger {}
  */
 fun MongoCollection<*>.createDefaultSearchIndex(definition: String) {
     createSearchIndex(Document.parse(definition))
-    log.info { "Created default Mongo search index" }
+    log.info { "Created default Mongo search index for collection ${this.namespace.collectionName}" }
 }
 
 fun MongoCollection<*>.recreateDefaultSearchIndex(definition: String) {
@@ -37,7 +37,7 @@ fun MongoCollection<*>.recreateSearchIndex(indexName: String, definition: String
         .until { !searchIndexReady(indexName) }
 
     createSearchIndex(indexName, Document.parse(definition))
-    log.info { "Created default Mongo search index" }
+    log.info { "Created Mongo search index '$indexName' for collection ${this.namespace.collectionName}" }
 }
 
 /**

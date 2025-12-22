@@ -9,6 +9,7 @@ import io.pebbletemplates.pebble.error.LoaderException
 import io.pebbletemplates.pebble.loader.ClasspathLoader
 import io.pebbletemplates.pebble.loader.FileLoader
 import org.http4k.template.Templates
+import java.io.File
 import java.io.StringWriter
 
 private val log = KotlinLogging.logger {}
@@ -54,8 +55,7 @@ internal class InvirtPebbleTemplates(
     }
 
     internal fun hotReload(baseTemplateDir: String): InvirtTemplateRenderer {
-        val loader = FileLoader()
-        loader.prefix = baseTemplateDir
+        val loader = FileLoader(File(baseTemplateDir).absolutePath)
         return PebbleTemplateRenderer(configure(PebbleEngine.Builder().cacheActive(false).loader(loader)).build())
     }
 }

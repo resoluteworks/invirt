@@ -13,7 +13,7 @@ import org.http4k.core.then
 import org.http4k.routing.routes
 
 data class TestPrincipal(
-    val id: String,
+    override val userId: String,
     val attributes: Map<String, Any> = emptyMap()
 ) : Principal
 
