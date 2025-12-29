@@ -34,6 +34,22 @@ fun <Doc : Any> MongoCollection<Doc>.txInsert(session: ClientSession, document: 
 }
 
 /**
+ * Transactional version of inserting multiple documents.
+ */
+fun <Doc : Any> MongoCollection<Doc>.txInsertMany(session: ClientSession, documents: List<Doc>) {
+    documents.forEach { document ->
+        if (document is TimestampedDocument) {
+            document.createdAt = mongoNow()
+            document.updatedAt = mongoNow()
+        }
+        if (document is VersionedDocument) {
+            document.version = 1
+        }
+    }
+    insertMany(session, documents)
+}
+
+/**
  * Updates the specified [document] with an optimistic lock check based on [VersionedDocument.version].
  * The version of the document is incremented by 1 before the document is updated.
  *
