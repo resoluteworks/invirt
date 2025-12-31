@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package invirt.mongodb
 
 import com.mongodb.client.model.Aggregates
@@ -29,7 +31,7 @@ fun <Doc : Any> MongoCollection<Doc>.pagedAggregate(
         .first()
 
     val recordsPage = RecordsPage(
-        records = deserialize(results["documents"] as List<Document>),
+        records = (results["documents"] as List<Document>).mongoDeserializeWith(this.documentClass.kotlin),
         totalCount = (results["totalCount"] as List<Document>).firstOrNull()?.getInteger("count")?.toLong() ?: 0L,
         page = page
     )
