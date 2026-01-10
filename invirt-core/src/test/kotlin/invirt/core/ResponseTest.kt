@@ -1,5 +1,6 @@
 package invirt.core
 
+import invirt.test.shouldBeHtmlRedirectTo
 import invirt.test.shouldBeRedirectTo
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -93,8 +94,7 @@ class ResponseTest : StringSpec({
         val httpHandler = routes(
             "/test" GET { htmlRedirect("/other") }
         )
-        httpHandler(Request(Method.GET, "/test")).bodyString()
-            .trim() shouldBe """<html><head><meta http-equiv="refresh" content="0;URL='/other'"/></head></html>"""
+        httpHandler(Request(Method.GET, "/test")).shouldBeHtmlRedirectTo("/other")
     }
 
     "turboStream" {

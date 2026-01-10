@@ -72,3 +72,9 @@ fun Response.shouldBeErrorResponse(): ValidationErrors {
     invirtRenderModel.errors shouldNotBe null
     return invirtRenderModel.errors!!
 }
+
+fun Response.shouldBeHtmlRedirectTo(location: String) {
+    this shouldHaveStatus Status.OK
+    val bodyString = this.bodyString().trim()
+    bodyString shouldBe """<html><head><meta http-equiv="refresh" content="0;URL='${location}'"/></head></html>"""
+}
