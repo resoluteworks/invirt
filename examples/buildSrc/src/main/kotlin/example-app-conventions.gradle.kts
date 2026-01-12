@@ -34,7 +34,7 @@ dependencies {
     // Additional libraries for specific use cases
     implementation("dev.invirt:invirt-data")
     implementation("dev.invirt:invirt-security")
-    implementation("io.resoluteworks:validk:${validkVersion}")
+    implementation("works.resolute:validk:${validkVersion}")
 
     // Logging
     implementation("io.github.oshai:kotlin-logging-jvm:${kotlinLoggingVersion}")

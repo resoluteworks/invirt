@@ -38,7 +38,7 @@ Invirt uses the [Validk](https://github.com/resoluteworks/validk) Kotlin validat
 application must wire as a dependency and use in its handlers to validate form inputs.
 
 ```kotlin
-implementation "io.resoluteworks:validk:${validkVersion}"
+implementation "works.resolute:validk:${validkVersion}"
 ```
 Validk is owned by the Invirt maintainer, but it's not part of the Invirt framework
 as it's been designed as a stand-alone re-usable library.

@@ -21,5 +21,5 @@ dependencies {
     implementation("org.http4k:http4k-template-pebble")
 
     implementation("org.http4k:http4k-testing-kotest:${http4kVersion}")
-    implementation("io.resoluteworks:validk:${validkVersion}")
+    implementation("works.resolute:validk:${validkVersion}")
 }

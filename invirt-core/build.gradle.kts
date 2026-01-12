@@ -23,7 +23,7 @@ dependencies {
 
     implementation("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonVersion}")
-    implementation("io.resoluteworks:validk:${validkVersion}")
+    implementation("works.resolute:validk:${validkVersion}")
     implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
 
     testImplementation(project(":invirt-test"))
