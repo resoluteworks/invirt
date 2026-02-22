@@ -267,9 +267,9 @@ class CollectionTest : StringSpec() {
             val doc2 = collection.insert(TestDocument("John", 33))
             val doc3 = collection.insert(TestDocument("Jane", 28))
 
-            collection.findIds(TestDocument::age.mongoGte(30)) shouldBe setOf(doc1.age, doc2.age)
-            collection.findIds(TestDocument::age.mongoLte(30)) shouldBe setOf(doc1.age, doc3.age)
-            collection.findIds(TestDocument::age.mongoLt(30)) shouldBe setOf(doc3.age)
+            collection.findIds(TestDocument::age.mongoGte(30)) shouldBe setOf(doc1.id, doc2.id)
+            collection.findIds(TestDocument::age.mongoLte(30)) shouldBe setOf(doc1.id, doc3.id)
+            collection.findIds(TestDocument::age.mongoLt(30)) shouldBe setOf(doc3.id)
             collection.findIds(TestDocument::age.mongoGt(40)) shouldBe emptySet()
         }
     }
