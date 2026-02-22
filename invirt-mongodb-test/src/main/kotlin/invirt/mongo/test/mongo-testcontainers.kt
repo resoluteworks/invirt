@@ -5,24 +5,18 @@ import invirt.utils.uuid7
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.extensions.install
 import io.kotest.core.spec.Spec
-import io.kotest.extensions.testcontainers.ContainerExtension
-import io.kotest.extensions.testcontainers.ContainerLifecycleMode
-import org.testcontainers.containers.GenericContainer
-import org.testcontainers.containers.MongoDBContainer
-import org.testcontainers.containers.wait.strategy.Wait
+import io.kotest.extensions.testcontainers.TestContainerProjectExtension
+import org.testcontainers.mongodb.MongoDBAtlasLocalContainer
+import org.testcontainers.mongodb.MongoDBContainer
 
 private val log = KotlinLogging.logger {}
 
-private val mongoExtension = ContainerExtension(
-    container = MongoDBContainer("mongo:7.0.14"),
-    mode = ContainerLifecycleMode.Project
+private val mongoExtension = TestContainerProjectExtension(
+    container = MongoDBContainer("mongo:8.0.17")
 )
 
-private val mongoAtlasExtension = ContainerExtension(
-    container = GenericContainer("mongodb/mongodb-atlas-local:7.0.14")
-        .withExposedPorts(27017, 27027)
-        .waitingFor(Wait.forListeningPorts(27017, 27027)),
-    mode = ContainerLifecycleMode.Project
+private val mongoAtlasExtension = TestContainerProjectExtension(
+    container = MongoDBAtlasLocalContainer("mongodb/mongodb-atlas-local:8.0.17")
 )
 
 fun Spec.testMongo(): Mongo {
