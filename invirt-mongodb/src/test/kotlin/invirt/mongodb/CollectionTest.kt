@@ -253,5 +253,24 @@ class CollectionTest : StringSpec() {
             collection.findByIds(doc1.id, doc2.id, "test").map { it.id } shouldBe listOf(doc1.id, doc2.id)
             collection.findByIds().size shouldBe 0
         }
+
+        "findIds should return the ids of the documents matching the filter" {
+            data class TestDocument(
+                val name: String,
+                val age: Int,
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0
+            ) : VersionedDocument
+
+            val collection = mongo.randomTestCollection<TestDocument>()
+            val doc1 = collection.insert(TestDocument("Mary", 30))
+            val doc2 = collection.insert(TestDocument("John", 33))
+            val doc3 = collection.insert(TestDocument("Jane", 28))
+
+            collection.findIds(TestDocument::age.mongoGte(30)) shouldBe setOf(doc1.age, doc2.age)
+            collection.findIds(TestDocument::age.mongoLte(30)) shouldBe setOf(doc1.age, doc3.age)
+            collection.findIds(TestDocument::age.mongoLt(30)) shouldBe setOf(doc3.age)
+            collection.findIds(TestDocument::age.mongoGt(40)) shouldBe emptySet()
+        }
     }
 }

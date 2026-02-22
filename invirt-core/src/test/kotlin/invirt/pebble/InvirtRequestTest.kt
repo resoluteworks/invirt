@@ -9,7 +9,6 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.http4k.core.Method
 import org.http4k.core.Request
-import org.http4k.core.then
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 
@@ -119,24 +118,24 @@ class InvirtRequestTest : StringSpec() {
     }
 
     private fun testRequestFunction(function: String, request: Request, expectedBody: String) {
-        val httpHandler = Invirt().then(routes("/test" bind Method.GET to { renderTemplate(it, "request-function-${function}") }))
+        Invirt.configure()
+        val httpHandler = routes("/test" bind Method.GET to { renderTemplate(it, "request-function-${function}") })
         val response = httpHandler(request)
         response.bodyString().trim() shouldBe expectedBody
     }
 
     private fun testRequestFunctionModel(function: String, request: String = "/test", model: Any, expectedBody: String) {
-        val httpHandler = Invirt().then(
-            routes(
-                "/test" bind Method.GET to {
-                    if (model is InvirtView) {
-                        model.ok(it)
-                    } else if (model is Map<*, *>) {
-                        renderTemplate(it, "request-function-${function}", (model as Map<String, Any>))
-                    } else {
-                        throw IllegalArgumentException("Can't handle model $model")
-                    }
+        Invirt.configure()
+        val httpHandler = routes(
+            "/test" bind Method.GET to {
+                if (model is InvirtView) {
+                    model.ok(it)
+                } else if (model is Map<*, *>) {
+                    renderTemplate(it, "request-function-${function}", (model as Map<String, Any>))
+                } else {
+                    throw IllegalArgumentException("Can't handle model $model")
                 }
-            )
+            }
         )
         val response = httpHandler(Request(Method.GET, request))
         response.bodyString().trim() shouldBe expectedBody

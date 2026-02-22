@@ -2,7 +2,6 @@ package invirt.core.views
 
 import invirt.core.GET
 import invirt.core.Invirt
-import invirt.core.InvirtConfig
 import invirt.core.InvirtPebbleConfig
 import invirt.pebble.functions.pebbleFunction
 import invirt.pebble.pebbleFunctions
@@ -11,7 +10,6 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.http4k.core.Method
 import org.http4k.core.Request
-import org.http4k.core.then
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 import java.io.File
@@ -23,11 +21,11 @@ class ViewsTest : StringSpec() {
             val templateFile = File("src/test/resources/hot-reload-views/hot-reload-template.peb")
             val initialContent = templateFile.readText()
             try {
-                val config = InvirtConfig(
+                Invirt.configure(
                     developmentMode = true,
                     pebble = InvirtPebbleConfig(hotReloadDirectory = "src/test/resources/hot-reload-views")
                 )
-                val httpHandler = Invirt(config).then(routes("/test" GET { renderTemplate(it, "hot-reload-template") }))
+                val httpHandler = routes("/test" GET { renderTemplate(it, "hot-reload-template") })
                 httpHandler(Request(Method.GET, "/test")).bodyString() shouldBe initialContent
 
                 val updatedContent = uuid7()
@@ -41,20 +39,19 @@ class ViewsTest : StringSpec() {
         }
 
         "classpath views" {
-            val config = InvirtConfig(
+            Invirt.configure(
                 developmentMode = false,
                 pebble = InvirtPebbleConfig(classpathLocation = "classpath-views")
             )
 
-            val httpHandler = Invirt(config).then(routes("/test" GET { renderTemplate(it, "classpath-view") }))
+            val httpHandler = routes("/test" GET { renderTemplate(it, "classpath-view") })
             httpHandler(Request(Method.GET, "/test")).bodyString().trim() shouldBe "Classpath view content"
         }
 
         "renderTemplate" {
-            val httpHandler = Invirt().then(
-                routes(
-                    "/test" GET { renderTemplate(it, "render-template") }
-                )
+            Invirt.configure()
+            val httpHandler = routes(
+                "/test" GET { renderTemplate(it, "render-template") }
             )
 
             val response = httpHandler(Request(Method.GET, "/test"))
@@ -62,21 +59,19 @@ class ViewsTest : StringSpec() {
         }
 
         "renderTemplate with model" {
-            val httpHandler = Invirt().then(
-                routes("/test" bind Method.GET to { renderTemplate(it, "map-view", mapOf("key" to "test-value")) })
-            )
+            Invirt.configure()
+            val httpHandler = routes("/test" bind Method.GET to { renderTemplate(it, "map-view", mapOf("key" to "test-value")) })
 
             val response = httpHandler(Request(Method.GET, "/test"))
             response.bodyString().trim() shouldBe "test-value"
         }
 
         "ViewModel.ok" {
-            val httpHandler = Invirt().then(
-                routes(
-                    "/test" bind Method.GET to {
-                        renderTemplate(it, "view-model-ok")
-                    }
-                )
+            Invirt.configure()
+            val httpHandler = routes(
+                "/test" bind Method.GET to {
+                    renderTemplate(it, "view-model-ok")
+                }
             )
 
             val response = httpHandler(Request(Method.GET, "/test"))
@@ -84,7 +79,7 @@ class ViewsTest : StringSpec() {
         }
 
         "custom pebble extensions" {
-            val config = InvirtConfig(
+            Invirt.configure(
                 developmentMode = false,
                 pebble = InvirtPebbleConfig(
                     classpathLocation = "webapp/views",
@@ -97,12 +92,10 @@ class ViewsTest : StringSpec() {
                     )
                 )
             )
-            val httpHandler = Invirt(config).then(
-                routes(
-                    "/test" bind Method.GET to {
-                        renderTemplate(it, "custom-pebble-extension")
-                    }
-                )
+            val httpHandler = routes(
+                "/test" bind Method.GET to {
+                    renderTemplate(it, "custom-pebble-extension")
+                }
             )
 
             val response = httpHandler(Request(Method.GET, "/test"))

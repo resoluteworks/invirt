@@ -10,7 +10,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldMatch
 import org.http4k.core.Method
 import org.http4k.core.Request
-import org.http4k.core.then
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 import java.time.LocalDate
@@ -100,7 +99,8 @@ class PebbleFunctionsTest : StringSpec() {
         }
 
         "uuid" {
-            val httpHandler = Invirt().then(routes("/test" bind Method.GET to { renderTemplate(it, "function-uuid") }))
+            Invirt.configure()
+            val httpHandler = routes("/test" bind Method.GET to { renderTemplate(it, "function-uuid") })
             val response1 = httpHandler(Request(Method.GET, "/test"))
             val response2 = httpHandler(Request(Method.GET, "/test"))
 
@@ -117,24 +117,22 @@ class PebbleFunctionsTest : StringSpec() {
     }
 
     private fun testFunction(function: String, request: String, expectedBody: String) {
-        val httpHandler = Invirt().then(routes("/test" bind Method.GET to { renderTemplate(it, "function-${function}") }))
+        Invirt.configure()
+        val httpHandler = routes("/test" bind Method.GET to { renderTemplate(it, "function-${function}") })
         val response = httpHandler(Request(Method.GET, request))
         response.bodyString().trim() shouldBe expectedBody
     }
 
     private fun testFunctionModel(function: String, request: String = "/test", model: Any, expectedBody: String) {
-        val httpHandler = Invirt().then(
-            routes(
-                "/test" bind Method.GET to {
-                    if (model is InvirtView) {
-                        model.ok(it)
-                    } else if (model is Map<*, *>) {
-                        renderTemplate(it, "function-${function}", (model as Map<String, Any>))
-                    } else {
-                        throw IllegalArgumentException("Can't handle model $model")
-                    }
+        Invirt.configure()
+        val httpHandler = routes(
+            "/test" bind Method.GET to {
+                when (model) {
+                    is InvirtView -> model.ok(it)
+                    is Map<*, *> -> renderTemplate(it, "function-${function}", (model as Map<String, Any>))
+                    else -> throw IllegalArgumentException("Can't handle model $model")
                 }
-            )
+            }
         )
         val response = httpHandler(Request(Method.GET, request))
         response.bodyString().trim() shouldBe expectedBody

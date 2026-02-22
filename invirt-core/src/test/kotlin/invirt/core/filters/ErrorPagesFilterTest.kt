@@ -2,6 +2,7 @@ package invirt.core.filters
 
 import invirt.core.GET
 import invirt.core.Invirt
+import invirt.core.InvirtPebbleConfig
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.http4k.core.Method
@@ -13,9 +14,12 @@ import org.http4k.routing.routes
 
 class ErrorPagesFilterTest : StringSpec({
 
+    beforeAny {
+        Invirt.configure()
+    }
+
     "404 page" {
-        val httpHandler = Invirt()
-            .then(ErrorPages(Status.NOT_FOUND to "error/404"))
+        val httpHandler = ErrorPages(Status.NOT_FOUND to "error/404")
             .then(
                 routes(
                     "/test" GET { Response(Status.NOT_FOUND) }
@@ -26,8 +30,7 @@ class ErrorPagesFilterTest : StringSpec({
     }
 
     "forbidden mapped to not found and custom error page" {
-        val httpHandler = Invirt()
-            .then(ErrorPages(mapOf(Status.NOT_FOUND to "error/404")))
+        val httpHandler = ErrorPages(mapOf(Status.NOT_FOUND to "error/404"))
             .then(StatusOverride(Status.FORBIDDEN to Status.NOT_FOUND))
             .then(
                 routes(

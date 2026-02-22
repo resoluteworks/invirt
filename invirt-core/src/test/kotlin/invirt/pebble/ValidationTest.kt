@@ -8,13 +8,17 @@ import io.validk.ValidationError
 import io.validk.ValidationErrors
 import org.http4k.core.Method
 import org.http4k.core.Request
-import org.http4k.core.then
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 
 class ValidationTest : StringSpec() {
 
     init {
+
+        beforeAny {
+            Invirt.configure()
+        }
+
         "errors from context" {
             class Form
 
@@ -23,14 +27,12 @@ class ValidationTest : StringSpec() {
                 ValidationError("email", "Not a valid email"),
                 ValidationError("details.age", "Age must be 18 or over")
             )
-            val httpHandler = Invirt()
-                .then(
-                    routes(
-                        "/test" bind Method.GET to {
-                            errorResponse(it, errors, "validation/errors-from-context", Form())
-                        }
-                    )
-                )
+            val httpHandler = routes(
+                "/test" bind Method.GET to {
+                    errorResponse(it, errors, "validation/errors-from-context", Form())
+                }
+            )
+
             val response = httpHandler(Request(Method.GET, "/test"))
             response.bodyString().trimIndent() shouldBe """
                 name - Name too short
@@ -43,8 +45,7 @@ class ValidationTest : StringSpec() {
             class Form
 
             fun testErrors(errors: ValidationErrors, expect: Boolean) {
-                val httpHandler = Invirt()
-                    .then(routes("/test" bind Method.GET to { errorResponse(it, errors, "validation/has-errors", Form()) }))
+                val httpHandler = routes("/test" bind Method.GET to { errorResponse(it, errors, "validation/has-errors", Form()) })
                 val response = httpHandler(Request(Method.GET, "/test"))
                 response.bodyString().trim() shouldBe expect.toString()
             }
@@ -57,19 +58,17 @@ class ValidationTest : StringSpec() {
             class Form
 
             fun testErrors(errors: ValidationErrors, expect: String) {
-                val httpHandler = Invirt()
-                    .then(
-                        routes(
-                            "/test" bind Method.GET to {
-                                errorResponse(
-                                    it,
-                                    errors,
-                                    "validation/errors-function-in-macro.peb",
-                                    Form()
-                                )
-                            }
+                val httpHandler = routes(
+                    "/test" bind Method.GET to {
+                        errorResponse(
+                            it,
+                            errors,
+                            "validation/errors-function-in-macro.peb",
+                            Form()
                         )
-                    )
+                    }
+                )
+
                 val response = httpHandler(Request(Method.GET, "/test"))
                 response.bodyString().trim() shouldBe expect
             }

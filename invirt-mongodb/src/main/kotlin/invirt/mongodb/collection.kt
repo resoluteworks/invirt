@@ -1,8 +1,10 @@
 package invirt.mongodb
 
 import com.mongodb.client.model.Filters
+import com.mongodb.client.model.Projections.include
 import com.mongodb.kotlin.client.ClientSession
 import com.mongodb.kotlin.client.MongoCollection
+import org.bson.Document
 import org.bson.conversions.Bson
 
 /**
@@ -171,3 +173,13 @@ fun <Doc : Any> MongoCollection<Doc>.findByIds(ids: List<String>): List<Doc> = i
 } else {
     emptyList()
 }
+
+/**
+ * Finds documents matching the specified [filter] and returns a set of their `_id`'s.
+ */
+fun <Doc : Any> MongoCollection<Doc>.findIds(filter: Bson): Set<String> = withDocumentClass<Document>()
+    .find(filter)
+    .projection(include("_id"))
+    .toList()
+    .map { it.getString("_id") }
+    .toSet()
