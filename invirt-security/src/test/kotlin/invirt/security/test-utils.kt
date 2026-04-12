@@ -13,10 +13,7 @@ import org.http4k.core.Status
 import org.http4k.core.then
 import org.http4k.routing.routes
 
-data class TestPrincipal(
-    override val id: String = uuid7(),
-    val attributes: Map<String, Any> = emptyMap()
-) : Principal
+data class TestPrincipal(val attributes: Map<String, Any> = emptyMap()) : Principal
 
 val TestPrincipal.roles: Set<String> get() = this.attributes["roles"]?.let { it as Set<String> } ?: emptySet()
 
