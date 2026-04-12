@@ -2,6 +2,7 @@ package invirt.security
 
 import invirt.core.GET
 import invirt.security.authentication.Principal
+import invirt.security.authentication.PrincipalRef
 import invirt.security.authentication.principal
 import invirt.utils.uuid7
 import io.kotest.matchers.shouldBe
@@ -13,7 +14,10 @@ import org.http4k.core.Status
 import org.http4k.core.then
 import org.http4k.routing.routes
 
-data class TestPrincipal(val attributes: Map<String, Any> = emptyMap()) : Principal
+data class TestPrincipal(
+    override val ref: PrincipalRef = PrincipalRef("user", uuid7()),
+    val attributes: Map<String, Any> = emptyMap()
+) : Principal
 
 val TestPrincipal.roles: Set<String> get() = this.attributes["roles"]?.let { it as Set<String> } ?: emptySet()
 
