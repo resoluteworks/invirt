@@ -23,7 +23,9 @@ interface Principal {
 /**
  * A data class representing a reference to a principal, containing its type and unique identifier.
  */
-data class PrincipalRef(val type: String, val id: String)
+data class PrincipalRef(val type: String, val id: String) {
+    override fun toString(): String = "$type:$id"
+}
 
 fun Request.withPrincipal(principal: Principal): Request = this.with(principalContextKey of principal)
 
