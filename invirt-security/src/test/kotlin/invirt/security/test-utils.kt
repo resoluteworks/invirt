@@ -3,6 +3,7 @@ package invirt.security
 import invirt.core.GET
 import invirt.security.authentication.Principal
 import invirt.security.authentication.principal
+import invirt.utils.uuid7
 import io.kotest.matchers.shouldBe
 import org.http4k.core.Filter
 import org.http4k.core.Method
@@ -13,7 +14,7 @@ import org.http4k.core.then
 import org.http4k.routing.routes
 
 data class TestPrincipal(
-    override val userId: String,
+    override val id: String = uuid7(),
     val attributes: Map<String, Any> = emptyMap()
 ) : Principal
 

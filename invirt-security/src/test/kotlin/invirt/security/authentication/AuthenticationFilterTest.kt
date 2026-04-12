@@ -27,7 +27,7 @@ class AuthenticationFilterTest : StringSpec({
     }
 
     "principal present when authenticated" {
-        val principal = TestPrincipal(uuid7())
+        val principal = TestPrincipal()
         val authenticator = successAuthenticator(principal)
         AuthenticationFilter(authenticator)
             .authTestRoute()
@@ -35,7 +35,7 @@ class AuthenticationFilterTest : StringSpec({
     }
 
     "newCookies updates cookies" {
-        val principal = TestPrincipal(uuid7())
+        val principal = TestPrincipal()
 
         val authenticator = successAuthenticator(principal, listOf(Cookie("test-cookie", "refreshed-value")))
         AuthenticationFilter(authenticator)

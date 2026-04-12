@@ -12,7 +12,7 @@ import org.testcontainers.mongodb.MongoDBContainer
 private val log = KotlinLogging.logger {}
 
 private val mongoExtension = TestContainerProjectExtension(
-    container = MongoDBContainer("mongo:8.0.17")
+    container = MongoDBContainer("mongo:8.0.17").withReplicaSet()
 )
 
 private val mongoAtlasExtension = TestContainerProjectExtension(

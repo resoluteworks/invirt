@@ -25,7 +25,7 @@ class SecuredRoutesTest : StringSpec({
             )
         )
 
-        val principal = TestPrincipal(uuid7(), attributes = mapOf("roles" to setOf("ADMIN")))
+        val principal = TestPrincipal(attributes = mapOf("roles" to setOf("ADMIN")))
         handler(Request(Method.GET, "/admin").withPrincipal(principal)) shouldHaveStatus Status.OK
         handler(Request(Method.GET, "/admin/test").withPrincipal(principal)) shouldHaveStatus Status.OK
     }
@@ -42,7 +42,7 @@ class SecuredRoutesTest : StringSpec({
             )
         )
 
-        val principal = TestPrincipal(uuid7(), attributes = mapOf("roles" to setOf("USER")))
+        val principal = TestPrincipal(attributes = mapOf("roles" to setOf("USER")))
 
         handler(Request(Method.GET, "/admin").withPrincipal(principal)) shouldHaveStatus Status.FORBIDDEN
         handler(Request(Method.GET, "/admin/test").withPrincipal(principal)) shouldHaveStatus Status.FORBIDDEN
@@ -87,7 +87,6 @@ class SecuredRoutesTest : StringSpec({
         securedRoutes(check, testRoutes)(
             request.withPrincipal(
                 TestPrincipal(
-                    uuid7(),
                     attributes = mapOf("roles" to setOf("ADMIN"))
                 )
             )
@@ -97,7 +96,6 @@ class SecuredRoutesTest : StringSpec({
         securedRoutes(check, testRoutes)(
             request.withPrincipal(
                 TestPrincipal(
-                    uuid7(),
                     attributes = mapOf("roles" to setOf("USER"))
                 )
             )
@@ -106,19 +104,19 @@ class SecuredRoutesTest : StringSpec({
         // Someone with either "ADMIN" or "USER" is allowed
         securedRoutes(check, testRoutes)(
             request.withPrincipal(
-                TestPrincipal(uuid7(), attributes = mapOf("roles" to setOf("USER", "HR", "CEO")))
+                TestPrincipal(attributes = mapOf("roles" to setOf("USER", "HR", "CEO")))
             )
         ) shouldHaveStatus Status.OK
 
         securedRoutes(check, testRoutes)(
             request.withPrincipal(
-                TestPrincipal(uuid7(), attributes = mapOf("roles" to setOf("ADMIN", "HR", "CEO")))
+                TestPrincipal(attributes = mapOf("roles" to setOf("ADMIN", "HR", "CEO")))
             )
         ) shouldHaveStatus Status.OK
 
         securedRoutes(check, testRoutes)(
             request.withPrincipal(
-                TestPrincipal(uuid7(), attributes = mapOf("roles" to setOf("ADMIN", "USER", "HR", "CEO")))
+                TestPrincipal(attributes = mapOf("roles" to setOf("ADMIN", "USER", "HR", "CEO")))
             )
         ) shouldHaveStatus Status.OK
     }
@@ -131,7 +129,6 @@ class SecuredRoutesTest : StringSpec({
         securedRoutes(check, testRoutes)(
             request.withPrincipal(
                 TestPrincipal(
-                    uuid7(),
                     attributes = mapOf("roles" to setOf("HR"))
                 )
             )
@@ -140,7 +137,6 @@ class SecuredRoutesTest : StringSpec({
         securedRoutes(check, testRoutes)(
             request.withPrincipal(
                 TestPrincipal(
-                    uuid7(),
                     attributes = mapOf("roles" to setOf("CEO"))
                 )
             )
@@ -149,7 +145,6 @@ class SecuredRoutesTest : StringSpec({
         securedRoutes(check, testRoutes)(
             request.withPrincipal(
                 TestPrincipal(
-                    uuid7(),
                     attributes = mapOf("roles" to setOf("HR", "IT", "CEO"))
                 )
             )
@@ -158,7 +153,6 @@ class SecuredRoutesTest : StringSpec({
         securedRoutes(check, testRoutes)(
             request.withPrincipal(
                 TestPrincipal(
-                    uuid7(),
                     attributes = mapOf("roles" to setOf("ADMINISTRATOR", "HR", "CEO"))
                 )
             )

@@ -26,8 +26,8 @@ class AuthenticatedRoutesTest : StringSpec({
             )
         )
 
-        handler(Request(Method.GET, "/test").withPrincipal(TestPrincipal(uuid7()))) shouldHaveStatus Status.OK
-        handler(Request(Method.GET, "/dashboard").withPrincipal(TestPrincipal(uuid7()))) shouldHaveStatus Status.ACCEPTED
+        handler(Request(Method.GET, "/test").withPrincipal(TestPrincipal())) shouldHaveStatus Status.OK
+        handler(Request(Method.GET, "/dashboard").withPrincipal(TestPrincipal())) shouldHaveStatus Status.ACCEPTED
     }
 
     "block if no principal present" {

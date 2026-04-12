@@ -11,7 +11,7 @@ internal val principalContextKey = RequestKey.optional<Principal>("currentPrinci
  * An interface representing an authenticated entity.
  */
 interface Principal {
-    val userId: String
+    val id: String
 }
 
 fun Request.withPrincipal(principal: Principal): Request = this.with(principalContextKey of principal)
