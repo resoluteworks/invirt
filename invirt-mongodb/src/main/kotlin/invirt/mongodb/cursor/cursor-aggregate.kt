@@ -19,7 +19,7 @@ fun <Doc : Any> MongoCollection<Doc>.cursorAggregate(
     basePipeline: List<Bson>,
     limit: Int,
     currentCursorToken: String?,
-    sortFields: List<SortField<Doc>>
+    sortFields: List<CursorSortField<Doc>>
 ): CursorPage<Doc> {
     require(limit > 0) { "limit must be > 0" }
     require(sortFields.isNotEmpty()) { "sortFields must not be empty" }
