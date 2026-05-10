@@ -23,12 +23,12 @@ class EnvironmentTest : StringSpec({
         Environment.from("other" to "value").withDotEnv(dotenv)["key"] shouldBe "from-dot-env"
     }
 
-    "Environment.withDotEnv(dotEnvDirectory)" {
+    "Environment.withDotEnv(dotEnvFile)" {
         val dir = tempdir()
         val dotEnvFile = File(dir, ".env")
         val varValue = uuid7()
         dotEnvFile.writeText("AN_ENVIRONMENT_VARIABLE=$varValue\n")
-        Environment.ENV.withDotEnv(dir.absolutePath)["AN_ENVIRONMENT_VARIABLE"] shouldBe varValue
+        Environment.ENV.withDotEnv(dotEnvFile.absolutePath)["AN_ENVIRONMENT_VARIABLE"] shouldBe varValue
     }
 
     "developmentMode" {

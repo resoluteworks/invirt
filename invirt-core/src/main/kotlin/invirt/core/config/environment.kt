@@ -7,16 +7,20 @@ import org.http4k.config.EnvironmentKey
 import org.http4k.lens.boolean
 
 /**
- * Returns a new [Environment] with the values from the .env file in the given directory.
+ * Returns a new [Environment] with the values from the given .env file path.
  * If the file is missing, the environment is not modified.
  */
-fun Environment.withDotEnv(dotEnvDirectory: String = "./"): Environment = withDotEnv(
-    dotenv {
-        directory = dotEnvDirectory
-        ignoreIfMissing = true
-        systemProperties = false
-    }
-)
+fun Environment.withDotEnv(dotEnvFile: String): Environment {
+    val file = java.io.File(dotEnvFile)
+    return withDotEnv(
+        dotenv {
+            directory = file.parent
+            filename = file.name
+            ignoreIfMissing = true
+            systemProperties = false
+        }
+    )
+}
 
 /**
  * Returns a new [Environment] with the values from the given [Dotenv].
