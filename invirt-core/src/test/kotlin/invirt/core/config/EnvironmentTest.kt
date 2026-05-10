@@ -23,12 +23,33 @@ class EnvironmentTest : StringSpec({
         Environment.from("other" to "value").withDotEnv(dotenv)["key"] shouldBe "from-dot-env"
     }
 
-    "Environment.withDotEnv(dotEnvFile)" {
-        val dir = tempdir()
-        val dotEnvFile = File(dir, ".env")
+    "Environment.withDotEnv(dotEnvFile) standard .env filename" {
+        val dotEnvFile = File(tempdir(), ".env")
         val varValue = uuid7()
         dotEnvFile.writeText("AN_ENVIRONMENT_VARIABLE=$varValue\n")
         Environment.ENV.withDotEnv(dotEnvFile.absolutePath)["AN_ENVIRONMENT_VARIABLE"] shouldBe varValue
+    }
+
+    "Environment.withDotEnv(dotEnvFile) custom filename" {
+        listOf(".env.local", ".env.test", "app.env").forEach { filename ->
+            val dotEnvFile = File(tempdir(), filename)
+            val varValue = uuid7()
+            dotEnvFile.writeText("AN_ENVIRONMENT_VARIABLE=$varValue\n")
+            Environment.ENV.withDotEnv(dotEnvFile.absolutePath)["AN_ENVIRONMENT_VARIABLE"] shouldBe varValue
+        }
+    }
+
+    "Environment.withDotEnv(dotEnvFile) nested directory path" {
+        val dotEnvFile = File(tempdir(), "config/local/.env")
+        dotEnvFile.parentFile.mkdirs()
+        val varValue = uuid7()
+        dotEnvFile.writeText("AN_ENVIRONMENT_VARIABLE=$varValue\n")
+        Environment.ENV.withDotEnv(dotEnvFile.absolutePath)["AN_ENVIRONMENT_VARIABLE"] shouldBe varValue
+    }
+
+    "Environment.withDotEnv(dotEnvFile) missing file leaves environment unchanged" {
+        val dotEnvFile = File(tempdir(), ".env.missing")
+        Environment.ENV.withDotEnv(dotEnvFile.absolutePath)["AN_ENVIRONMENT_VARIABLE"] shouldBe null
     }
 
     "developmentMode" {
