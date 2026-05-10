@@ -198,7 +198,7 @@ class CursorAggregateTest : FreeSpec() {
             page10.data.map { it.identifier } shouldContainExactly listOf("010")
         }
 
-        "should return the correct results when starting with a forwardCursorToken that is not the first page" {
+        "should return the correct results when starting with a cursorPageForCurrent that is not the first page" {
             val collection = mongo.randomTestCollection<CursorTestEntity>()
             insertTestData(collection)
             val pipeline = emptyList<Bson>()
@@ -212,6 +212,8 @@ class CursorAggregateTest : FreeSpec() {
                 current = collection.findOne("identifier".mongoEq("004"))!!,
                 sortFields = sortFields
             )
+            initialPage.prevCursor shouldNotBe null
+            initialPage.nextCursor shouldNotBe null
 
             val page1 = collection.cursorAggregate(pipeline, 1, initialPage.nextCursor, sortFields)
             page1.prevCursor shouldNotBe null
