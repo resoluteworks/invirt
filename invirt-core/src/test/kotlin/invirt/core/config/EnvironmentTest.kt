@@ -52,6 +52,24 @@ class EnvironmentTest : StringSpec({
         Environment.ENV.withDotEnv(dotEnvFile.absolutePath)["AN_ENVIRONMENT_VARIABLE"] shouldBe null
     }
 
+    "Environment.withDotEnv(dotEnvFile) relative path with .. works" {
+        val baseDir = tempdir()
+        val subDir = File(baseDir, "subdir").also { it.mkdir() }
+        val varValue = uuid7()
+        File(baseDir, ".env").writeText("AN_ENVIRONMENT_VARIABLE=$varValue\n")
+        val pathWithDotDot = File(subDir, "../.env").path
+        Environment.ENV.withDotEnv(pathWithDotDot)["AN_ENVIRONMENT_VARIABLE"] shouldBe varValue
+    }
+
+    "Environment.withDotEnv(dotEnvFile) missing file in non-existent directory leaves environment unchanged" {
+        val dotEnvFile = File(tempdir(), "nonexistent-dir/.env")
+        Environment.ENV.withDotEnv(dotEnvFile.absolutePath)["AN_ENVIRONMENT_VARIABLE"] shouldBe null
+    }
+
+    "Environment.withDotEnv(dotEnvFile) bare filename with no directory leaves environment unchanged" {
+        Environment.ENV.withDotEnv("nonexistent.env")["AN_ENVIRONMENT_VARIABLE"] shouldBe null
+    }
+
     "developmentMode" {
         Environment.EMPTY.developmentMode shouldBe false
         Environment.from("DEVELOPMENT_MODE" to "false").developmentMode shouldBe false

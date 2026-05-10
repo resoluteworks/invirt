@@ -12,11 +12,11 @@ import org.http4k.lens.boolean
  */
 fun Environment.withDotEnv(dotEnvFile: String): Environment {
     val file = java.io.File(dotEnvFile)
+    if (!file.exists()) return this
     return withDotEnv(
         dotenv {
-            directory = file.parent
+            directory = file.parent ?: "."
             filename = file.name
-            ignoreIfMissing = true
             systemProperties = false
         }
     )
