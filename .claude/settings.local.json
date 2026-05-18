@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew :invirt-utils:test --tests \"invirt.utils.CurrenciesTest\")"
+    ]
+  }
+}
