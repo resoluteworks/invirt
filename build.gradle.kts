@@ -1,8 +1,8 @@
 plugins {
     base
     id("jacoco-report-aggregation")
-    id("com.github.nbaztec.coveralls-jacoco") version "1.2.19"
-    id("com.gradleup.nmcp.aggregation").version("1.0.2")
+    id("com.github.nbaztec.coveralls-jacoco") version "1.2.20"
+    id("com.gradleup.nmcp.aggregation").version("1.5.0")
 }
 
 group = "dev.invirt"

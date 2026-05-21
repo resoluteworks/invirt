@@ -6,7 +6,7 @@ import org.http4k.core.Status
 /**
  * A response that renders a view as a Turbo Stream.
  */
-fun Response.turboStream(): Response = header("Content-Type", "text/vnd.turbo-stream.html")
+fun Response.turboStream(): Response = replaceHeader("Content-Type", "text/vnd.turbo-stream.html")
 
 /**
  * A response that renders a Turbo Stream action to refresh the page.
