@@ -7,15 +7,29 @@ import TabItem from '@theme/TabItem';
 
 # Uri Extensions
 
+Kotlin extensions on `org.http4k.core.Uri` for the URI manipulation patterns common in
+server-rendered pages: filter chips, pagination links, sort headers, etc. The same operations are
+exposed on [`InvirtRequest`](/docs/framework/current-request#invirtrequest) for use inside Pebble
+templates.
+
+### hasQueryParam
+<Tabs>
+  <TabItem value="declaration" label="Declaration" default>
+    ```kotlin
+    fun Uri.hasQueryParam(name: String): Boolean
+    ```
+  </TabItem>
+</Tabs>
+
 ### hasQueryValue
-Checks whether this Uri has a query parameter with the specified `name` and `value`.
+Checks whether the URI has a query parameter with the given `name` and `value`.
 <Tabs>
   <TabItem value="example" label="Example" default>
     ```kotlin
-    // returns true
+    // true
     Uri.of("/test?q=kotlin").hasQueryValue("q", "kotlin")
 
-    // returns false
+    // false
     Uri.of("/test?size=large").hasQueryValue("size", "small")
     ```
   </TabItem>
@@ -26,18 +40,27 @@ Checks whether this Uri has a query parameter with the specified `name` and `val
   </TabItem>
 </Tabs>
 
+### queryValue
+Returns the first value of the named query parameter, case-insensitive on the parameter name.
+
+<Tabs>
+  <TabItem value="declaration" label="Declaration" default>
+    ```kotlin
+    fun Uri.queryValue(name: String): String?
+    ```
+  </TabItem>
+</Tabs>
 
 ### removeQueryValue
-Returns a new `Uri` without the specified `name` parameter, if the parameter's value matches
-the specified `value`. All other query params are left unchanged.
+Returns a new `Uri` without the specified `name`/`value` pair. All other query params are left unchanged.
 
 <Tabs>
   <TabItem value="example" label="Example" default>
     ```kotlin
-    // Returns "/test"
+    // "/test"
     Uri.of("/test?q=John").removeQueryValue("q", "John")
 
-    // Returns "/test?q=kotlin"
+    // "/test?q=kotlin"
     Uri.of("/test?q=kotlin&q=java").removeQueryValue("q", "java")
     ```
   </TabItem>
@@ -48,21 +71,17 @@ the specified `value`. All other query params are left unchanged.
   </TabItem>
 </Tabs>
 
-
 ### toggleQueryValue
-Returns a new `Uri` and:
- * Adds a query parameter with the specified `name` and `value` when one isn't already present
- * Removes the query parameter with the specified `name` and `value` when present
-
-All other query params are left unchanged.
+Returns a new `Uri` with the specified `name`/`value` pair added when not present, or removed when
+present. All other query params are left unchanged.
 
 <Tabs>
   <TabItem value="example" label="Example" default>
     ```kotlin
-    // Returns "/test?q=John"
+    // "/test?q=John"
     Uri.of("/test").toggleQueryValue("q", "John")
 
-    // Returns "/test"
+    // "/test"
     Uri.of("/test?q=John").toggleQueryValue("q", "John")
     ```
   </TabItem>
@@ -74,13 +93,12 @@ All other query params are left unchanged.
 </Tabs>
 
 ### removeQueries
-Removes all query parameters with the specified `names` (immaterial of their values).
-All other query params are left unchanged.
+Removes all query parameters with the given names (regardless of value).
 
 <Tabs>
   <TabItem value="example" label="Example" default>
     ```kotlin
-    // Returns "/test"
+    // "/test"
     Uri.of("/test?q=john&filter=name").removeQueries(listOf("q", "filter"))
     ```
   </TabItem>
@@ -91,15 +109,13 @@ All other query params are left unchanged.
   </TabItem>
 </Tabs>
 
-
 ### replaceQuery
-Replaces the specified query parameters with the given values and returns a new `Uri`.
-All other query params are left unchanged.
+Replaces the given query parameters with new values. All other query params are left unchanged.
 
 <Tabs>
   <TabItem value="example" label="Example" default>
     ```kotlin
-    // Returns "/test?q=John&size=10"
+    // "/test?q=John&size=10"
     Uri.of("/test?q=nothing&size=5").replaceQuery("q" to "John", "size" to "10")
     ```
   </TabItem>
@@ -111,15 +127,13 @@ All other query params are left unchanged.
   </TabItem>
 </Tabs>
 
-
 ### replacePage
-Returns a new `Uri` with the page parameters (`&from=x&size=y`) replaced with new values matching
-the specified `invirt.data.Page`.
+Returns a new `Uri` with the `from`/`size` pagination parameters replaced to match the given `Page`.
 
 <Tabs>
   <TabItem value="example" label="Example" default>
     ```kotlin
-    // Returns "/test?from=10&size=5"
+    // "/test?from=10&size=5"
     Uri.of("/test?from=0&size=10").replacePage(Page(10, 5))
     ```
   </TabItem>
@@ -131,14 +145,13 @@ the specified `invirt.data.Page`.
 </Tabs>
 
 ### replaceSort
-Returns a new `Uri` with the sort query param (`&sort=name:asc`) replaced with a new value matching
-the specified `sort` argument. The function resets pagination by removing the `from` and `size` query parameters. This can be disabled
-by passing `false` for the `resetPagination` argument.
+Returns a new `Uri` with the `sort` query parameter replaced to match the given `Sort`. By default
+pagination (`from`/`size`) is reset; pass `resetPagination = false` to keep it.
 
 <Tabs>
   <TabItem value="example" label="Example" default>
     ```kotlin
-    // Returns "/test?sort=createdAt:desc"
+    // "/test?sort=createdAt:desc"
     Uri.of("/test?sort=name:asc").replaceSort(Sort.desc("createdAt"))
     ```
   </TabItem>
@@ -149,3 +162,32 @@ by passing `false` for the `resetPagination` argument.
   </TabItem>
 </Tabs>
 
+### CSV-encoded multi-value parameters
+For situations where multiple values are encoded into a single comma-separated query parameter
+(`?tags=red,green,blue`), Invirt provides helpers to read and mutate the list:
+
+<Tabs>
+  <TabItem value="example" label="Example" default>
+    ```kotlin
+    // ["red", "green"]
+    Uri.of("/?tags=red,green").csvQuery("tags")
+
+    // "/?tags=red,green,blue"
+    Uri.of("/?tags=red,green").csvAppend("tags", "blue")
+
+    // "/?tags=red"
+    Uri.of("/?tags=red,green").csvRemove("tags", "green")
+
+    // Toggles: add if missing, remove if present
+    Uri.of("/?tags=red,green").csvToggle("tags", "blue")
+    ```
+  </TabItem>
+  <TabItem value="declaration" label="Declaration">
+    ```kotlin
+    fun Uri.csvQuery(name: String): List<String>
+    fun Uri.csvAppend(name: String, value: Any): Uri
+    fun Uri.csvRemove(name: String, value: Any): Uri
+    fun Uri.csvToggle(name: String, value: Any): Uri
+    ```
+  </TabItem>
+</Tabs>

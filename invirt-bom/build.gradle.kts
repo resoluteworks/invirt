@@ -10,6 +10,10 @@ plugins {
     id("publish-conventions")
 }
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
     constraints {
         rootProject.subprojects

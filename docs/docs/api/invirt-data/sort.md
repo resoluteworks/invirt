@@ -4,70 +4,80 @@ sidebar_position: 3
 
 # Sort
 
-As most applications require a single sort criteria to be applied at a time, we've kept this
-really simple, and we leave it to the application to compound sort logic should it require to.
-Although, unless you're designing a data analytics platform, it's likely you won't have to.
+Invirt sorts on a single field at a time. This keeps API and URL surface small; applications that
+need compound sort can compose the underlying database constructs directly.
 
 ```kotlin
 data class Sort(
     val field: String,
     val order: SortOrder
-)
+) {
+    fun revert(): Sort                 // returns Sort with flipped order
+    override fun toString(): String    // "field:asc" or "field:desc"
 
-enum class SortOrder {
-    ASC,
-    DESC
+    companion object {
+        operator fun invoke(sortString: String): Sort   // parses "field:asc"
+        fun asc(field: String): Sort
+        fun desc(field: String): Sort
+    }
 }
+
+enum class SortOrder { ASC, DESC ;
+    fun revert(): SortOrder
+    companion object {
+        fun fromString(orderString: String): SortOrder  // case-insensitive
+    }
+}
+```
+
+Convenience builders are available on `String` and `KProperty`:
+
+```kotlin
+"createdAt".sortAsc()       // Sort(createdAt, ASC)
+"createdAt".sortDesc()      // Sort(createdAt, DESC)
+
+Order::createdAt.sortAsc()  // Sort(createdAt, ASC)
+Order::createdAt.sortDesc() // Sort(createdAt, DESC)
 ```
 
 ## Sort in query parameters
-Invirt provides a set of utilities for reading and manipulating sort criteria passed as query
-parameters. These are all based on a `sort` query parameter which is hardwired in all these utilities
-and is not configurable (at this stage).
+The `sort` query parameter is in the form `sort=<field>:<order>` (case-insensitive on the order). Use
+[`Request.sort()`](/docs/api/invirt-core/request-extensions#requestsort) to read it:
 
-### Reading sort
 ```kotlin
 "/list-orders" GET { request ->
-    // Create a Sort object from a query parameter sort=name:asc
     val sort = request.sort() ?: Sort.desc(Order::createdAt.name)
-    ...
+    // ...
 }
 ```
 
-```html
-<!-- Displays in the template the field we're currently sorting by, based on the sort query param -->
-{{ request.sort.field }}
+In Pebble templates, [`request.sort`](/docs/framework/current-request#invirtrequest) exposes the same
+information and `request.sortIs` checks the current sort order:
 
-<!-- Returns true if the current sort query parameter is sort=name:asc -->
-{{ request.sortIs('name', 'asc') }}
+```html
+{# Currently sorting by createdAt:desc? #}
+{% if request.sortIs('createdAt', 'desc') %} ↓ {% endif %}
 ```
 
 ### Manipulating sort
 ```html
-<!--
-    Returns a Uri with the sort field replaced to sort=name:asc and resets
-    pagination (last argument, called resetPagination is set to true)
-
-    For example
-        /test?q=john&from=100&size=10&sort=createdAt:desc
-    becomes
-        /test?q=john&sort=name:asc
--->
+{#
+   Returns a Uri with the sort replaced to sort=name:asc and resets pagination.
+   /test?q=john&from=100&size=10&sort=createdAt:desc
+   becomes
+   /test?q=john&sort=name:asc
+#}
 <a href="{{ request.replaceSort('name', 'asc', true) }}">
     Sort by name ascending
 </a>
 
-
-<!--
-    Returns a Uri with the sort field replaced to createdAt:desc IF a
-    sort for another field is present. If the current sort is for the
-    createdAt field, then it simply reverts its order.
-
-    /test?sort=createdAt:desc → /test?sort=createdAt:asc
-    /test?sort=name:asc       → /test?sort=createdAt:desc
--->
+{#
+   Returns a Uri with the sort replaced to createdAt:desc if a different field is being sorted on.
+   If createdAt is already the sort field, the order is reverted.
+   /test?sort=createdAt:desc → /test?sort=createdAt:asc
+   /test?sort=name:asc       → /test?sort=createdAt:desc
+#}
 <a href="{{ request.revertOrSetSort('createdAt', 'desc', true) }}">
     Created at
 </a>
 ```
-

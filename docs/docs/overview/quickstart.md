@@ -10,7 +10,7 @@ import quickStartHome from './assets/quickstart-home.png';
 
 ### Dependencies
 Invirt comes as a set of libraries, discussed later in this documentation, and which can be added incrementally
-as you expand your application's design. Most of the functionality, however, is contained
+as you expand your application's design. Most of the web-tier functionality is contained
 in the core library which can be added as per Gradle example below.
 
 ```kotlin
@@ -51,22 +51,19 @@ for template look-ups. For a complete example, please check the [Quickstart proj
 
 ### Application
 ```kotlin
-class IndexResponse(val currentUsername: String) : ViewResponse("index")
+class IndexResponse(val currentUsername: String) : InvirtView("index")
 
 class Application {
 
     fun start() {
-        val appHandler = Invirt().then(
-            routes(
-                "/" GET {
-                    IndexResponse(currentUsername = "email@test.com").ok()
-                }
-            )
+        val appHandler = routes(
+            "/" GET { request ->
+                IndexResponse(currentUsername = "email@test.com").ok(request)
+            }
         )
 
-        val server = Netty(8080)
-        server.toServer(appHandler).start()
-        log.info { "Server started at http://localhost:${server.port}" }
+        val server = Netty(8080).toServer(appHandler).start()
+        log.info { "Server started at http://localhost:${server.port()}" }
     }
 }
 ```
@@ -94,13 +91,22 @@ as per screenshot below.
 
 
 ### Wiring explained
-In order to wire Invirt in your http4k application, you simply define the `Invirt()` filter before your
-application's routes. This filter sets a default view lens for your application, and bootstraps other
-framework internals discussed later in this documentation.
+Invirt is initialised as a singleton via `Invirt.configure(...)`. The first time `Invirt` is referenced
+the framework auto-configures itself with sensible defaults, so for the simplest applications no
+explicit call is required. Calling `Invirt.configure(...)` explicitly (typically at startup) lets you
+override development mode and customise the Pebble template engine.
 
-The behaviour of the Invirt filter can be customised using a configuration object discussed in the
-[Configuration](/docs/framework/configuration) section.
+```kotlin
+Invirt.configure(
+    developmentMode = Environment.ENV.developmentMode,
+    pebble = InvirtPebbleConfig(
+        extensions = listOf(/* custom Pebble extensions */),
+        globalVariables = mapOf("staticAssetsVersion" to gitCommitId())
+    )
+)
+```
+
+The configuration object is discussed in the [Configuration](/docs/framework/configuration) section.
 
 We also recommend reading about http4k's [templating capabilities](https://www.http4k.org/guide/howto/use_a_templating_engine/),
-most of Invirt is built on top of those.
-
+as Invirt's view rendering is built on top of them.

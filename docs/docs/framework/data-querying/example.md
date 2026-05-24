@@ -112,11 +112,11 @@ The constructs inside the lambda will use http4k's built-in [parameter lensing](
 to start defining an expression for processing a parameter, hence the `Query.` chained calls.
 
 By default, `queryDataFilter` builds an `AND` compound filter from the individual parameter filters defined in its lambda.
-This can be overridden by passing `DataFilter.Compound.Operator.OR`.
+This can be overridden by passing `QueryDataFilter.Operator.OR`.
 ```kotlin
-queryDataFilter { ... } // Defaults to DataFilter.Compound.Operator.AND
-queryDataFilter(DataFilter.Compound.Operator.AND) { ... }
-queryDataFilter(DataFilter.Compound.Operator.OR) { ... }
+queryDataFilter { ... } // Defaults to QueryDataFilter.Operator.AND
+queryDataFilter(QueryDataFilter.Operator.AND) { ... }
+queryDataFilter(QueryDataFilter.Operator.OR) { ... }
 ```
 
 #### Handling total-order-value
@@ -144,7 +144,7 @@ This then allows us to call an Invirt extension (`.or` in this case) to specify
  * How each of the individual `OrderStatus` convert to a `DataFilter`, a simple equals filter, in this case, via `Order::status.eq(status)`
 
 ### Response and view wiring
-To render the orders we will use [ViewResponse](/docs/framework/views-response), which will store
+To render the orders we will use an [`InvirtView`](/docs/framework/views-response), which will store
 the `RecordsPage<Order>` returned by `OrderService.searchOrders()`, to be consumed directly by the template.
 
 We also want to provide the `OrderStatus` enum values to render the possible options for the order status
@@ -161,7 +161,7 @@ The code for this response component would then be fairly straightforward.
 ```kotlin
 private class ListOrdersResponse(
     val ordersPage: RecordsPage<Order>
-) : ViewResponse("list-orders") {
+) : InvirtView("list-orders") {
 
     val orderStatusValues = OrderStatus.entries
 }
@@ -178,7 +178,7 @@ object OrderHandler {
             val page = request.page()
 
             val ordersPage = orderService.searchOrders(filter, sort, page)
-            ListOrdersResponse(ordersPage).ok()
+            ListOrdersResponse(ordersPage).ok(request)
         }
     )
 }
@@ -197,7 +197,7 @@ private val filter = queryDataFilter {
     }
 }
 
-private class ListOrdersResponse(val ordersPage: RecordsPage<Order>) : ViewResponse("list-orders") {
+private class ListOrdersResponse(val ordersPage: RecordsPage<Order>) : InvirtView("list-orders") {
     val orderStatusValues = OrderStatus.entries
 }
 ```

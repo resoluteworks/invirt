@@ -6,8 +6,9 @@ import happyFlow from './assets/authentication-happy-flow.png';
 
 # Overview
 
-Invirt's security module focuses exclusively on authentication and it provides
-a set of components for transparently authenticating HTTP requests via a custom [http4k filter](https://www.http4k.org/guide/reference/core/#filters).
+Invirt's security module focuses exclusively on authentication and provides
+a set of components for transparently authenticating HTTP requests via a custom
+[http4k filter](https://www.http4k.org/guide/reference/core/#filters).
 
 ## Dependency
 ```kotlin
@@ -17,11 +18,12 @@ implementation("dev.invirt:invirt-security")
 
 ## Use case
 The first problem we aim to solve is to provide an application with context for the currently
-authenticated user (Principal) transparently, and allowing for that to be checked anywhere within the stack.
-We use request context and a ThreadLocal for this purpose.
+authenticated user (Principal) transparently, and allow that context to be read anywhere within the stack.
+Invirt stores the authenticated `Principal` in the http4k [request context](https://www.http4k.org/guide/howto/attach_context_to_a_request/),
+so the request itself carries it explicitly.
 
 Second, we want to allow the application to decide what authentication solution it wants to use, with Invirt simply
-providing the scaffolding to wire that in, and secure certain application routes.
+providing the scaffolding to wire it in, and to secure certain application routes.
 
 Lastly, we wanted to make the tooling as un-intrusive as possible, and allow the application to define
 the concepts of user or principal according to its requirements, without heavy constraints from the framework
@@ -37,33 +39,37 @@ there is also an [example application](/docs/framework/security/example) to expl
 
 #### Login/Logout
 As these operations are usually heavily coupled to the authentication provider being used and the application
-design, we left this to the developer to wire according to the system requirements. Handling magic links, MFA
+design, we leave this to the developer to wire according to the system requirements. Handling magic links, MFA
 and other authentication options is not something that Invirt wants to or can prescribe.
 
 #### Authorisation
 Invirt doesn't implement authorisation semantics, as we felt that this is an area where the application
-must be allowed flexibility. We didn't want to make any assumptions about the applications authorisation requirements
-and whether, for example, it should use RBAC (Role Based Access Control) or ABAC (Attribute-Based Access).
+must be allowed flexibility. We didn't want to make any assumptions about an application's authorisation requirements
+and whether, for example, it should use RBAC (Role Based Access Control) or ABAC (Attribute-Based Access Control).
 
 However, if you're interested in a lightweight RBAC library for Kotlin there's [Klees](https://github.com/resoluteworks/klees)
 which is owned by the Invirt maintainer.
 
 #### Path-based access control
 Some MVC frameworks provide utilities to define URI paths and regular expressions to secure certain routes and
-resources based on a Principal's role or attributes. For example `/admin/*` can only be accessed by Role.ADMIN, etc.
+resources based on a Principal's role or attributes. For example `/admin/*` can only be accessed by `Role.ADMIN`, etc.
 This is a practice that has a lot of limitations and it leads to a code base that is hard to maintain.
 It also falls in the realm of authorisation, which we discarded above.
 
-That being said, should you require something along these lines, Invirt provides a basic utility to wire
-custom Principal checks via a filter, but using a functional style.
-```kotlin
-val permissionChecker: (Principal) -> Boolean = { principal ->
-    "ADMIN" in principal.roles
-}
+That said, should you require something along these lines, Invirt provides a basic utility to wire
+custom Principal checks via a filter, but using a functional style. Note that `roles` here is an
+application-defined property &mdash; the framework's [`Principal`](/docs/framework/security/core-concepts#principal)
+interface only requires a `ref: PrincipalRef`.
 
-val handler = securedRoutes(
-    permissionChecker,
-    routes(
+```kotlin
+data class AppPrincipal(
+    override val ref: PrincipalRef,
+    val roles: Set<String>
+) : Principal
+
+val handler = securedRoutes<AppPrincipal>(
+    check = { principal -> "ADMIN" in principal.roles },
+    route = routes(
         "/admin" GET { Response(Status.OK) },
         "/admin/test" GET { Response(Status.OK) }
     )
@@ -79,3 +85,8 @@ val handler = authenticatedRoutes(
     LogoutHandler()
 )
 ```
+
+Both `securedRoutes` and `authenticatedRoutes` return a `Response(Status.FORBIDDEN)` when the check
+fails. Combine with [`StatusOverride`](/docs/framework/filters#statusoverride) and
+[`ErrorPages`](/docs/framework/filters#errorpages) to translate that into a "not found" page
+when you want to avoid revealing the existence of a protected route.

@@ -99,7 +99,7 @@ including error messages and previously entered input values.
         .validate()
         .map {
             error { form, errors ->
-                errorResponse(form, errors, "signup.peb")
+                errorResponse(request, errors, "signup", form)
             }
             success { form ->
                 // ...
@@ -125,22 +125,9 @@ we simply return an HTTP 303 using Invirt's `httpSeeOther` utility.
 For the error scenario, we want to return a view response, which renders the form again via
 `signup.peb`, the template we used to render the initial (empty) form.
 
-The error scenario uses Invirt's `errorResponse` utility which produces an http4k view response
-with a special implementation of the [ViewModel](https://www.http4k.org/api/org.http4k.template/-view-model/).
-
-```kotlin
-internal class ErrorResponseView(
-    val model: Any,
-    val errors: ValidationErrors,
-    val template: String
-) : ViewModel {
-    override fun template() = template
-}
-```
-
-When returning `errorResponse(form, errors, "signup.peb")`, Invirt's custom Pebble rendering detects
-that we're trying to render an error response and exposes the passed `errors` argument into the
-template context, and the form as the `model`. You can read more about accessing errors in your template
+The error scenario uses Invirt's `errorResponse(request, errors, template, model)` utility, which
+renders the specified template and exposes the `errors` argument and the supplied `model` to the
+Pebble context. You can read more about accessing errors in your template
 [here](/docs/api/invirt-core/pebble-context-objects#errors).
 
 ### Displaying error messages

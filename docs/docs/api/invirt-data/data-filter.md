@@ -7,54 +7,73 @@ import TabItem from '@theme/TabItem';
 
 # DataFilter
 
-This is an abstract and `sealed` component for defining data querying logic separate from an application's
-database semantics. The rationale for this is discussed [here](/docs/framework/data-querying/overview#rationale).
+`DataFilter` is a `sealed interface` describing data-querying logic independently from any specific
+database technology. The rationale is discussed [here](/docs/framework/data-querying/overview#rationale).
 
-The component has two subclasses `DataFilter.Field` and `DataFilter.Compound`, which represent definitions
-for direct field filtering criteria and compound (OR/AND) queries, respectively.
+A `DataFilter` is either a `Field` operation, or a logical combination (`And` / `Or`) of other filters.
+Implementations like [`invirt-mongodb`](/docs/api/invirt-mongodb/filters) translate a `DataFilter` into
+native database constructs (e.g. `DataFilter.mongoFilter()`).
+
+```kotlin
+sealed interface DataFilter {
+    sealed class Field : DataFilter
+    data class Or(val filters: List<DataFilter>) : DataFilter
+    data class And(val filters: List<DataFilter>) : DataFilter
+}
+```
 
 ## DataFilter.Field
-Defines a data querying criteria in the form of `<fieldName> <operation> [optional <value>]`. This is typically
-used to define equals, greater than, less than, contains, etc.
+
+The available field operations are:
+
+| Operation | Example |
+|---|---|
+| `Eq<Value>(field, value)` | `User::name eq "John"` |
+| `Ne<Value>(field, value)` | `User::status ne Status.DELETED` |
+| `Gt<Value>(field, value)` | `User::age gt 18` |
+| `Gte<Value>(field, value)` | `User::age gte 18` |
+| `Lt<Value>(field, value)` | `Product::priceMinor lt 1000_00` |
+| `Lte<Value>(field, value)` | `Product::priceMinor lte 1000_00` |
+| `Exists(field)` | `User::email.exists()` |
+| `DoesntExist(field)` | `User::email.doesntExist()` |
+| `WithinGeoBounds(field, GeoBoundingBox)` | `User::location withinGeoBounds bbox` |
+
+Filters can be constructed either by string field name or via `KProperty` references, using the
+companion factory methods on `DataFilter` or the infix/extension shortcuts:
 
 ```kotlin
-data class Field<Value : Any>(
-    val field: String,
-    val operation: Operation,
-    val value: Value
-) : DataFilter()
+// Companion factories
+DataFilter.eq("name", "John")
+DataFilter.lt("priceMinor", 1000_00)
+
+// String extensions
+"status" eq "PUBLISHED"
+"priceMinor" gte 100
+
+// KProperty extensions
+Product::priceMinor lte 1000_00
+User::email.exists()
 ```
 
-A set of utilities and extension functions can be used to construct field filters for various types
-of field matching criteria.
+## DataFilter.And / DataFilter.Or
+
+Logical combinations of filters. The framework provides factory functions and a `flatten()` helper that
+collapses single-element `And` / `Or` wrappers.
 
 ```kotlin
-// Filter records where "size" is greater than 20
-val filter = "size".gt(20)
-
-// Filter records where "status" is not equal to Status.PUBLISHED
-Document::status.ne(Status.PUBLISHED)
-```
-
-## DataFilter.Compound
-Combines a set of DataFilter objects with a logical AND or OR criteria.
-```kotlin
-data class Compound(
-    val operator: Operator,
-    val subFilters: Collection<DataFilter>
-) : DataFilter()
-```
-
-Below is an example of a compound filter using a set of built-in utilities. Although, in
-an Invirt application, when these objects are being read from [query parameters](/docs/framework/data-querying/example#filtering-logic),
-you wouldn't normally have to construct these objects manually.
-
-```kotlin
-val filter = orFilter(
-    Document::status.ne(Status.PUBLISHED),
-    andFilter(
-        Document::status.eq(Status.PUBLISHED),
-        Document::size.gte(200000)
+val filter = orDataFilter(
+    Product::status ne Status.PUBLISHED,
+    andDataFilter(
+        Product::status eq Status.PUBLISHED,
+        Product::priceMinor gte 200_000
     )
 )
+
+// Same logical filter without redundant single-element wrappers
+val simplified = filter.flatten()
 ```
+
+In an Invirt application the most common way to build a filter is from
+[query parameters](/docs/framework/data-querying/example#filtering-logic) via `queryDataFilter`, where
+the individual field filters are returned by lambdas and combined according to the
+[`QueryDataFilter.Operator`](/docs/framework/data-querying/example#filtering-logic).

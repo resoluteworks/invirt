@@ -7,77 +7,64 @@ import TabItem from '@theme/TabItem';
 
 # Environment
 
-### Environment.developmentMode
-Reads a variable `DEVELOPMENT_MODE` from the receiver [Environment](https://www.http4k.org/api/http4k-config/org.http4k.config/-environment/index.html) which can be
-set on your local machine when running the application locally to enable hot reload capabilities
-(browser refresh loads template edits or static asset edits).
+Helpers for reading configuration from environment variables and `.env` files via http4k's
+[`Environment`](https://www.http4k.org/api/http4k-config/org.http4k.config/-environment/).
 
-`Environment.developmentMode` defaults to `false` so in a production environment its absence implicitly
-enables classpath loading for views or static assets.
+### Environment.developmentMode
+Reads a boolean from the `DEVELOPMENT_MODE` environment variable, defaulting to `false`. Used by
+[`Invirt.configure`](/docs/framework/configuration) to switch between hot-reload and classpath loading
+for templates and static assets.
 
 <Tabs>
   <TabItem value="example" label="Example" default>
     ```kotlin
     val devMode = Environment.ENV.developmentMode
-    val appHandler = Invirt(InvirtConfig(developmentMode = Environment.ENV.developmentMode)).then(
-        routes(
-            "/static/${assetsVersion}" bind staticAssets(devMode)
-        )
-    )
+    Invirt.configure(developmentMode = devMode)
     ```
   </TabItem>
   <TabItem value="declaration" label="Declaration">
     ```kotlin
-    val Environment.developmentMode: Boolean get() = EnvironmentKey.boolean().defaulted("DEVELOPMENT_MODE", false)(this)
+    val Environment.developmentMode: Boolean
+        get() = EnvironmentKey.boolean().defaulted("DEVELOPMENT_MODE", false)(this)
     ```
   </TabItem>
 </Tabs>
 
-
-### Environment.withDotEnv()
-Loads environment variables from .env files and returns a new [Environment](https://www.http4k.org/api/http4k-config/org.http4k.config/-environment/index.html)
-with the combined variables from receiver environment and the `.env` file. The variables in the receiver `Environment`
-override the ones in the .env files.
-
-An optional directory path argument (defaulting to `./`)  can be passed to specify the location where to look up
-the .env files.
-
-Invirt uses the [dotenv-kotlin](https://github.com/cdimascio/dotenv-kotlin) library underneath. Please see
-next section for customising Dotenv loading.
+### Environment.withDotEnv(dotEnvFile)
+Returns a new `Environment` overlaid with the values from the given `.env` file path. If the file
+doesn't exist the receiver is returned unchanged. The receiver's values take precedence over the file
+(i.e. an explicit env var beats a `.env` entry of the same name).
 
 <Tabs>
   <TabItem value="example" label="Example" default>
     ```kotlin
-    // Environment containing system env vars combined with the ones in ./.env
-    val env = Environment.ENV.withDotEnv()
-
-    // Environment containing system env vars combined with the ones in /home/user/.env
-    val env = Environment.ENV.withDotEnv("/home/user")
+    val env = Environment.ENV.withDotEnv(".env")
+    val devEnv = Environment.ENV.withDotEnv("config/.env.local")
     ```
   </TabItem>
   <TabItem value="declaration" label="Declaration">
     ```kotlin
-    fun Environment.withDotEnv(dotEnvDirectory: String = "./"): Environment
+    fun Environment.withDotEnv(dotEnvFile: String): Environment
     ```
   </TabItem>
 </Tabs>
+
+Uses [dotenv-kotlin](https://github.com/cdimascio/dotenv-kotlin) underneath. Pass `systemProperties = false`
+internally, so loading a `.env` file does not pollute system properties.
 
 ### Environment.withDotEnv(Dotenv)
-Allows overriding the settings the dotenv-kotlin uses to load .env files. You must add the [dotenv-kotlin](https://github.com/cdimascio/dotenv-kotlin)
-dependency to your project to use this.
+Overload for callers who want to control the underlying `Dotenv` instance themselves &mdash; for
+example to load from a custom directory or to set `systemProperties = true`. Requires the
+[`dotenv-kotlin`](https://github.com/cdimascio/dotenv-kotlin) dependency.
 
 <Tabs>
   <TabItem value="example" label="Example" default>
-    ```kotlin
-    implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
-    ```
     ```kotlin
     val dotEnv = dotenv {
         directory = "../../"
         ignoreIfMissing = false
         systemProperties = true
     }
-
     val env = Environment.ENV.withDotEnv(dotEnv)
     ```
   </TabItem>
@@ -88,16 +75,16 @@ dependency to your project to use this.
   </TabItem>
 </Tabs>
 
-### gitCommitId()
-Returns the Git commit id, read from a property named `git.commit.id` in a `git.properties` file in the classpath.
-The call fails if `git.properties` cannot be found and returns `null` if the file exists but doesn't contain
-a `git.commit.id` property.
+### gitCommitId
+Returns the Git commit id, read from a `git.commit.id` property in a classpath `git.properties` file.
+Returns `null` if the file exists but the property is missing. Fails if the file itself cannot be found.
 
-A `git.propreties` can be created by your application's build process, or more commonly by using a Gradle plugin.
+A `git.properties` file can be generated by your build &mdash; commonly with the
+[`gradle-git-properties`](https://github.com/n0mer/gradle-git-properties) plugin:
 
 ```kotlin
 plugins {
-    id "com.gorylenko.gradle-git-properties" version "2.4.2"
+    id("com.gorylenko.gradle-git-properties") version "2.4.2"
 }
 ```
 
