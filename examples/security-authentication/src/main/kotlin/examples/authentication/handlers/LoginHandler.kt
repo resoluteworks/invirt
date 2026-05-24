@@ -14,7 +14,7 @@ import org.http4k.routing.routes
 object LoginHandler {
 
     operator fun invoke(authService: AuthenticationService): RoutingHttpHandler = routes(
-        "/login" GET { renderTemplate("login") },
+        "/login" GET { request -> renderTemplate(request, "login") },
 
         "/login" POST { request ->
             val loginForm = request.toForm<LoginForm>()
@@ -26,6 +26,7 @@ object LoginHandler {
             } else {
                 // Login failed so return to login and display an error message
                 errorResponse(
+                    request,
                     "login",
                     "credentials" to "We could not find these credentials"
                 )

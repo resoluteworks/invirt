@@ -8,6 +8,6 @@ import org.http4k.routing.routes
 object DashboardHandler {
 
     operator fun invoke(): RoutingHttpHandler = routes(
-        "/dashboard" GET { renderTemplate("dashboard") }
+        "/dashboard" GET { request -> renderTemplate(request, "dashboard") }
     )
 }

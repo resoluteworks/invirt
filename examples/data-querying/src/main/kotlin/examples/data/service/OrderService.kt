@@ -36,36 +36,43 @@ class OrderService {
 }
 
 private fun DataFilter.matches(order: Order): Boolean = when (this) {
-    is DataFilter.Field<*> -> this.fieldMatches(order)
-    is DataFilter.Compound -> if (this.operator == DataFilter.Compound.Operator.AND) {
-        this.subFilters.all { it.matches(order) }
-    } else {
-        this.subFilters.any { it.matches(order) }
-    }
+    is DataFilter.Field -> this.fieldMatches(order)
+    is DataFilter.And -> this.filters.all { it.matches(order) }
+    is DataFilter.Or -> this.filters.any { it.matches(order) }
 }
 
-private fun DataFilter.Field<*>.fieldMatches(order: Order): Boolean {
-    when (this.field) {
-        Order::createdAt.name -> return when (operation) {
-            DataFilter.Field.Operation.GTE -> order.createdAt.isAfter(value as Instant)
-            DataFilter.Field.Operation.LTE -> order.createdAt.isBefore(value as Instant)
-            else -> throw UnsupportedOperationException("Not implemented for $operation")
-        }
-
-        Order::totalMinorUnit.name -> return when (operation) {
-            DataFilter.Field.Operation.GTE -> order.totalMinorUnit >= value as Long
-            DataFilter.Field.Operation.LTE -> order.totalMinorUnit <= value as Long
-            DataFilter.Field.Operation.GT -> order.totalMinorUnit > value as Long
-            DataFilter.Field.Operation.LT -> order.totalMinorUnit < value as Long
-            else -> throw UnsupportedOperationException("Not implemented for $operation")
-        }
-
-        Order::status.name -> return order.status == value as OrderStatus
-
-        else -> throw UnsupportedOperationException("Not implemented for field ${this.field}")
+private fun DataFilter.Field.fieldMatches(order: Order): Boolean = when (this) {
+    is DataFilter.Field.Eq<*> -> when (field) {
+        Order::status.name -> order.status == value
+        else -> throw UnsupportedOperationException("Eq not implemented for field $field")
     }
+
+    is DataFilter.Field.Gt<*> -> when (field) {
+        Order::totalMinorUnit.name -> order.totalMinorUnit > value as Long
+        else -> throw UnsupportedOperationException("Gt not implemented for field $field")
+    }
+
+    is DataFilter.Field.Lt<*> -> when (field) {
+        Order::totalMinorUnit.name -> order.totalMinorUnit < value as Long
+        else -> throw UnsupportedOperationException("Lt not implemented for field $field")
+    }
+
+    is DataFilter.Field.Gte<*> -> when (field) {
+        Order::createdAt.name -> !order.createdAt.isBefore(value as Instant)
+        Order::totalMinorUnit.name -> order.totalMinorUnit >= value as Long
+        else -> throw UnsupportedOperationException("Gte not implemented for field $field")
+    }
+
+    is DataFilter.Field.Lte<*> -> when (field) {
+        Order::createdAt.name -> !order.createdAt.isAfter(value as Instant)
+        Order::totalMinorUnit.name -> order.totalMinorUnit <= value as Long
+        else -> throw UnsupportedOperationException("Lte not implemented for field $field")
+    }
+
+    else -> throw UnsupportedOperationException("Not implemented for ${this::class.simpleName}")
 }
 
+@Suppress("UNCHECKED_CAST")
 private fun Sort.field(order: Order): Comparable<Any> = when (field) {
     Order::createdAt.name -> order.createdAt as Comparable<Any>
     Order::totalMinorUnit.name -> order.totalMinorUnit as Comparable<Any>

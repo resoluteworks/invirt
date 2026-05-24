@@ -10,6 +10,7 @@ import invirt.core.withCookies
 import invirt.security.authentication.AuthenticationResponse
 import invirt.security.authentication.Authenticator
 import invirt.security.authentication.Principal
+import invirt.security.authentication.PrincipalRef
 import invirt.utils.uuid7
 import org.http4k.core.Request
 import org.http4k.core.Response
@@ -151,4 +152,6 @@ data class User(
     val password: String,
     val role: String,
     val id: String = uuid7()
-) : Principal
+) : Principal {
+    override val ref: PrincipalRef = PrincipalRef("user", id)
+}

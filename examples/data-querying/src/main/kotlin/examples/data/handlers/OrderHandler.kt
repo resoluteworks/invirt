@@ -1,6 +1,5 @@
 package examples.data.handlers
 
-import examples.data.handlers.ordersFilter
 import examples.data.model.Order
 import examples.data.model.OrderStatus
 import examples.data.service.OrderService
@@ -8,9 +7,8 @@ import invirt.core.GET
 import invirt.core.data.page
 import invirt.core.data.queryDataFilter
 import invirt.core.data.sort
-import invirt.core.views.ViewResponse
+import invirt.core.views.InvirtView
 import invirt.core.views.ok
-import invirt.data.DataFilter
 import invirt.data.RecordsPage
 import invirt.data.Sort
 import invirt.data.eq
@@ -30,12 +28,12 @@ object OrderHandler {
             val page = request.page()
 
             val ordersPage = orderService.searchOrders(filter, sort, page)
-            ListOrdersResponse(ordersPage).ok()
+            ListOrdersResponse(ordersPage).ok(request)
         }
     )
 }
 
-private val ordersFilter = queryDataFilter(DataFilter.Compound.Operator.AND) {
+private val ordersFilter = queryDataFilter {
     Query.optional("total-order-value").filter { value ->
         when (value) {
             "less-than-1000" -> Order::totalMinorUnit.lt(1000_00)
@@ -51,7 +49,7 @@ private val ordersFilter = queryDataFilter(DataFilter.Compound.Operator.AND) {
 
 private class ListOrdersResponse(
     val ordersPage: RecordsPage<Order>
-) : ViewResponse("list-orders") {
+) : InvirtView("list-orders") {
 
     val orderStatusValues = OrderStatus.entries
 }

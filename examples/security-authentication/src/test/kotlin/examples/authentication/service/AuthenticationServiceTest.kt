@@ -2,7 +2,7 @@ package examples.authentication.service
 
 import examples.authentication.service.Tokens.Companion.SESSION_EXPIRY_MINUTES
 import invirt.security.authentication.AuthenticationResponse
-import invirt.test.cookies
+import invirt.core.withCookies
 import invirt.utils.uuid7
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.extensions.clock.TestClock
@@ -64,7 +64,7 @@ class AuthenticationServiceTest : StringSpec({
 
         clock.plus(Duration.ofMinutes(61).toKotlinDuration())
 
-        authenticationService.authenticate(Request(Method.GET, "/test").cookies(cookies))
+        authenticationService.authenticate(Request(Method.GET, "/test").withCookies(cookies))
             .shouldBeTypeOf<AuthenticationResponse.Unauthenticated>()
         authenticationService.sessions.shouldBeEmpty()
     }
@@ -72,7 +72,7 @@ class AuthenticationServiceTest : StringSpec({
     "authenticate - success" {
         val authenticationService = AuthenticationService()
         val cookies = authenticationService.login("user@test.com", "test")!!.cookies()
-        val result = authenticationService.authenticate(Request(Method.GET, "/test").cookies(cookies))
+        val result = authenticationService.authenticate(Request(Method.GET, "/test").withCookies(cookies))
         result.shouldBeTypeOf<AuthenticationResponse.Authenticated<*>>()
         result.newCookies.shouldBeEmpty()
     }
@@ -85,7 +85,7 @@ class AuthenticationServiceTest : StringSpec({
 
         clock.plus(Duration.ofMinutes(10).toKotlinDuration())
 
-        val result = authenticationService.authenticate(Request(Method.GET, "/test").cookies(cookies))
+        val result = authenticationService.authenticate(Request(Method.GET, "/test").withCookies(cookies))
         result.shouldBeTypeOf<AuthenticationResponse.Authenticated<*>>()
         result.newCookies.size shouldBe 1
         result.newCookies.first().expires!!.shouldBeCloseTo(Instant.now().plusSeconds(60 * 5), Duration.ofMillis(1000).toKotlinDuration())

@@ -2,7 +2,6 @@ package examples.staticassets
 
 import invirt.core.GET
 import invirt.core.Invirt
-import invirt.core.InvirtConfig
 import invirt.core.InvirtPebbleConfig
 import invirt.core.cacheDays
 import invirt.core.config.developmentMode
@@ -24,17 +23,16 @@ class Application {
         val staticAssetsVersion = gitCommitId()!!
         val devMode = Environment.ENV.developmentMode
 
-        val config = InvirtConfig(
+        Invirt.configure(
             developmentMode = devMode,
             pebble = InvirtPebbleConfig(
                 globalVariables = mapOf("staticAssetsVersion" to staticAssetsVersion)
             )
         )
-        val appHandler = Invirt(config).then(
-            routes(
-                "/" GET { renderTemplate("index") },
-                "/static/${staticAssetsVersion}" bind cacheDays(365).then(staticAssets(devMode))
-            )
+
+        val appHandler = routes(
+            "/" GET { request -> renderTemplate(request, "index") },
+            "/static/${staticAssetsVersion}" bind cacheDays(365).then(staticAssets(devMode))
         )
 
         val server = Netty(8080).toServer(appHandler).start()
