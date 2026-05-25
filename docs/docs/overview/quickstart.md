@@ -51,14 +51,18 @@ for template look-ups. For a complete example, please check the [Quickstart proj
 
 ### Application
 ```kotlin
-class IndexResponse(val currentUsername: String) : InvirtView("index")
+class HomepageResponse(val currentUsername: String) : InvirtView("index")
 
 class Application {
 
     fun start() {
+        Invirt.configure(
+            developmentMode = Environment.ENV.developmentMode
+        )
+
         val appHandler = routes(
             "/" GET { request ->
-                IndexResponse(currentUsername = "email@test.com").ok(request)
+                HomepageResponse(currentUsername = "email@test.com").ok(request)
             }
         )
 
@@ -92,9 +96,22 @@ as per screenshot below.
 
 ### Wiring explained
 Invirt is initialised as a singleton via `Invirt.configure(...)`. The first time `Invirt` is referenced
-the framework auto-configures itself with sensible defaults, so for the simplest applications no
-explicit call is required. Calling `Invirt.configure(...)` explicitly (typically at startup) lets you
-override development mode and customise the Pebble template engine.
+the framework auto-configures itself with sensible defaults, so even without an explicit call the
+application above would still render its views. We call `Invirt.configure(...)` at startup so that
+configuration is explicit and applied deterministically before the first request is served.
+
+```kotlin
+Invirt.configure(
+    developmentMode = Environment.ENV.developmentMode
+)
+```
+
+Here `developmentMode` is read from the `DEVELOPMENT_MODE` environment variable (defaulting to `false`).
+When enabled, Invirt hot-reloads templates from the source directory instead of the classpath, which is
+convenient during local development.
+
+`Invirt.configure(...)` also accepts a `pebble` argument for customising the Pebble template engine, for
+example to register custom extensions or expose global variables to every template:
 
 ```kotlin
 Invirt.configure(

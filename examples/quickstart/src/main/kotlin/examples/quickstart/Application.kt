@@ -1,22 +1,29 @@
 package examples.quickstart
 
 import invirt.core.GET
+import invirt.core.Invirt
+import invirt.core.config.developmentMode
 import invirt.core.views.InvirtView
 import invirt.core.views.ok
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.http4k.config.Environment
 import org.http4k.routing.routes
 import org.http4k.server.Netty
 
 private val log = KotlinLogging.logger {}
 
-class IndexResponse(val currentUsername: String) : InvirtView("index")
+class HomepageResponse(val currentUsername: String) : InvirtView("index")
 
 class Application {
 
     fun start() {
+        Invirt.configure(
+            developmentMode = Environment.ENV.developmentMode
+        )
+
         val appHandler = routes(
             "/" GET { request ->
-                IndexResponse(currentUsername = "email@test.com").ok(request)
+                HomepageResponse(currentUsername = "email@test.com").ok(request)
             }
         )
 
