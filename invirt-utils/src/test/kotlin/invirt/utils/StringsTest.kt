@@ -113,17 +113,56 @@ class StringsTest : StringSpec({
     }
 
     "isUrl" {
+        // Not URLs
+        "".isUrl() shouldBe false
         "test".isUrl() shouldBe false
         "some words".isUrl() shouldBe false
         "test .com".isUrl() shouldBe false
         "http: // test.com".isUrl() shouldBe false
+        "£25.00".isUrl() shouldBe false
 
-        "www.test.com".isUrl() shouldBe true
+        // URLs: with/without scheme, www, path and query
         "test.com".isUrl() shouldBe true
+        "www.test.com".isUrl() shouldBe true
         "http://test.com".isUrl() shouldBe true
         "https://test.com".isUrl() shouldBe true
+        "http://ab.com".isUrl() shouldBe true
+        "sub.domain.test.com".isUrl() shouldBe true
         "https://test.artgallery".isUrl() shouldBe true
         "https://test.com/something/else.file".isUrl() shouldBe true
+        "https://sommerhaus.gallery?param=123".isUrl() shouldBe true
+        "https://sommerhaus.gallery/?a=test".isUrl() shouldBe true
+
+        // Case-insensitive: scheme, www and TLD in any case
+        "HTTP://TEST.COM".isUrl() shouldBe true
+        "HTTPS://Test.Com".isUrl() shouldBe true
+        "WWW.TEST.COM".isUrl() shouldBe true
+        "Https://Test.Com/Path".isUrl() shouldBe true
+        "TEST.COM".isUrl() shouldBe true
+    }
+
+    "containsUrl" {
+        // Unlike isUrl (whole-string match), containsUrl finds a link anywhere in free text.
+        "".containsUrl() shouldBe false
+        "test".containsUrl() shouldBe false
+        "some words".containsUrl() shouldBe false
+        "no links here at all".containsUrl() shouldBe false
+        // Plain prices stay clean: the fractional part is digits, not a letter TLD.
+        "£25.00".containsUrl() shouldBe false
+        "£25".containsUrl() shouldBe false
+        "£0. Others pay £25".containsUrl() shouldBe false
+        "e.g. £25".containsUrl() shouldBe false
+
+        // A whole-string URL contains a URL
+        "test.com".containsUrl() shouldBe true
+        "www.test.com".containsUrl() shouldBe true
+        "http://test.com".containsUrl() shouldBe true
+        "https://test.com".containsUrl() shouldBe true
+        // A URL embedded in surrounding text, in any case
+        "pay at gallery.co.uk".containsUrl() shouldBe true
+        "buy tickets at https://test.com/pay now".containsUrl() shouldBe true
+        "Visit HTTPS://TEST.COM now".containsUrl() shouldBe true
+        "email WWW.Test.Com please".containsUrl() shouldBe true
     }
 
     "httpUrl" {
