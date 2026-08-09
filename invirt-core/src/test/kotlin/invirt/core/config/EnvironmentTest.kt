@@ -3,16 +3,13 @@ package invirt.core.config
 import invirt.utils.uuid7
 import io.github.cdimascio.dotenv.Dotenv
 import io.github.cdimascio.dotenv.DotenvEntry
-import io.kotest.assertions.throwables.shouldThrowWithMessage
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkObject
 import org.http4k.config.Environment
 import java.io.File
-import java.io.FileNotFoundException
 
 class EnvironmentTest : StringSpec({
 
@@ -74,31 +71,5 @@ class EnvironmentTest : StringSpec({
         Environment.EMPTY.developmentMode shouldBe false
         Environment.from("DEVELOPMENT_MODE" to "false").developmentMode shouldBe false
         Environment.from("DEVELOPMENT_MODE" to "true").developmentMode shouldBe true
-    }
-
-    "gitCommitId" {
-        mockkObject(Environment) {
-            val commitId = uuid7()
-            every { Environment.fromResource("git.properties") } returns Environment.from("git.commit.id" to commitId)
-            gitCommitId() shouldBe commitId
-        }
-    }
-
-    "gitCommitId null when file is empty" {
-        mockkObject(Environment) {
-            every { Environment.fromResource("git.properties") } returns Environment.EMPTY
-            gitCommitId() shouldBe null
-        }
-    }
-
-    "gitCommitId throws exception when file doesn't exist" {
-        mockkObject(Environment) {
-            every { Environment.fromResource("git.properties") } answers {
-                throw FileNotFoundException("git.properties")
-            }
-            shouldThrowWithMessage<FileNotFoundException>("git.properties") {
-                gitCommitId()
-            }
-        }
     }
 })

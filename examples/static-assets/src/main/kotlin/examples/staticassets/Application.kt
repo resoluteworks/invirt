@@ -5,7 +5,6 @@ import invirt.core.Invirt
 import invirt.core.InvirtPebbleConfig
 import invirt.core.cacheDays
 import invirt.core.config.developmentMode
-import invirt.core.config.gitCommitId
 import invirt.core.handlers.staticAssets
 import invirt.core.views.renderTemplate
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -20,7 +19,9 @@ private val log = KotlinLogging.logger {}
 class Application {
 
     fun start() {
-        val staticAssetsVersion = gitCommitId()!!
+        // Apps supply their own asset version however they like; here it comes from an env var the
+        // deploy sets (e.g. the git commit), falling back to "dev" for local runs.
+        val staticAssetsVersion = System.getenv("GIT_COMMIT_ID") ?: "dev"
         val devMode = Environment.ENV.developmentMode
 
         Invirt.configure(
