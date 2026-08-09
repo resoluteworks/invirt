@@ -32,11 +32,3 @@ fun Environment.withDotEnv(dotEnv: Dotenv): Environment = this overrides Environ
  * Boolean set with DEVELOPMENT_MODE
  */
 val Environment.developmentMode: Boolean get() = EnvironmentKey.boolean().defaulted("DEVELOPMENT_MODE", false)(this)
-
-/**
- * Reads "git.commit.id" from git.properties in the classpath.
- *
- * Requires Gradle plugin id("com.gorylenko.gradle-git-properties") or some other mechanism to
- * generate a classpath:git.properties with a git.commit.id property
- */
-fun gitCommitId(): String? = EnvironmentKey.optional("git.commit.id")(Environment.fromResource("git.properties"))
