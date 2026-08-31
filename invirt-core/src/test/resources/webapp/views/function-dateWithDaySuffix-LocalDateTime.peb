@@ -1,1 +1,1 @@
-{{ model.date | dateWithDaySuffix("d MMM YYYY HH:mm:ss") }}
+{{ model.date | dateWithDaySuffix("d MMM yyyy HH:mm:ss") }}

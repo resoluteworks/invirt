@@ -36,24 +36,24 @@ class DateTimeTest : StringSpec({
     }
 
     "formatWithDaySuffix" {
-        LocalDate.of(2024, 1, 1).formatWithDaySuffix("d MMM YYYY") shouldBe "1st Jan 2024"
-        LocalDate.of(2024, 1, 2).formatWithDaySuffix("d MMM YYYY") shouldBe "2nd Jan 2024"
-        LocalDate.of(2024, 1, 3).formatWithDaySuffix("d MMM YYYY") shouldBe "3rd Jan 2024"
-        LocalDate.of(2024, 1, 11).formatWithDaySuffix("d MMM YYYY") shouldBe "11th Jan 2024"
-        LocalDate.of(2024, 1, 17).formatWithDaySuffix("d MMM YYYY") shouldBe "17th Jan 2024"
+        LocalDate.of(2024, 1, 1).formatWithDaySuffix("d MMM yyyy") shouldBe "1st Jan 2024"
+        LocalDate.of(2024, 1, 2).formatWithDaySuffix("d MMM yyyy") shouldBe "2nd Jan 2024"
+        LocalDate.of(2024, 1, 3).formatWithDaySuffix("d MMM yyyy") shouldBe "3rd Jan 2024"
+        LocalDate.of(2024, 1, 11).formatWithDaySuffix("d MMM yyyy") shouldBe "11th Jan 2024"
+        LocalDate.of(2024, 1, 17).formatWithDaySuffix("d MMM yyyy") shouldBe "17th Jan 2024"
 
-        LocalDateTime.of(2024, 1, 1, 23, 10, 15).formatWithDaySuffix("d MMM YYYY HH:mm:ss") shouldBe "1st Jan 2024 23:10:15"
-        LocalDateTime.of(2024, 1, 2, 23, 10, 15).formatWithDaySuffix("d MMM YYYY HH:mm:ss") shouldBe "2nd Jan 2024 23:10:15"
-        LocalDateTime.of(2024, 1, 3, 23, 10, 15).formatWithDaySuffix("d MMM YYYY HH:mm:ss") shouldBe "3rd Jan 2024 23:10:15"
-        LocalDateTime.of(2024, 1, 11, 23, 10, 15).formatWithDaySuffix("d MMM YYYY HH:mm:ss") shouldBe "11th Jan 2024 23:10:15"
-        LocalDateTime.of(2024, 1, 17, 23, 10, 15).formatWithDaySuffix("d MMM YYYY HH:mm:ss") shouldBe "17th Jan 2024 23:10:15"
+        LocalDateTime.of(2024, 1, 1, 23, 10, 15).formatWithDaySuffix("d MMM yyyy HH:mm:ss") shouldBe "1st Jan 2024 23:10:15"
+        LocalDateTime.of(2024, 1, 2, 23, 10, 15).formatWithDaySuffix("d MMM yyyy HH:mm:ss") shouldBe "2nd Jan 2024 23:10:15"
+        LocalDateTime.of(2024, 1, 3, 23, 10, 15).formatWithDaySuffix("d MMM yyyy HH:mm:ss") shouldBe "3rd Jan 2024 23:10:15"
+        LocalDateTime.of(2024, 1, 11, 23, 10, 15).formatWithDaySuffix("d MMM yyyy HH:mm:ss") shouldBe "11th Jan 2024 23:10:15"
+        LocalDateTime.of(2024, 1, 17, 23, 10, 15).formatWithDaySuffix("d MMM yyyy HH:mm:ss") shouldBe "17th Jan 2024 23:10:15"
 
-        Instant.parse("2024-06-13T09:49:24.245Z").formatWithDaySuffix("d MMM YYYY HH:mm:ss") shouldBe "13th Jun 2024 09:49:24"
+        Instant.parse("2024-06-13T09:49:24.245Z").formatWithDaySuffix("d MMM yyyy HH:mm:ss") shouldBe "13th Jun 2024 09:49:24"
     }
 
     "patternWithDaySuffix" {
-        LocalDate.of(2024, 1, 1).patternWithDaySuffix("dd MM YYYY") shouldBe "dd'st' MM YYYY"
-        LocalDate.of(2024, 1, 2).patternWithDaySuffix("dd MM YYYY") shouldBe "dd'nd' MM YYYY"
+        LocalDate.of(2024, 1, 1).patternWithDaySuffix("dd MM yyyy") shouldBe "dd'st' MM yyyy"
+        LocalDate.of(2024, 1, 2).patternWithDaySuffix("dd MM yyyy") shouldBe "dd'nd' MM yyyy"
         LocalDate.of(2024, 1, 3).patternWithDaySuffix("d") shouldBe "d'rd'"
     }
 
