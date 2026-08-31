@@ -21,14 +21,14 @@ data class TestPrincipal(
 
 val TestPrincipal.roles: Set<String> get() = this.attributes["roles"]?.let { it as Set<String> } ?: emptySet()
 
-fun Filter.authTestRoute(): AuthTestResult {
+fun Filter.authTestRoute(handlerResponse: Response = Response(Status.OK)): AuthTestResult {
     var requestPrincipal: Principal? = null
 
     val httpHandler = this.then(
         routes(
             "/test" GET {
                 requestPrincipal = it.principal
-                Response(Status.OK)
+                handlerResponse
             }
         )
     )
