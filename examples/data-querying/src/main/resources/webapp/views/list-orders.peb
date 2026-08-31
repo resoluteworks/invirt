@@ -103,7 +103,7 @@ You'd normall do <a class="filter {{ isSelected ? 'selected' : '' }}">
                     <tbody>
                         {% for order in model.ordersPage.records %}
                             <tr>
-                                <td>{{ order.createdAt | dateWithDaySuffix("d MMM YYYY HH:mm") }}</td>
+                                <td>{{ order.createdAt | dateWithDaySuffix("d MMM yyyy HH:mm") }}</td>
                                 <td>{{ order.status.label }}</td>
                                 <td>{{ currencyFromMinorUnit(order.totalMinorUnit, "GBP") }}</td>
                             </tr>
