@@ -1,6 +1,6 @@
 package invirt.security.authentication
 
-import invirt.core.withCookies
+import invirt.core.withCookiesIfAbsent
 import org.http4k.core.Filter
 
 /**
@@ -17,9 +17,11 @@ object AuthenticationFilter {
             if (authResponse is AuthenticationResponse.Authenticated<*>) {
                 val response = next(request.withPrincipal(authResponse.principal))
 
-                // Set cookies if any have been set by Authenticator
+                // Set cookies if any have been set by Authenticator, but never over a cookie of the same
+                // name that the handler itself set - a sign-out invalidating the session cookie has to
+                // beat a token refreshed on the way in, or the user stays signed in.
                 if (authResponse.newCookies.isNotEmpty()) {
-                    response.withCookies(authResponse.newCookies)
+                    response.withCookiesIfAbsent(authResponse.newCookies)
                 } else {
                     response
                 }
