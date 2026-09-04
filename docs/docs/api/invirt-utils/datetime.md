@@ -15,6 +15,23 @@ sidebar_position: 3
 LocalDate.of(2026, 3, 1)
     .formatWithDaySuffix("EEEE, MMMM d yyyy")
 // "Sunday, March 1st 2026"
+
+LocalDateTime.of(2026, 3, 1, 9, 15)
+    .formatWithDaySuffix("d MMMM yyyy HH:mm")
+// "1st March 2026 09:15"
+```
+
+`dayOfMonthSuffix`, `patternWithDaySuffix` and `formatWithDaySuffix` all take a `ZoneId` on `Instant`,
+because an instant is a point on the timeline and only a zone gives it a calendar day.
+
+```kotlin
+val dispatchedAt = Instant.parse("2026-08-31T23:02:00Z")
+
+dispatchedAt.formatWithDaySuffix("d MMMM yyyy", ZoneId.of("UTC"))
+// "31st August 2026"
+
+dispatchedAt.formatWithDaySuffix("d MMMM yyyy", ZoneId.of("Europe/London"))
+// "1st September 2026"
 ```
 
 A matching Pebble filter is registered as
