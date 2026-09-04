@@ -78,10 +78,23 @@ You have {{ model.count }} {{ pluralize(model.count, "message", "messages") }}.
 ```
 
 ### dateWithDaySuffix filter
-Formats a `java.time.Temporal` (`LocalDate`, `LocalDateTime`, `Instant`) using a `DateTimeFormatter`
-pattern, inserting the English ordinal suffix on the day of month (`1st`, `2nd`, `3rd`, ...).
+Formats a `LocalDate`, `LocalDateTime` or `Instant` using a `DateTimeFormatter` pattern, inserting the
+English ordinal suffix on the day of month (`1st`, `2nd`, `3rd`, ...).
 
 ```html
-{{ model.dispatchedAt | dateWithDaySuffix("EEEE, MMMM d yyyy") }}
-{# → "Wednesday, March 1st 2026" #}
+{{ model.deliveryDate | dateWithDaySuffix("EEEE, MMMM d yyyy") }}
+{# → "Sunday, March 1st 2026" #}
 ```
+
+An `Instant` is a point on the timeline rather than a calendar date, so it takes a `zone` argument (a zone
+id) saying which zone the date is read in, and the filter fails if it is missing. `2026-08-31T23:02:00Z` is
+the 31st of August in UTC and the 1st of September in `Europe/London`, so there is no zone the filter could
+pick for you that isn't the wrong day for someone.
+
+```html
+{{ model.dispatchedAt | dateWithDaySuffix("EEEE, MMMM d yyyy", zone="Europe/London") }}
+{# → "Tuesday, September 1st 2026" #}
+```
+
+`zone` means nothing to a `LocalDate` or a `LocalDateTime`, which are calendar values already, and is
+ignored if passed.
