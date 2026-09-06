@@ -49,12 +49,6 @@ wrapped in a single-element array.
 <div id="map" data-map-places='{{ jsonArray(model.places) | raw }}'></div>
 ```
 
-### today()
-Returns the current date as a `java.time.LocalDate`.
-```html
-Today is {{ today() }}
-```
-
 ### uuid()
 Returns a new time-ordered UUIDv7 as a hex string (no dashes). Convenient for unique DOM ids in
 templates.
