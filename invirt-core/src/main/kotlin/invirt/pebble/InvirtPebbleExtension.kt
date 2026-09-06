@@ -12,14 +12,12 @@ import invirt.utils.uuid7
 import io.pebbletemplates.pebble.extension.AbstractExtension
 import io.pebbletemplates.pebble.extension.Filter
 import io.pebbletemplates.pebble.extension.Function
-import java.time.LocalDate
 
 class InvirtPebbleExtension(private val globalVariables: Map<String, Any>) : AbstractExtension() {
 
     override fun getGlobalVariables(): Map<String, Any?> = globalVariables
 
     override fun getFunctions(): Map<String, Function> = listOf(
-        pebbleFunction("today") { LocalDate.now() },
         pebbleFunction("uuid") { uuid7() },
 
         requestFunction,

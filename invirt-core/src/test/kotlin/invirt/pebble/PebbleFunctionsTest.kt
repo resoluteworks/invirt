@@ -23,10 +23,6 @@ import java.time.ZoneOffset
 class PebbleFunctionsTest : StringSpec() {
 
     init {
-        "today" {
-            testFunction("today", "/test", "${LocalDate.now()}")
-        }
-
         "plural" {
             testFunction("plural", "/test", "dogs\ncat\ncars")
         }
