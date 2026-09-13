@@ -41,6 +41,27 @@ ErrorPages(Status.NOT_FOUND to "error/404")
     .then(routes)
 ```
 
+## HeadAsGet
+Answers a HEAD request by running the handler as GET and discarding the response body. http4k's routing
+matches the request method by strict equality, so a route bound only to GET otherwise answers HEAD with a
+`Status.METHOD_NOT_ALLOWED` - which trips up uptime monitors and link-preview services, since they check that a
+page is alive with a HEAD request rather than a GET.
+
+`HeadAsGet` wraps a handler instead of being a `Filter`: `Filter.then(RoutingHttpHandler)` applies a filter to
+each route only after the method has been matched, which is too late to rewrite HEAD. Compose filters that must
+see the original method (an access log) outside it, and filters whose bodies must be dropped for HEAD (error
+pages) inside it:
+
+```kotlin
+HttpAccessLog()
+    .then(
+        HeadAsGet(
+            ErrorPages(Status.NOT_FOUND to "error/404")
+                .then(routes(/* ... */))
+        )
+    )
+```
+
 ## HttpAccessLog
 Logs HTTP transactions through [`kotlin-logging`](https://github.com/oshai/kotlin-logging). By default the
 filter logs:
