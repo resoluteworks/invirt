@@ -5,6 +5,7 @@ import invirt.test.shouldBeRedirectTo
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldNotContain
 import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Response
@@ -123,6 +124,29 @@ class ResponseTest : StringSpec({
             "/test" GET { htmlRedirect("/other") }
         )
         httpHandler(Request(Method.GET, "/test")).shouldBeHtmlRedirectTo("/other")
+    }
+
+    "htmlRedirect escapes characters that would break out of the attribute" {
+        val httpHandler = routes(
+            "/test" GET { htmlRedirect("""/other'"<>&""") }
+        )
+        val bodyString = httpHandler(Request(Method.GET, "/test")).bodyString()
+
+        bodyString shouldBe
+            """<html><head><meta http-equiv="refresh" content="0;URL='/other&#39;&quot;&lt;&gt;&amp;'"/></head></html>"""
+        bodyString shouldNotContain """/other'"<>&"""
+        httpHandler(Request(Method.GET, "/test")).shouldBeHtmlRedirectTo("""/other'"<>&""")
+    }
+
+    "htmlRedirect escapes an ampersand in a query string so browsers decode it back" {
+        val httpHandler = routes(
+            "/test" GET { htmlRedirect("/other?a=1&b=2") }
+        )
+        val bodyString = httpHandler(Request(Method.GET, "/test")).bodyString()
+
+        bodyString shouldBe
+            """<html><head><meta http-equiv="refresh" content="0;URL='/other?a=1&amp;b=2'"/></head></html>"""
+        bodyString shouldNotContain "a=1&b=2"
     }
 
     "turboStream" {

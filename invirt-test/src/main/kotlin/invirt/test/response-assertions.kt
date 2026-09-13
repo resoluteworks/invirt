@@ -1,5 +1,6 @@
 package invirt.test
 
+import invirt.core.htmlRedirect
 import invirt.core.views.InvirtRenderModel
 import io.kotest.matchers.equality.shouldBeEqualToIgnoringFields
 import io.kotest.matchers.shouldBe
@@ -73,8 +74,11 @@ fun Response.shouldBeErrorResponse(): ValidationErrors {
     return invirtRenderModel.errors!!
 }
 
+/**
+ * Asserts that this response is the HTML redirect [htmlRedirect] renders for [location]: the expected
+ * body comes from that function itself, so the attribute escaping it applies is part of the match.
+ */
 fun Response.shouldBeHtmlRedirectTo(location: String) {
     this shouldHaveStatus Status.OK
-    val bodyString = this.bodyString().trim()
-    bodyString shouldBe """<html><head><meta http-equiv="refresh" content="0;URL='${location}'"/></head></html>"""
+    this.bodyString().trim() shouldBe htmlRedirect(location).bodyString()
 }

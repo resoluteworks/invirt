@@ -70,8 +70,22 @@ fun httpNotFound(): Response = Response(Status.NOT_FOUND)
 /**
  * When an HTTP 200 is required before a redirect, for example
  * https://stackoverflow.com/questions/42216700/how-can-i-redirect-after-oauth2-with-samesite-strict-and-still-get-my-cookies
+ *
+ * [url] is HTML-attribute-escaped before it is embedded in the `content` attribute, since this
+ * response often carries session cookies set by the same request and an unescaped `'`, `"`, `<`,
+ * `>` or `&` in the URL would otherwise break out of the attribute.
  */
 fun htmlRedirect(url: String): Response {
-    val body = """<html><head><meta http-equiv="refresh" content="0;URL='${url}'"/></head></html>"""
+    val body = """<html><head><meta http-equiv="refresh" content="0;URL='${escapeHtmlAttribute(url)}'"/></head></html>"""
     return Response(Status.OK).body(body)
 }
+
+/**
+ * Escapes the characters that are unsafe inside a double- or single-quoted HTML attribute value.
+ */
+private fun escapeHtmlAttribute(value: String): String = value
+    .replace("&", "&amp;")
+    .replace("<", "&lt;")
+    .replace(">", "&gt;")
+    .replace("\"", "&quot;")
+    .replace("'", "&#39;")
