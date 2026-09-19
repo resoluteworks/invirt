@@ -325,6 +325,39 @@ class CollectionTest : StringSpec() {
             collection.get(doc.id)!!.version shouldBe 3
         }
 
+        "txVersionedUpdateOne" {
+            val collection = mongo.randomTestCollection<PartialUpdateDocument>()
+            val doc = PartialUpdateDocument("pending")
+            collection.insertOne(doc)
+
+            mongo.runInTransaction { session ->
+                collection.txVersionedUpdateOne(
+                    session,
+                    mongoById(doc.id),
+                    Updates.set(PartialUpdateDocument::status.name, "claimed")
+                )
+            }
+
+            val afterCommit = collection.get(doc.id)!!
+            afterCommit.status shouldBe "claimed"
+            afterCommit.version shouldBe 1
+
+            shouldThrow<IllegalStateException> {
+                mongo.runInTransaction { session ->
+                    collection.txVersionedUpdateOne(
+                        session,
+                        mongoById(doc.id),
+                        Updates.set(PartialUpdateDocument::status.name, "done")
+                    )
+                    throw IllegalStateException("Unlucky")
+                }
+            }
+
+            val afterRollback = collection.get(doc.id)!!
+            afterRollback.status shouldBe "claimed"
+            afterRollback.version shouldBe 1
+        }
+
         "versionedFindOneAndUpdate" {
             val collection = mongo.randomTestCollection<PartialUpdateDocument>()
             val earlier = mongoNow().minusSeconds(60)
@@ -362,6 +395,42 @@ class CollectionTest : StringSpec() {
             ) shouldBe null
             collection.get(doc.id)!!.status shouldBe "done"
             collection.get(doc.id)!!.version shouldBe 3
+        }
+
+        "txVersionedFindOneAndUpdate" {
+            val collection = mongo.randomTestCollection<PartialUpdateDocument>()
+            val doc = PartialUpdateDocument("pending")
+            collection.insertOne(doc)
+
+            val after = mongo.runInTransaction { session ->
+                collection.txVersionedFindOneAndUpdate(
+                    session,
+                    mongoById(doc.id),
+                    Updates.set(PartialUpdateDocument::status.name, "claimed"),
+                    options = FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
+                )!!
+            }
+            after.status shouldBe "claimed"
+            after.version shouldBe 1
+
+            val afterCommit = collection.get(doc.id)!!
+            afterCommit.status shouldBe "claimed"
+            afterCommit.version shouldBe 1
+
+            shouldThrow<IllegalStateException> {
+                mongo.runInTransaction { session ->
+                    collection.txVersionedFindOneAndUpdate(
+                        session,
+                        mongoById(doc.id),
+                        Updates.set(PartialUpdateDocument::status.name, "done")
+                    )
+                    throw IllegalStateException("Unlucky")
+                }
+            }
+
+            val afterRollback = collection.get(doc.id)!!
+            afterRollback.status shouldBe "claimed"
+            afterRollback.version shouldBe 1
         }
 
         "timestampedUpdateOne" {
@@ -404,6 +473,43 @@ class CollectionTest : StringSpec() {
             collection.get(doc.id)!!.version shouldBe 3
         }
 
+        "txTimestampedUpdateOne" {
+            val collection = mongo.randomTestCollection<PartialUpdateDocument>()
+            val earlier = mongoNow().minusSeconds(60)
+            val doc = PartialUpdateDocument("pending", createdAt = earlier, updatedAt = earlier)
+            collection.insertOne(doc)
+
+            mongo.runInTransaction { session ->
+                collection.txTimestampedUpdateOne(
+                    session,
+                    mongoById(doc.id),
+                    Updates.set(PartialUpdateDocument::status.name, "claimed")
+                )
+            }
+
+            val afterCommit = collection.get(doc.id)!!
+            afterCommit.status shouldBe "claimed"
+            afterCommit.version shouldBe 1
+            afterCommit.createdAt shouldBe earlier
+            afterCommit.updatedAt shouldBeAfter earlier
+
+            shouldThrow<IllegalStateException> {
+                mongo.runInTransaction { session ->
+                    collection.txTimestampedUpdateOne(
+                        session,
+                        mongoById(doc.id),
+                        Updates.set(PartialUpdateDocument::status.name, "done")
+                    )
+                    throw IllegalStateException("Unlucky")
+                }
+            }
+
+            val afterRollback = collection.get(doc.id)!!
+            afterRollback.status shouldBe "claimed"
+            afterRollback.version shouldBe 1
+            afterRollback.updatedAt shouldBe afterCommit.updatedAt
+        }
+
         "timestampedFindOneAndUpdate" {
             val collection = mongo.randomTestCollection<PartialUpdateDocument>()
             val earlier = mongoNow().minusSeconds(60)
@@ -440,6 +546,46 @@ class CollectionTest : StringSpec() {
             ) shouldBe null
             collection.get(doc.id)!!.status shouldBe "done"
             collection.get(doc.id)!!.version shouldBe 3
+        }
+
+        "txTimestampedFindOneAndUpdate" {
+            val collection = mongo.randomTestCollection<PartialUpdateDocument>()
+            val earlier = mongoNow().minusSeconds(60)
+            val doc = PartialUpdateDocument("pending", createdAt = earlier, updatedAt = earlier)
+            collection.insertOne(doc)
+
+            val after = mongo.runInTransaction { session ->
+                collection.txTimestampedFindOneAndUpdate(
+                    session,
+                    mongoById(doc.id),
+                    Updates.set(PartialUpdateDocument::status.name, "claimed"),
+                    options = FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
+                )!!
+            }
+            after.status shouldBe "claimed"
+            after.version shouldBe 1
+            after.updatedAt shouldBeAfter earlier
+
+            val afterCommit = collection.get(doc.id)!!
+            afterCommit.status shouldBe "claimed"
+            afterCommit.version shouldBe 1
+            afterCommit.createdAt shouldBe earlier
+
+            shouldThrow<IllegalStateException> {
+                mongo.runInTransaction { session ->
+                    collection.txTimestampedFindOneAndUpdate(
+                        session,
+                        mongoById(doc.id),
+                        Updates.set(PartialUpdateDocument::status.name, "done")
+                    )
+                    throw IllegalStateException("Unlucky")
+                }
+            }
+
+            val afterRollback = collection.get(doc.id)!!
+            afterRollback.status shouldBe "claimed"
+            afterRollback.version shouldBe 1
+            afterRollback.updatedAt shouldBe afterCommit.updatedAt
         }
     }
 

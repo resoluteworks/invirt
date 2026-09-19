@@ -98,7 +98,16 @@ fun <Doc : VersionedDocument> MongoCollection<Doc>.txUpdate(
  * has no other way to say so.
  */
 fun <Doc : VersionedDocument> MongoCollection<Doc>.versionedUpdateOne(filter: Bson, vararg updates: Bson): UpdateResult =
-    updateOne(filter, Updates.combine(updates.toList().plus(versionIncrement())))
+    updateOne(filter, versionedUpdate(updates))
+
+/**
+ * Transactional version of [versionedUpdateOne].
+ */
+fun <Doc : VersionedDocument> MongoCollection<Doc>.txVersionedUpdateOne(
+    session: ClientSession,
+    filter: Bson,
+    vararg updates: Bson
+): UpdateResult = updateOne(session, filter, versionedUpdate(updates))
 
 /**
  * [versionedUpdateOne] returning the matched document, or `null` when [filter] matched nothing.
@@ -114,7 +123,17 @@ fun <Doc : VersionedDocument> MongoCollection<Doc>.versionedFindOneAndUpdate(
     filter: Bson,
     vararg updates: Bson,
     options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
-): Doc? = findOneAndUpdate(filter, Updates.combine(updates.toList().plus(versionIncrement())), options)
+): Doc? = findOneAndUpdate(filter, versionedUpdate(updates), options)
+
+/**
+ * Transactional version of [versionedFindOneAndUpdate].
+ */
+fun <Doc : VersionedDocument> MongoCollection<Doc>.txVersionedFindOneAndUpdate(
+    session: ClientSession,
+    filter: Bson,
+    vararg updates: Bson,
+    options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
+): Doc? = findOneAndUpdate(session, filter, versionedUpdate(updates), options)
 
 /**
  * [versionedUpdateOne] that also sets [TimestampedDocument.updatedAt] to [mongoNow], which is what an
@@ -122,7 +141,16 @@ fun <Doc : VersionedDocument> MongoCollection<Doc>.versionedFindOneAndUpdate(
  * alone.
  */
 fun <Doc : TimestampedDocument> MongoCollection<Doc>.timestampedUpdateOne(filter: Bson, vararg updates: Bson): UpdateResult =
-    updateOne(filter, Updates.combine(updates.toList().plus(timestampedStamps())))
+    updateOne(filter, timestampedUpdate(updates))
+
+/**
+ * Transactional version of [timestampedUpdateOne].
+ */
+fun <Doc : TimestampedDocument> MongoCollection<Doc>.txTimestampedUpdateOne(
+    session: ClientSession,
+    filter: Bson,
+    vararg updates: Bson
+): UpdateResult = updateOne(session, filter, timestampedUpdate(updates))
 
 /**
  * [timestampedUpdateOne] returning the matched document, or `null` when [filter] matched nothing.
@@ -132,7 +160,17 @@ fun <Doc : TimestampedDocument> MongoCollection<Doc>.timestampedFindOneAndUpdate
     filter: Bson,
     vararg updates: Bson,
     options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
-): Doc? = findOneAndUpdate(filter, Updates.combine(updates.toList().plus(timestampedStamps())), options)
+): Doc? = findOneAndUpdate(filter, timestampedUpdate(updates), options)
+
+/**
+ * Transactional version of [timestampedFindOneAndUpdate].
+ */
+fun <Doc : TimestampedDocument> MongoCollection<Doc>.txTimestampedFindOneAndUpdate(
+    session: ClientSession,
+    filter: Bson,
+    vararg updates: Bson,
+    options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
+): Doc? = findOneAndUpdate(session, filter, timestampedUpdate(updates), options)
 
 private fun versionIncrement(): Bson = Updates.inc(VersionedDocument::version.name, 1L)
 
@@ -140,6 +178,10 @@ private fun timestampedStamps(): List<Bson> = listOf(
     Updates.set(TimestampedDocument::updatedAt.name, mongoNow()),
     versionIncrement()
 )
+
+private fun versionedUpdate(updates: Array<out Bson>): Bson = Updates.combine(updates.toList().plus(versionIncrement()))
+
+private fun timestampedUpdate(updates: Array<out Bson>): Bson = Updates.combine(updates.toList().plus(timestampedStamps()))
 
 private fun <Doc : VersionedDocument> MongoCollection<Doc>.update(
     session: ClientSession?,

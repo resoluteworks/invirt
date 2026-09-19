@@ -52,7 +52,20 @@ fun <Doc : VersionedDocument> MongoCollection<Doc>.versionedUpdateOne(
     vararg updates: Bson
 ): UpdateResult
 
+fun <Doc : VersionedDocument> MongoCollection<Doc>.txVersionedUpdateOne(
+    session: ClientSession,
+    filter: Bson,
+    vararg updates: Bson
+): UpdateResult
+
 fun <Doc : VersionedDocument> MongoCollection<Doc>.versionedFindOneAndUpdate(
+    filter: Bson,
+    vararg updates: Bson,
+    options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
+): Doc?
+
+fun <Doc : VersionedDocument> MongoCollection<Doc>.txVersionedFindOneAndUpdate(
+    session: ClientSession,
     filter: Bson,
     vararg updates: Bson,
     options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
@@ -63,12 +76,28 @@ fun <Doc : TimestampedDocument> MongoCollection<Doc>.timestampedUpdateOne(
     vararg updates: Bson
 ): UpdateResult
 
+fun <Doc : TimestampedDocument> MongoCollection<Doc>.txTimestampedUpdateOne(
+    session: ClientSession,
+    filter: Bson,
+    vararg updates: Bson
+): UpdateResult
+
 fun <Doc : TimestampedDocument> MongoCollection<Doc>.timestampedFindOneAndUpdate(
     filter: Bson,
     vararg updates: Bson,
     options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
 ): Doc?
+
+fun <Doc : TimestampedDocument> MongoCollection<Doc>.txTimestampedFindOneAndUpdate(
+    session: ClientSession,
+    filter: Bson,
+    vararg updates: Bson,
+    options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
+): Doc?
 ```
+
+Each has a `tx` variant taking a `ClientSession` as the first parameter, for use inside
+[`Mongo.runInTransaction`](/docs/api/invirt-mongodb/mongo).
 
 This is a different discipline from `update`. The write is a `$set`-style update of the named fields
 rather than a whole-document replace, it never throws `VersionConflictException` (a filter that matches
