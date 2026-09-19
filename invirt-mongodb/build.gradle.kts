@@ -18,6 +18,11 @@ dependencies {
     api("io.mongock:mongock-api")
     implementation("io.mongock:mongock-standalone")
     implementation("io.mongock:mongodb-sync-v4-driver")
+    constraints {
+        // mongock-runner-core depends on maven-artifact 3.6.1, whose plexus-utils and commons-lang3 carry known CVEs
+        implementation("org.codehaus.plexus:plexus-utils:3.6.1")
+        implementation("org.apache.commons:commons-lang3:3.18.0")
+    }
     implementation("org.awaitility:awaitility-kotlin:${awaitilityVersion}")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:${jacksonVersion}")
     implementation("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
