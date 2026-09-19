@@ -24,7 +24,12 @@ dependencies {
 
     implementation("io.github.oshai:kotlin-logging-jvm:${kotlinLoggingVersion}")
     implementation("org.slf4j:slf4j-api:2.0.17")
-    implementation("ch.qos.logback:logback-classic:1.5.18")
+    implementation("ch.qos.logback:logback-classic:1.6.3")
+
+    constraints {
+        // kafka-clients and kotest-extensions-testcontainers pin lz4-java 1.10.x, which can crash the JVM on invalid byte ranges (CVE-2026-59949)
+        implementation("at.yawk.lz4:lz4-java:1.11.3")
+    }
 }
 
 java {

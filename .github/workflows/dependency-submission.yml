@@ -1,0 +1,27 @@
+name: Dependency submission
+
+# Uploads the resolved Gradle dependency graph so Dependabot alerts cover the runtime dependencies
+# invirt ships (http4k, Jackson, Netty, the MongoDB and Kafka clients), not only the docs site's npm lockfile.
+# GitHub cannot read a Gradle build on its own; without this submission the dependency graph holds zero Maven packages.
+
+permissions:
+  contents: write
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  dependency-submission:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Set up JDK
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Generate and submit dependency graph
+        uses: gradle/actions/dependency-submission@v6

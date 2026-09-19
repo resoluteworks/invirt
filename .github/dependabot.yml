@@ -1,0 +1,11 @@
+version: 2
+updates:
+  # The docs site (Docusaurus) is where the bulk of the alerts come from: one grouped PR a month keeps its lockfile current.
+  - package-ecosystem: npm
+    directory: /docs
+    schedule:
+      interval: monthly
+    groups:
+      docs:
+        patterns:
+          - "*"
