@@ -28,6 +28,24 @@ val httpHandler = ErrorPages(Status.NOT_FOUND to "error/404")
     .then(routes(/* ... */))
 ```
 
+Rendering the error page can itself fail - a context variable that reads a downed database, a renamed
+template, a macro that throws - and it fails while the application is already handling an error.
+`fallbackBody` is what the client gets in that case, with the status the handler returned, so a raw stack
+trace never reaches a browser:
+
+```kotlin
+val httpHandler = ErrorPages(
+    Status.NOT_FOUND to "error/404",
+    Status.INTERNAL_SERVER_ERROR to "error/500",
+    fallbackBody = javaClass.getResource("/static-500.html")!!.readText()
+).then(routes(/* ... */))
+```
+
+The fallback is served as `text/html; charset=utf-8`, so it has to be self-contained markup - load it at
+startup rather than rendering it, since a page built from a template can fail the same way. With no
+`fallbackBody` the response is the status and an empty body. Only an `Exception` is caught; an `Error`
+escapes deliberately.
+
 ## StatusOverride
 Overrides HTTP response status codes. The example below combines `StatusOverride` and `ErrorPages` to render
 a "page not found" response when a user attempts to access a secured resource.

@@ -6,6 +6,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import java.time.temporal.ChronoUnit
 import kotlin.time.toJavaDuration
 
@@ -90,6 +91,45 @@ fun LocalDateTime.formatWithDaySuffix(pattern: String): String = format(DateTime
  */
 fun Instant.formatWithDaySuffix(pattern: String, zone: ZoneId): String =
     atZone(zone).format(DateTimeFormatter.ofPattern(patternWithDaySuffix(pattern, zone)))
+
+/**
+ * A pair of dates as one phrase, saying each part only once: a null [to] (how a single-day entry is
+ * modelled) or a [to] equal to [from] is that one day; a range inside one calendar year carries the year
+ * on its closing date alone ("5th November – 5th December 2026"); a range crossing years spells both out.
+ *
+ * Both ends are formatted with [formatWithDaySuffix], so the day of month carries its English ordinal
+ * suffix. [pattern] is the one that carries the year and [yearlessPattern] the one that drops it - the rule
+ * needs two patterns, since no single `DateTimeFormatter` pattern can express it. Use `yyyy` for the year:
+ * `YYYY` is the week-based year, which renders a plausible but wrong value on the days around new year.
+ * [separator] defaults to a spaced en dash, the typographic range separator.
+ */
+fun formatDateRange(
+    from: LocalDate,
+    to: LocalDate?,
+    pattern: String = "d MMMM yyyy",
+    yearlessPattern: String = "d MMMM",
+    separator: String = " \u2013 "
+): String = when {
+    to == null || to == from -> from.formatWithDaySuffix(pattern)
+    from.year == to.year -> "${from.formatWithDaySuffix(yearlessPattern)}$separator${to.formatWithDaySuffix(pattern)}"
+    else -> "${from.formatWithDaySuffix(pattern)}$separator${to.formatWithDaySuffix(pattern)}"
+}
+
+/**
+ * This string as an ISO day (`2026-03-01`), or null when it is absent, blank or not a date at all.
+ *
+ * The receiver is nullable and the result never throws, for reading a date out of somewhere that holds
+ * whatever was last written to it - a half-typed value in an autosaved draft, a query parameter, an
+ * imported row - where "not a date" is an answer rather than a failure. Surrounding whitespace is ignored.
+ */
+fun String?.toLocalDateOrNull(): LocalDate? {
+    val value = this?.trim()?.takeIf { it.isNotEmpty() } ?: return null
+    return try {
+        LocalDate.parse(value)
+    } catch (_: DateTimeParseException) {
+        null
+    }
+}
 
 fun Duration.toHumanReadableString(): String {
     val duration = this.truncatedTo(ChronoUnit.MILLIS)

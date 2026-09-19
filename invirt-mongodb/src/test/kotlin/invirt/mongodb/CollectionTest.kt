@@ -1,5 +1,8 @@
 package invirt.mongodb
 
+import com.mongodb.client.model.FindOneAndUpdateOptions
+import com.mongodb.client.model.ReturnDocument
+import com.mongodb.client.model.Updates
 import invirt.data.sortAsc
 import invirt.data.sortDesc
 import invirt.mongo.test.randomTestCollection
@@ -11,6 +14,7 @@ import invirt.utils.uuid7
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.throwables.shouldThrowWithMessage
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.date.shouldBeAfter
 import io.kotest.matchers.shouldBe
 import org.bson.codecs.pojo.annotations.BsonId
 import java.time.Instant
@@ -272,5 +276,186 @@ class CollectionTest : StringSpec() {
             collection.findIds(TestDocument::age.mongoLt(30)) shouldBe setOf(doc3.id)
             collection.findIds(TestDocument::age.mongoGt(40)) shouldBe emptySet()
         }
+
+        "versionedUpdateOne" {
+            val collection = mongo.randomTestCollection<PartialUpdateDocument>()
+            val earlier = mongoNow().minusSeconds(60)
+            val doc = PartialUpdateDocument("pending", error = "boom", createdAt = earlier, updatedAt = earlier)
+            collection.insertOne(doc)
+            collection.get(doc.id)!!.error shouldBe "boom"
+
+            // No updates at all still bumps the version, so the write is visible to the optimistic lock
+            val versionOnly = collection.versionedUpdateOne(mongoById(doc.id))
+            versionOnly.matchedCount shouldBe 1
+            versionOnly.modifiedCount shouldBe 1
+            collection.get(doc.id)!!.version shouldBe 1
+
+            // One update
+            collection.versionedUpdateOne(mongoById(doc.id), Updates.set(PartialUpdateDocument::status.name, "claimed"))
+            val afterOne = collection.get(doc.id)!!
+            afterOne.status shouldBe "claimed"
+            afterOne.version shouldBe 2
+
+            // Several updates in the one atomic write
+            val many = collection.versionedUpdateOne(
+                mongoById(doc.id),
+                Updates.set(PartialUpdateDocument::status.name, "done"),
+                Updates.inc(PartialUpdateDocument::attempts.name, 2),
+                Updates.unset(PartialUpdateDocument::error.name)
+            )
+            many.matchedCount shouldBe 1
+            val afterMany = collection.get(doc.id)!!
+            afterMany.status shouldBe "done"
+            afterMany.attempts shouldBe 2
+            afterMany.error shouldBe null
+            afterMany.version shouldBe 3
+
+            // updatedAt is deliberately left where it was, createdAt too
+            afterMany.createdAt shouldBe earlier
+            afterMany.updatedAt shouldBe earlier
+
+            // A filter that matches nothing is a zero count, not a failure, and changes nothing
+            val missed = collection.versionedUpdateOne(
+                mongoAnd(mongoById(doc.id), PartialUpdateDocument::status.mongoEq("pending")),
+                Updates.set(PartialUpdateDocument::status.name, "stale")
+            )
+            missed.matchedCount shouldBe 0
+            missed.modifiedCount shouldBe 0
+            collection.get(doc.id)!!.status shouldBe "done"
+            collection.get(doc.id)!!.version shouldBe 3
+        }
+
+        "versionedFindOneAndUpdate" {
+            val collection = mongo.randomTestCollection<PartialUpdateDocument>()
+            val earlier = mongoNow().minusSeconds(60)
+            val doc = PartialUpdateDocument("pending", createdAt = earlier, updatedAt = earlier)
+            collection.insertOne(doc)
+
+            // The default options return the document as it was before the update
+            val before = collection.versionedFindOneAndUpdate(
+                mongoById(doc.id),
+                Updates.set(PartialUpdateDocument::status.name, "claimed")
+            )!!
+            before.status shouldBe "pending"
+            before.version shouldBe 0
+            collection.get(doc.id)!!.version shouldBe 1
+
+            val after = collection.versionedFindOneAndUpdate(
+                mongoById(doc.id),
+                Updates.set(PartialUpdateDocument::status.name, "done"),
+                Updates.inc(PartialUpdateDocument::attempts.name, 1),
+                options = FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
+            )!!
+            after.status shouldBe "done"
+            after.attempts shouldBe 1
+            after.version shouldBe 2
+            after.updatedAt shouldBe earlier
+
+            // The version-only write
+            collection.versionedFindOneAndUpdate(mongoById(doc.id))!!.version shouldBe 2
+            collection.get(doc.id)!!.version shouldBe 3
+
+            // A filter that matches nothing returns null, which is how a racing caller knows it lost
+            collection.versionedFindOneAndUpdate(
+                mongoAnd(mongoById(doc.id), PartialUpdateDocument::status.mongoEq("pending")),
+                Updates.set(PartialUpdateDocument::status.name, "stale")
+            ) shouldBe null
+            collection.get(doc.id)!!.status shouldBe "done"
+            collection.get(doc.id)!!.version shouldBe 3
+        }
+
+        "timestampedUpdateOne" {
+            val collection = mongo.randomTestCollection<PartialUpdateDocument>()
+            val earlier = mongoNow().minusSeconds(60)
+            val doc = PartialUpdateDocument("pending", createdAt = earlier, updatedAt = earlier)
+            collection.insertOne(doc)
+
+            val versionOnly = collection.timestampedUpdateOne(mongoById(doc.id))
+            versionOnly.matchedCount shouldBe 1
+            val afterVersionOnly = collection.get(doc.id)!!
+            afterVersionOnly.version shouldBe 1
+            afterVersionOnly.createdAt shouldBe earlier
+            afterVersionOnly.updatedAt shouldBeAfter earlier
+
+            collection.timestampedUpdateOne(mongoById(doc.id), Updates.set(PartialUpdateDocument::status.name, "claimed"))
+            collection.get(doc.id)!!.status shouldBe "claimed"
+            collection.get(doc.id)!!.version shouldBe 2
+
+            val many = collection.timestampedUpdateOne(
+                mongoById(doc.id),
+                Updates.set(PartialUpdateDocument::status.name, "done"),
+                Updates.inc(PartialUpdateDocument::attempts.name, 3)
+            )
+            many.matchedCount shouldBe 1
+            val afterMany = collection.get(doc.id)!!
+            afterMany.status shouldBe "done"
+            afterMany.attempts shouldBe 3
+            afterMany.version shouldBe 3
+            afterMany.createdAt shouldBe earlier
+            afterMany.updatedAt shouldBeAfter earlier
+
+            val missed = collection.timestampedUpdateOne(
+                mongoAnd(mongoById(doc.id), PartialUpdateDocument::status.mongoEq("pending")),
+                Updates.set(PartialUpdateDocument::status.name, "stale")
+            )
+            missed.matchedCount shouldBe 0
+            missed.modifiedCount shouldBe 0
+            collection.get(doc.id)!!.status shouldBe "done"
+            collection.get(doc.id)!!.version shouldBe 3
+        }
+
+        "timestampedFindOneAndUpdate" {
+            val collection = mongo.randomTestCollection<PartialUpdateDocument>()
+            val earlier = mongoNow().minusSeconds(60)
+            val doc = PartialUpdateDocument("pending", createdAt = earlier, updatedAt = earlier)
+            collection.insertOne(doc)
+
+            val before = collection.timestampedFindOneAndUpdate(
+                mongoById(doc.id),
+                Updates.set(PartialUpdateDocument::status.name, "claimed")
+            )!!
+            before.status shouldBe "pending"
+            before.version shouldBe 0
+            before.updatedAt shouldBe earlier
+            collection.get(doc.id)!!.updatedAt shouldBeAfter earlier
+
+            val after = collection.timestampedFindOneAndUpdate(
+                mongoById(doc.id),
+                Updates.set(PartialUpdateDocument::status.name, "done"),
+                Updates.inc(PartialUpdateDocument::attempts.name, 1),
+                options = FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
+            )!!
+            after.status shouldBe "done"
+            after.attempts shouldBe 1
+            after.version shouldBe 2
+            after.createdAt shouldBe earlier
+            after.updatedAt shouldBeAfter earlier
+
+            collection.timestampedFindOneAndUpdate(mongoById(doc.id))!!.version shouldBe 2
+            collection.get(doc.id)!!.version shouldBe 3
+
+            collection.timestampedFindOneAndUpdate(
+                mongoAnd(mongoById(doc.id), PartialUpdateDocument::status.mongoEq("pending")),
+                Updates.set(PartialUpdateDocument::status.name, "stale")
+            ) shouldBe null
+            collection.get(doc.id)!!.status shouldBe "done"
+            collection.get(doc.id)!!.version shouldBe 3
+        }
     }
+
+    /**
+     * A timestamped document for the partial-update helpers. Declared on the spec rather than inside
+     * each test because [versionedUpdateOne] and its siblings are bound on the document interfaces, and
+     * a local class in one test cannot be shared with the next. It is public because the Mongo codec
+     * instantiates it reflectively from another package, which a `private` nested class does not allow.
+     */
+    data class PartialUpdateDocument(
+        val status: String,
+        val attempts: Int = 0,
+        val error: String? = null,
+        @BsonId override val id: String = uuid7(),
+        override var version: Long = 0,
+        override var createdAt: Instant = mongoNow(),
+        override var updatedAt: Instant = mongoNow()
+    ) : TimestampedDocument
 }

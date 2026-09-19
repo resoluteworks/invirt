@@ -35,3 +35,21 @@ to perform a full page refresh.
     ```
   </TabItem>
 </Tabs>
+
+### turboStreamRedirect
+Returns a Turbo Stream response with a `<turbo-stream action="redirect">` body, used to navigate the
+browser to another page. Turbo swaps the body of a stream response into the current page rather than
+following a redirect, so a handler answering a Turbo form submission sends this instead of a `303` when the
+next thing the user should see is another page.
+<Tabs>
+  <TabItem value="example" label="Example" default>
+    ```kotlin
+    turboStreamRedirect("/items/${item.id}")
+    ```
+  </TabItem>
+  <TabItem value="declaration" label="Declaration">
+    ```kotlin
+    fun turboStreamRedirect(url: String): Response
+    ```
+  </TabItem>
+</Tabs>

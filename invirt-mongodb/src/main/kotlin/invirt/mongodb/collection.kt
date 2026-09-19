@@ -1,7 +1,10 @@
 package invirt.mongodb
 
 import com.mongodb.client.model.Filters
+import com.mongodb.client.model.FindOneAndUpdateOptions
 import com.mongodb.client.model.Projections.include
+import com.mongodb.client.model.Updates
+import com.mongodb.client.result.UpdateResult
 import com.mongodb.kotlin.client.ClientSession
 import com.mongodb.kotlin.client.MongoCollection
 import org.bson.Document
@@ -76,6 +79,67 @@ fun <Doc : VersionedDocument> MongoCollection<Doc>.txUpdate(
     document: Doc,
     patchOnConflict: ((Doc) -> Doc)? = null
 ): Doc = update(session, document, patchOnConflict)
+
+/**
+ * Applies [updates] to the single document matching [filter], incrementing [VersionedDocument.version]
+ * in the same atomic operation so the write is not invisible to the optimistic lock: without the bump,
+ * a concurrent [update] holding a copy loaded beforehand still matches on version and silently replaces
+ * whatever was written here.
+ *
+ * This is the partial-write counterpart of [update] and a different discipline from it. The write is a
+ * `$set`-style update of the fields in [updates] rather than a whole-document replace, it never throws
+ * [VersionConflictException] (a [filter] that matches nothing is a zero-count [UpdateResult], not a
+ * failure), and the caller's in-memory document is left as it was - re-read it to see the new state.
+ * That makes it the tool for a conditional write whose filter *is* the concurrency control, and [update]
+ * the tool for saving an edited document.
+ *
+ * [TimestampedDocument.updatedAt] is deliberately left alone: use [timestampedUpdateOne] when the write
+ * should move it. They are separate because a write that must not disturb an `updatedAt desc` listing
+ * has no other way to say so.
+ */
+fun <Doc : VersionedDocument> MongoCollection<Doc>.versionedUpdateOne(filter: Bson, vararg updates: Bson): UpdateResult =
+    updateOne(filter, Updates.combine(updates.toList().plus(versionIncrement())))
+
+/**
+ * [versionedUpdateOne] returning the matched document, or `null` when [filter] matched nothing.
+ *
+ * [options] carries the usual `findOneAndUpdate` choices; by default the document is returned as it was
+ * *before* the update, so pass `FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)` for the
+ * updated one.
+ *
+ * The `null` is what makes this a race winner check: concurrent callers of the same conditional update
+ * all run, and exactly the one whose filter still matched gets a document back.
+ */
+fun <Doc : VersionedDocument> MongoCollection<Doc>.versionedFindOneAndUpdate(
+    filter: Bson,
+    vararg updates: Bson,
+    options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
+): Doc? = findOneAndUpdate(filter, Updates.combine(updates.toList().plus(versionIncrement())), options)
+
+/**
+ * [versionedUpdateOne] that also sets [TimestampedDocument.updatedAt] to [mongoNow], which is what an
+ * ordinary partial write to a timestamped document should do. [TimestampedDocument.createdAt] is left
+ * alone.
+ */
+fun <Doc : TimestampedDocument> MongoCollection<Doc>.timestampedUpdateOne(filter: Bson, vararg updates: Bson): UpdateResult =
+    updateOne(filter, Updates.combine(updates.toList().plus(timestampedStamps())))
+
+/**
+ * [timestampedUpdateOne] returning the matched document, or `null` when [filter] matched nothing.
+ * See [versionedFindOneAndUpdate] for [options] and for what the `null` means.
+ */
+fun <Doc : TimestampedDocument> MongoCollection<Doc>.timestampedFindOneAndUpdate(
+    filter: Bson,
+    vararg updates: Bson,
+    options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
+): Doc? = findOneAndUpdate(filter, Updates.combine(updates.toList().plus(timestampedStamps())), options)
+
+private fun versionIncrement(): Bson = Updates.inc(VersionedDocument::version.name, 1L)
+
+private fun timestampedStamps(): List<Bson> = listOf(
+    Updates.set(TimestampedDocument::updatedAt.name, mongoNow()),
+    versionIncrement()
+)
 
 private fun <Doc : VersionedDocument> MongoCollection<Doc>.update(
     session: ClientSession?,

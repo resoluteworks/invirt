@@ -15,6 +15,7 @@ import org.http4k.core.cookie.cookies
 import org.http4k.core.cookie.invalidate
 import org.http4k.core.then
 import org.http4k.kotest.shouldHaveSetCookie
+import org.http4k.kotest.shouldHaveStatus
 import org.http4k.routing.routes
 
 class ErrorPagesFilterTest : StringSpec({
@@ -83,5 +84,92 @@ class ErrorPagesFilterTest : StringSpec({
         response.bodyString().trim() shouldBe "Page not found"
         response.header("X-Handler") shouldBe null
         response.headerValues("Content-Type") shouldHaveSize 1
+    }
+
+    // The error page is rendered while the application is already handling an error, and rendering it can
+    // fail in turn. The fallback is what stops that second failure reaching the browser as a stack trace.
+    "the fallback body is served when the error page throws while rendering" {
+        val httpHandler = ErrorPages(
+            Status.INTERNAL_SERVER_ERROR to "error/throwing",
+            fallbackBody = "<html><body>Something went wrong</body></html>"
+        ).then(
+            routes(
+                "/test" GET { Response(Status.INTERNAL_SERVER_ERROR) }
+            )
+        )
+
+        val response = httpHandler(Request(Method.GET, "/test"))
+
+        response shouldHaveStatus Status.INTERNAL_SERVER_ERROR
+        response.bodyString() shouldBe "<html><body>Something went wrong</body></html>"
+        response.header("Content-Type") shouldBe "text/html; charset=utf-8"
+    }
+
+    "the fallback body is served when the error page template does not exist" {
+        val httpHandler = ErrorPages(
+            mapOf(Status.NOT_FOUND to "error/not-a-template"),
+            fallbackBody = "<html><body>Page not found</body></html>"
+        ).then(
+            routes(
+                "/test" GET { Response(Status.NOT_FOUND) }
+            )
+        )
+
+        val response = httpHandler(Request(Method.GET, "/test"))
+
+        response shouldHaveStatus Status.NOT_FOUND
+        response.bodyString() shouldBe "<html><body>Page not found</body></html>"
+    }
+
+    "an error page that throws with no fallback body is an empty response with the original status" {
+        val httpHandler = ErrorPages(Status.INTERNAL_SERVER_ERROR to "error/throwing")
+            .then(
+                routes(
+                    "/test" GET { Response(Status.INTERNAL_SERVER_ERROR) }
+                )
+            )
+
+        val response = httpHandler(Request(Method.GET, "/test"))
+
+        response shouldHaveStatus Status.INTERNAL_SERVER_ERROR
+        response.bodyString() shouldBe ""
+        response.header("Content-Type") shouldBe null
+    }
+
+    // The fallback replaces the page, not the handler's decisions: a sign-out whose error page fails to
+    // render still signed the user out.
+    "cookies set by the handler survive onto the fallback body" {
+        val sessionCookie = Cookie("session", "current-value")
+        val httpHandler = ErrorPages(
+            Status.INTERNAL_SERVER_ERROR to "error/throwing",
+            fallbackBody = "<html><body>Something went wrong</body></html>"
+        ).then(
+            routes(
+                "/test" GET { Response(Status.INTERNAL_SERVER_ERROR).invalidateCookies(listOf(sessionCookie)) }
+            )
+        )
+
+        val response = httpHandler(Request(Method.GET, "/test"))
+
+        response.bodyString() shouldBe "<html><body>Something went wrong</body></html>"
+        response.cookies() shouldHaveSize 1
+        response shouldHaveSetCookie sessionCookie.invalidate()
+    }
+
+    // A status with no mapped view is passed through untouched, fallback or not.
+    "a response with no mapped error page is untouched" {
+        val httpHandler = ErrorPages(
+            Status.NOT_FOUND to "error/404",
+            fallbackBody = "<html><body>Something went wrong</body></html>"
+        ).then(
+            routes(
+                "/test" GET { Response(Status.OK).body("all good") }
+            )
+        )
+
+        val response = httpHandler(Request(Method.GET, "/test"))
+
+        response shouldHaveStatus Status.OK
+        response.bodyString() shouldBe "all good"
     }
 })

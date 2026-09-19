@@ -44,6 +44,9 @@ collection shouldNotHaveAscIndex "internalField"
 collection shouldHaveUniqueIndex "email"
 collection.shouldHaveTextIndex("title", "description")
 collection.shouldHaveTimestampedIndices()  // version asc, createdAt/updatedAt desc
+collection.shouldHaveTtlIndex("expiresAt", expireAfterSeconds = 3600)
+collection.shouldHavePartialUniqueIndex(listOf("organisationId", "email"), Document("status", "PENDING"))
+collection.shouldHaveCompoundIndex("organisationId".ascKey(), "createdAt".descKey())  // exact key, 2+ fields
 
 updated shouldBeUpdateOf previous            // updatedAt later AND version greater
 updated shouldBeNextUpdateOf previous        // updatedAt later AND version == previous.version + 1
@@ -53,6 +56,28 @@ recordsPage.idsShouldBe(listOf("a", "b"))           // any order
 recordsPage.idsShouldBeInOrder("a", "b")            // exact order
 
 collection.waitForSearchDocuments(field = "title", count = 5)  // Atlas Search readiness
+
+document.createdAt.shouldBeAboutNow()               // within 30s of mongoNow() by default; fails on null
+document.createdAt.shouldBeAboutNow(5.seconds)       // a tighter tolerance
+```
+
+### Backdating a document
+`setCreatedAt` writes a document's `createdAt` directly, for a spec that needs a fixture to look older
+than insertion made it - e.g. to exercise a "created in the last N days" filter. It writes raw: unlike
+`update`, it does not bump `version` or touch `updatedAt`.
+
+```kotlin
+collection.setCreatedAt(id, Instant.now().minus(30, ChronoUnit.DAYS))
+```
+
+### Clearing collections between tests
+`clearCollections` deletes every document from every collection except rows matching `keep` and any
+collection whose name contains one of `skipCollectionNamesContaining` (the mongock bookkeeping
+collections by default). It deletes documents rather than dropping collections, so indices a migration
+created survive the truncation. A null `keep` deletes everything.
+
+```kotlin
+afterEach { mongo.clearCollections(keep = "createdBy".mongoEq("data-bootstrap")) }
 ```
 
 ### Spying on collections

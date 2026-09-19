@@ -77,3 +77,19 @@ fun String.kebabToCamelCase(): String = PATTERN_KEBAB
 
 private val REGEX_DOMAIN = "(/.*)|(:.*)|(.*://)".toRegex()
 fun String.domain(): String = this.lowercase().replace(REGEX_DOMAIN, "")
+
+private val REGEX_NON_SLUG = "[^a-z0-9]+".toRegex()
+
+/**
+ * Lower-cases this string and collapses every run of non-alphanumeric characters into a single
+ * hyphen, trimming any hyphen left at the start or end. Diacritics are dropped, not folded, so
+ * "café" becomes "caf" and "résumé" becomes "r-sum", not "cafe" and "resume". Returns "" when
+ * nothing alphanumeric survives; it is the caller's decision what an empty slug means.
+ *
+ * When [maxLength] is given, the result is cut to that length and trimmed of hyphens again, so a
+ * cut landing on a separator never leaves a trailing hyphen behind.
+ */
+fun String.slugify(maxLength: Int? = null): String {
+    val slug = lowercase().replace(REGEX_NON_SLUG, "-").trim('-')
+    return if (maxLength == null) slug else slug.take(maxLength).trim('-')
+}

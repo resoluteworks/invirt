@@ -140,6 +140,48 @@ class PebbleFunctionsTest : StringSpec() {
             exception.message shouldContain "Filter [dateWithDaySuffix] was given a null value"
         }
 
+        "dateRange" {
+            // The default separator, written from its code point so the source of the test stays ASCII.
+            val enDash = Char(0x2013)
+
+            testFunctionModel(
+                "dateRange", "/test",
+                mapOf("from" to LocalDate.of(2026, 11, 5), "to" to LocalDate.of(2026, 12, 5)),
+                "5th November $enDash 5th December 2026"
+            )
+
+            // a null "to" is how a single-day entry is modelled, so it is not an error
+            testFunctionModel(
+                "dateRange", "/test",
+                mapOf("from" to LocalDate.of(2026, 11, 5), "to" to null),
+                "5th November 2026"
+            )
+
+            testFunctionModel(
+                "dateRange", "/test",
+                mapOf("from" to LocalDate.of(2026, 12, 30), "to" to LocalDate.of(2027, 1, 2)),
+                "30th December 2026 $enDash 2nd January 2027"
+            )
+        }
+
+        "dateRange - a from that isn't a date" {
+            val exception = shouldThrow<PebbleException> {
+                renderFunctionModel("dateRange", model = mapOf("from" to "2026-11-05", "to" to null))
+            }
+            exception.message shouldContain "Function [dateRange] needs a LocalDate [from], was [2026-11-05]"
+            exception.message shouldContain "function-dateRange"
+        }
+
+        "dateRange - a to that isn't a date" {
+            val exception = shouldThrow<PebbleException> {
+                renderFunctionModel(
+                    "dateRange",
+                    model = mapOf("from" to LocalDate.of(2026, 11, 5), "to" to "2026-12-05")
+                )
+            }
+            exception.message shouldContain "Function [dateRange] needs a LocalDate or null [to], was [2026-12-05]"
+        }
+
         "json" {
             data class Data(val name: String, val age: Int)
 

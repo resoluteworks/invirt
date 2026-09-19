@@ -71,6 +71,25 @@ Returns `singular` when `count == 1` and `plural` otherwise.
 You have {{ model.count }} {{ pluralize(model.count, "message", "messages") }}.
 ```
 
+### dateRange(from, to)
+Renders a pair of `LocalDate`s as one phrase that says each part only once: a null `to` (how a single-day
+entry is modelled) or a `to` equal to `from` is that one day, a range inside one calendar year carries the
+year on its closing date alone, and a range crossing years spells both out. Both ends carry the English
+ordinal suffix on the day of month.
+
+```html
+{{ dateRange(model.openFrom, model.openTo) }}
+{# → "5th November – 5th December 2026" #}
+
+{{ dateRange(model.openFrom, null) }}
+{# → "5th November 2026" #}
+```
+
+A `from` that is not a `LocalDate`, or a `to` that is neither a `LocalDate` nor null, is a template bug and
+fails rather than rendering something plausible. The phrasing is
+[`formatDateRange`](/docs/api/invirt-utils/datetime#date-ranges)'s default; a template that needs another
+pattern formats the range in Kotlin and passes the string in its model.
+
 ### dateWithDaySuffix filter
 Formats a `LocalDate`, `LocalDateTime` or `Instant` using a `DateTimeFormatter` pattern, inserting the
 English ordinal suffix on the day of month (`1st`, `2nd`, `3rd`, ...).

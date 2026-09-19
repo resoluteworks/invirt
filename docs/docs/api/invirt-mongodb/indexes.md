@@ -20,6 +20,28 @@ Product::name.asc { caseInsensitive() }   // collation strength TERTIARY, locale
 textIndex("title", "description")         // compound text index
 ```
 
+## Compound indexes
+`ascIndex(vararg)` builds an index over several fields running in the same direction, in the order
+given. A single field is the same index `asc()` builds:
+
+```kotlin
+ascIndex(Run::organisationId, Run::descriptionHash, Run::status)
+ascIndex("nested.one", "nested.two")                        // by field name
+
+ascIndex(Run::organisationId, Run::draftId) {               // options apply to the whole index
+    unique(true).partialFilterExpression(Run::status.mongoEq("PENDING"))
+}
+```
+
+When the fields do not all run in the same direction, `compoundIndex(vararg keys)` takes the keys
+themselves. `ascKey()` / `descKey()` are the key-level counterparts of `asc()` / `desc()`: they return
+one key of an index rather than a whole index.
+
+```kotlin
+compoundIndex(Event::topic.ascKey(), Event::userId.ascKey(), Event::createdAt.descKey())
+compoundIndex(Event::topic.ascKey(), "payload.kind".descKey()) { unique(true) }
+```
+
 `caseInsensitive(locale, strength)` is also available as a top-level function returning a
 `Collation`, useful for queries:
 

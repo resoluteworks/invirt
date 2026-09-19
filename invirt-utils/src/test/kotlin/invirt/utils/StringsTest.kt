@@ -174,6 +174,30 @@ class StringsTest : StringSpec({
         "http://instagram.com".httpUrl() shouldBe "http://instagram.com"
         "https://instagram.com/myuser".httpUrl() shouldBe "https://instagram.com/myuser"
     }
+
+    "slugify" {
+        "hello world".slugify() shouldBe "hello-world"
+        "Hello World".slugify() shouldBe "hello-world"
+        "Hello,   World!!".slugify() shouldBe "hello-world"
+        "  --Hello World--  ".slugify() shouldBe "hello-world"
+        "café résumé".slugify() shouldBe "caf-r-sum"
+        "".slugify() shouldBe ""
+    }
+
+    "slugify with a maxLength" {
+        // No maxLength: no truncation, however long the slug.
+        "a truly long label with many words in it".slugify() shouldBe "a-truly-long-label-with-many-words-in-it"
+
+        // Longer than maxLength: cut to length.
+        "a truly long label".slugify(6) shouldBe "a-trul"
+
+        // A cut landing exactly on a separator never leaves a trailing hyphen.
+        "aaa bbb".slugify(4) shouldBe "aaa"
+
+        // No alphanumeric content survives: "", regardless of maxLength.
+        "!!!".slugify() shouldBe ""
+        "!!!".slugify(4) shouldBe ""
+    }
 })
 
 private enum class StringsTestEnum {
