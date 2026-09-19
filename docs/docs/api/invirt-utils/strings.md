@@ -29,6 +29,14 @@ readingTimeMinutes(wordCount)           // ceil(words / 265.0), min 1
 "hello".titleCaseFirstChar()            // "Hello"
 "john@example.com".cleanEmail()         // "john@example.com" (lower-cased, trimmed)
 "HTTPS://Foo.com/path".domain()         // "foo.com"
+"Café Society!!".slugify()              // "caf-society" (diacritics dropped, not folded)
+"a truly long label".slugify(6)         // "a-trul" (optional maxLength, no trailing hyphen)
+```
+
+### Names
+```kotlin
+"Rachel Kim, PhD".greetingName("there") // "Rachel" (first whitespace token, or the fallback when blank)
+"Jan van der Berg".splitName()          // "Jan" to "van der Berg" (cuts after the first token)
 ```
 
 ### URL helpers

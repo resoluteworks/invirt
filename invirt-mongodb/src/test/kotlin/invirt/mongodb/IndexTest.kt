@@ -134,7 +134,64 @@ class IndexTest : StringSpec() {
                 .collation(caseInsensitive())
                 .map { it.name }.toList() shouldBe listOf("a", "B")
         }
+
+        "compound indexes" {
+            data class Run(
+                val organisationId: String,
+                val draftId: String,
+                val descriptionHash: String,
+                val status: String,
+                val topic: String,
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0,
+                override var createdAt: Instant = mongoNow(),
+                override var updatedAt: Instant = mongoNow()
+            ) : TimestampedDocument
+
+            val database = mongo.database
+            val collectionName = uuid7()
+            database.createCollection(collectionName)
+            val collection = database.getCollection<Run>(collectionName)
+            collection.createIndices(
+                // Same direction, so the whole index is one call
+                ascIndex(Run::organisationId, Run::descriptionHash, Run::status),
+                // A single field is the same index asc() builds
+                ascIndex(Run::draftId),
+                // Field names, for a path no property names
+                ascIndex("nested.one", "nested.two"),
+                // Options apply to the compound index as a whole
+                ascIndex(Run::organisationId, Run::draftId) {
+                    unique(true).partialFilterExpression(Run::status.mongoEq("PENDING"))
+                },
+                // Mixed directions need the keys spelled out
+                compoundIndex(Run::organisationId.ascKey(), Run::createdAt.descKey()),
+                compoundIndex(Run::topic.ascKey(), "nested.three".descKey(), Run::updatedAt.descKey()) { unique(true) }
+            )
+
+            val indexes = collection.listIndexes().toList()
+
+            indexes.keyForFields("organisationId", "descriptionHash", "status") shouldBe listOf(1, 1, 1)
+            indexes.keyForFields("draftId") shouldBe listOf(1)
+            indexes.keyForFields("nested.one", "nested.two") shouldBe listOf(1, 1)
+
+            indexes.keyForFields("organisationId", "draftId") shouldBe listOf(1, 1)
+            val partial = indexes.indexForFields("organisationId", "draftId")
+            partial["unique"] shouldBe true
+            partial["partialFilterExpression"] shouldBe Document("status", "PENDING")
+
+            indexes.keyForFields("organisationId", "createdAt") shouldBe listOf(1, -1)
+            indexes.keyForFields("topic", "nested.three", "updatedAt") shouldBe listOf(1, -1, -1)
+            indexes.indexForFields("topic", "nested.three", "updatedAt")["unique"] shouldBe true
+        }
     }
 
     private fun List<Document>.indexForField(field: String): Document = find { (it["key"] as Document)[field] != null } as Document
+
+    /** The index whose keys are exactly [fields], in that order. */
+    private fun List<Document>.indexForFields(vararg fields: String): Document =
+        first { (it["key"] as Document).keys.toList() == fields.toList() }
+
+    /** The directions of the index whose keys are exactly [fields], in that order. */
+    private fun List<Document>.keyForFields(vararg fields: String): List<Any> =
+        (indexForFields(*fields)["key"] as Document).values.toList()
 }

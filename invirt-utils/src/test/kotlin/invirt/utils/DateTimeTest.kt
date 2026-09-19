@@ -132,6 +132,64 @@ class DateTimeTest : StringSpec({
         date.formatWithDaySuffix("d/MM/yyyy") shouldBe "1/09/2026"
     }
 
+    // The default separator, written from its code point so the source of the test stays ASCII.
+    val enDash = Char(0x2013)
+
+    "formatDateRange - one day" {
+        val day = LocalDate.of(2026, 11, 5)
+
+        // a null "to" is how a single-day entry is modelled, and so is a "to" equal to "from"
+        formatDateRange(day, null) shouldBe "5th November 2026"
+        formatDateRange(day, day) shouldBe "5th November 2026"
+    }
+
+    "formatDateRange - a range inside one year carries the year on its closing date alone" {
+        formatDateRange(LocalDate.of(2026, 11, 5), LocalDate.of(2026, 12, 5)) shouldBe
+            "5th November $enDash 5th December 2026"
+        formatDateRange(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 2)) shouldBe
+            "1st January $enDash 2nd January 2026"
+    }
+
+    // The case that fails when the year pattern is written as the week-based YYYY: the 30th of December
+    // 2026 falls in ISO week-year 2027, so YYYY renders it as 2027 and the range reads as one year.
+    "formatDateRange - a range crossing years spells both years out" {
+        formatDateRange(LocalDate.of(2026, 12, 30), LocalDate.of(2027, 1, 2)) shouldBe
+            "30th December 2026 $enDash 2nd January 2027"
+    }
+
+    "formatDateRange - the patterns and the separator are the caller's" {
+        formatDateRange(
+            from = LocalDate.of(2026, 11, 5),
+            to = LocalDate.of(2026, 12, 5),
+            pattern = "d MMM yyyy",
+            yearlessPattern = "d MMM",
+            separator = " to "
+        ) shouldBe "5th Nov to 5th Dec 2026"
+
+        formatDateRange(
+            from = LocalDate.of(2026, 11, 5),
+            to = null,
+            pattern = "EEEE, d MMMM yyyy"
+        ) shouldBe "Thursday, 5th November 2026"
+    }
+
+    "String?.toLocalDateOrNull" {
+        "2026-03-01".toLocalDateOrNull() shouldBe LocalDate.of(2026, 3, 1)
+        "  2026-03-01  ".toLocalDateOrNull() shouldBe LocalDate.of(2026, 3, 1)
+
+        null.toLocalDateOrNull() shouldBe null
+        "".toLocalDateOrNull() shouldBe null
+        "   ".toLocalDateOrNull() shouldBe null
+
+        // half-typed, the wrong format, or a day that does not exist - all answers, not failures
+        "2026-03".toLocalDateOrNull() shouldBe null
+        "01/03/2026".toLocalDateOrNull() shouldBe null
+        "2026-02-30".toLocalDateOrNull() shouldBe null
+        "2026-13-01".toLocalDateOrNull() shouldBe null
+        "tomorrow".toLocalDateOrNull() shouldBe null
+        "2026-03-01T09:15:00Z".toLocalDateOrNull() shouldBe null
+    }
+
     "Instant.plusDays" {
         fun test(year: Int, month: Int, dayOfMonth: Int, addDays: Int, expectedDate: LocalDate) {
             LocalDateTime.ofInstant(

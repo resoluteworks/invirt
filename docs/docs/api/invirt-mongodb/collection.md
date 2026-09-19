@@ -40,6 +40,61 @@ fun <Doc : VersionedDocument> MongoCollection<Doc>.txUpdate(
 
 `updatedAt` is bumped automatically when `Doc` is a `TimestampedDocument`.
 
+## Partial updates
+The partial-write counterparts of `update`, for a write that must be atomic: they apply the `updates`
+they are given to the single document matching `filter` and increment `version` in the same operation,
+so the write is not invisible to the optimistic lock. Without that bump, a concurrent `update` holding
+a copy loaded beforehand still matches on version and silently replaces what was written here.
+
+```kotlin
+fun <Doc : VersionedDocument> MongoCollection<Doc>.versionedUpdateOne(
+    filter: Bson,
+    vararg updates: Bson
+): UpdateResult
+
+fun <Doc : VersionedDocument> MongoCollection<Doc>.versionedFindOneAndUpdate(
+    filter: Bson,
+    vararg updates: Bson,
+    options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
+): Doc?
+
+fun <Doc : TimestampedDocument> MongoCollection<Doc>.timestampedUpdateOne(
+    filter: Bson,
+    vararg updates: Bson
+): UpdateResult
+
+fun <Doc : TimestampedDocument> MongoCollection<Doc>.timestampedFindOneAndUpdate(
+    filter: Bson,
+    vararg updates: Bson,
+    options: FindOneAndUpdateOptions = FindOneAndUpdateOptions()
+): Doc?
+```
+
+This is a different discipline from `update`. The write is a `$set`-style update of the named fields
+rather than a whole-document replace, it never throws `VersionConflictException` (a filter that matches
+nothing is a zero-count `UpdateResult` or a `null`, not a failure), and the caller's in-memory document
+is left as it was - re-read it to see the new state. That makes it the tool for a conditional write
+whose filter *is* the concurrency control, and `update` the tool for saving an edited document:
+
+```kotlin
+// Exactly one of the racing callers gets a document back
+val won = openCalls.versionedFindOneAndUpdate(
+    mongoAnd(mongoById(id), Filters.ne(OpenCall::milestonesNotified.name, threshold)),
+    Updates.addEachToSet(OpenCall::milestonesNotified.name, crossed)
+) != null
+```
+
+The `timestamped*` pair additionally sets `updatedAt` to `mongoNow()`, which is what an ordinary partial
+write to a timestamped document should do. The `versioned*` pair deliberately leaves it alone, for a
+write that must not disturb an `updatedAt desc` listing. `createdAt` is never touched.
+
+`versionedFindOneAndUpdate` and `timestampedFindOneAndUpdate` return the document as it was *before*
+the update unless `options` says otherwise:
+
+```kotlin
+options = FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
+```
+
 ## Lookups
 ```kotlin
 fun <Doc : Any> MongoCollection<Doc>.get(id: String): Doc?

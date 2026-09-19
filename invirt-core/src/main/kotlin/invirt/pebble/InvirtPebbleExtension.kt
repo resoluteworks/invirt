@@ -1,7 +1,8 @@
 package invirt.pebble
 
-import invirt.pebble.filters.DateWithDaySuffixFilter
+import invirt.pebble.filters.dateWithDaySuffixFilter
 import invirt.pebble.functions.currencyFromMinorUnitFunction
+import invirt.pebble.functions.dateRangeFunction
 import invirt.pebble.functions.errorsFunction
 import invirt.pebble.functions.jsonArrayFunction
 import invirt.pebble.functions.jsonFunction
@@ -22,13 +23,14 @@ class InvirtPebbleExtension(private val globalVariables: Map<String, Any>) : Abs
 
         requestFunction,
         currencyFromMinorUnitFunction,
+        dateRangeFunction,
         errorsFunction,
         pluralizeFunction,
         jsonFunction,
         jsonArrayFunction
     ).associateBy { it.name }
 
-    override fun getFilters(): Map<String, Filter> = mapOf(
-        "dateWithDaySuffix" to DateWithDaySuffixFilter()
-    )
+    override fun getFilters(): Map<String, Filter> = listOf(
+        dateWithDaySuffixFilter
+    ).associateBy { it.name }
 }
