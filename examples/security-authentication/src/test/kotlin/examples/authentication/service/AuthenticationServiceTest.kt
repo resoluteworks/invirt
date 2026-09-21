@@ -5,7 +5,6 @@ import invirt.security.authentication.AuthenticationResponse
 import invirt.core.withCookies
 import invirt.utils.uuid7
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.extensions.clock.TestClock
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.date.shouldBeCloseTo
 import io.kotest.matchers.maps.shouldBeEmpty
