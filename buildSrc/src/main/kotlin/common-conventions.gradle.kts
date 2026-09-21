@@ -41,7 +41,9 @@ afterEvaluate {
     tasks["test"].dependsOn(tasks["lintKotlin"])
 }
 
-tasks.dokkaHtml {
-    outputDirectory.set(layout.projectDirectory.dir("../docs/dokka"))
-    suppressInheritedMembers = true
+dokka {
+    dokkaPublications.html {
+        outputDirectory.set(layout.projectDirectory.dir("../docs/dokka/${project.name}"))
+        suppressInheritedMembers.set(true)
+    }
 }

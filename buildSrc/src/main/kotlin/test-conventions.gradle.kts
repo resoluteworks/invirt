@@ -27,6 +27,12 @@ tasks.withType<Test> {
     finalizedBy("jacocoTestReport")
 }
 
+jacoco {
+    // The org.jacoco.core jar on the buildSrc classpath is the single JaCoCo pin; its VERSION carries a
+    // build timestamp (0.8.15.2026...) that the published agent and ant artifacts do not.
+    toolVersion = org.jacoco.core.JaCoCo.VERSION.substringBeforeLast(".")
+}
+
 tasks.jacocoTestReport {
     reports {
         xml.required = true
