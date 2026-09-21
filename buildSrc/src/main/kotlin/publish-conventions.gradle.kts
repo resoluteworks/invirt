@@ -42,3 +42,16 @@ publishing {
 signing {
     sign(publishing.publications["mavenJava"])
 }
+
+// The Kotlin Gradle plugin resolves Bouncy Castle on its own kotlinBouncyCastleConfiguration (created once the
+// signing plugin is applied) for its PGP helper tasks, at a version baked into the plugin. That version lags
+// the security releases (GHSA-9pwp-9qqc-pr26 is fixed in 1.85), and Dependabot reads the resolved graph, so
+// the whole org.bouncycastle group is held at a current release here regardless of what the plugin ships.
+configurations.matching { it.name == "kotlinBouncyCastleConfiguration" }.configureEach {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.bouncycastle") {
+            useVersion("1.86")
+            because("the Kotlin Gradle plugin's own Bouncy Castle pin lags the fix for GHSA-9pwp-9qqc-pr26 (1.85)")
+        }
+    }
+}
