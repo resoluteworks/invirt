@@ -65,8 +65,9 @@ class ErrorPagesFilterTest : StringSpec({
         response shouldHaveSetCookie sessionCookie.invalidate()
     }
 
-    // Only cookies come across. The handler's other headers describe a body that the error page replaced.
-    "headers other than cookies are not carried onto the error page" {
+    // Only cookies and the caching directive come across. The handler's other headers describe a body
+    // that the error page replaced.
+    "headers other than cookies and Cache-Control are not carried onto the error page" {
         val httpHandler = ErrorPages(Status.NOT_FOUND to "error/404")
             .then(
                 routes(
@@ -83,7 +84,38 @@ class ErrorPagesFilterTest : StringSpec({
 
         response.bodyString().trim() shouldBe "Page not found"
         response.header("X-Handler") shouldBe null
+        response.header("Cache-Control") shouldBe null
         response.headerValues("Content-Type") shouldHaveSize 1
+    }
+
+    // A handler that forbids caching a miss means the miss, not the body: a CDN given no directive on the
+    // rendered 404 would pin it with its own defaults.
+    "the handler's Cache-Control survives onto the error page" {
+        val httpHandler = ErrorPages(Status.NOT_FOUND to "error/404")
+            .then(
+                routes(
+                    "/test" GET { Response(Status.NOT_FOUND).header("Cache-Control", "no-store") }
+                )
+            )
+
+        val response = httpHandler(Request(Method.GET, "/test"))
+
+        response.bodyString().trim() shouldBe "Page not found"
+        response.header("Cache-Control") shouldBe "no-store"
+    }
+
+    "the handler's Cache-Control survives onto the fallback body" {
+        val httpHandler = ErrorPages(Status.NOT_FOUND to "error/missing-template", fallbackBody = "<p>Fallback</p>")
+            .then(
+                routes(
+                    "/test" GET { Response(Status.NOT_FOUND).header("Cache-Control", "no-store") }
+                )
+            )
+
+        val response = httpHandler(Request(Method.GET, "/test"))
+
+        response.bodyString() shouldBe "<p>Fallback</p>"
+        response.header("Cache-Control") shouldBe "no-store"
     }
 
     // The error page is rendered while the application is already handling an error, and rendering it can

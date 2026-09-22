@@ -65,15 +65,19 @@ private fun fallbackResponse(status: Status, fallbackBody: String?): Response = 
 }
 
 /**
- * Copies the `Set-Cookie` headers of [original] onto this response, verbatim.
+ * Copies the `Set-Cookie` and `Cache-Control` headers of [original] onto this response, verbatim.
  *
  * The error page is a freshly rendered response, so everything the handler put on its own response is
  * otherwise lost. Cookies have to survive that: a handler that invalidated the session cookie and returned
  * a status which renders as an error page still signed the user out, and dropping its `Set-Cookie` would
- * silently leave them signed in. Only cookies are carried - the rendered body has its own `Content-Type`
- * and `Content-Length`, and the handler's remaining headers describe a body that no longer exists.
+ * silently leave them signed in. So does the caching directive: it says how the outcome of this request
+ * may be reused, not what the body looks like, and a handler that answered a miss with `no-store` meant
+ * the miss itself, whatever page is rendered for it - a CDN that receives no directive fills in its own.
+ * Nothing else is carried - the rendered body has its own `Content-Type` and `Content-Length`, and the
+ * handler's remaining headers describe a body that no longer exists.
  */
 private fun Response.withSetCookiesFrom(original: Response): Response =
-    original.headerValues("Set-Cookie")
-        .filterNotNull()
-        .fold(this) { response, setCookie -> response.header("Set-Cookie", setCookie) }
+    carriedHeaders.flatMap { name -> original.headerValues(name).filterNotNull().map { name to it } }
+        .fold(this) { response, (name, value) -> response.header(name, value) }
+
+private val carriedHeaders = listOf("Set-Cookie", "Cache-Control")
