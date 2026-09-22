@@ -3,6 +3,12 @@ name: Dependency submission
 # Uploads the resolved Gradle dependency graph so Dependabot alerts cover the runtime dependencies
 # invirt ships (http4k, Jackson, Netty, the MongoDB and Kafka clients), not only the docs site's npm lockfile.
 # GitHub cannot read a Gradle build on its own; without this submission the dependency graph holds zero Maven packages.
+#
+# The graph is scoped to runtimeClasspath and excludes buildSrc, so the alerts describe what a consumer of
+# invirt resolves rather than the build's own tooling (Dokka, jacoco, coveralls, the Kotlin Gradle plugin)
+# or the test-only classpath. runtimeClasspath is the tightest scope available: apiElements and
+# runtimeElements are the configurations that are actually published, but they are consumable-only and
+# the action's resolve-all-dependencies task cannot resolve them, so filtering to them submits nothing.
 
 permissions:
   contents: write
@@ -25,10 +31,6 @@ jobs:
           java-version: 21
       - name: Generate and submit dependency graph
         uses: gradle/actions/dependency-submission@v6
-        # The graph is scoped to what invirt ships. buildSrc, the buildscript `classpath` configuration, the
-        # Dokka documentation toolchain and the test-only classpaths are build tooling: none of them reaches a
-        # published POM, so an alert raised against them names a risk no consumer of invirt is exposed to.
-        # Both values are regular expressions matched against the whole project path or configuration name.
         with:
-          dependency-graph-exclude-projects: ':buildSrc'
-          dependency-graph-exclude-configurations: '^classpath$|.*[Dd]okka.*|.*[Tt]est(Compile|Runtime)Classpath'
+          dependency-graph-include-configurations: "^runtimeClasspath$"
+          dependency-graph-exclude-projects: ":buildSrc"
