@@ -25,3 +25,10 @@ jobs:
           java-version: 21
       - name: Generate and submit dependency graph
         uses: gradle/actions/dependency-submission@v6
+        # The graph is scoped to what invirt ships. buildSrc, the buildscript `classpath` configuration, the
+        # Dokka documentation toolchain and the test-only classpaths are build tooling: none of them reaches a
+        # published POM, so an alert raised against them names a risk no consumer of invirt is exposed to.
+        # Both values are regular expressions matched against the whole project path or configuration name.
+        with:
+          dependency-graph-exclude-projects: ':buildSrc'
+          dependency-graph-exclude-configurations: '^classpath$|.*[Dd]okka.*|.*[Tt]est(Compile|Runtime)Classpath'
