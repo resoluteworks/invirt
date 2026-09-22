@@ -1,7 +1,7 @@
 plugins {
     base
     id("jacoco-report-aggregation")
-    id("com.github.nbaztec.coveralls-jacoco") version "1.2.20"
+    id("com.github.nbaztec.coveralls-jacoco")
     id("com.gradleup.nmcp.aggregation").version("1.6.2")
 }
 
