@@ -5,9 +5,11 @@ plugins {
     id("test-library-conventions")
 }
 
+description = "Provides test helpers for building form requests and asserting view responses, validation errors, redirects and cookies."
+
 dependencies {
-    val http4kVersion: String by project
-    val validkVersion: String by project
+    val http4kVersion = providers.gradleProperty("http4kVersion").get()
+    val validkVersion = providers.gradleProperty("validkVersion").get()
 
     implementation(project(":invirt-core"))
 

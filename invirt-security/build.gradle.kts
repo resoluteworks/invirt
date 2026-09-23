@@ -4,8 +4,10 @@ plugins {
     id("publish-conventions")
 }
 
+description = "Provides authentication components, including a custom http4k filter, for transparently authenticating HTTP requests and exposing the current Principal."
+
 dependencies {
-    val http4kVersion: String by project
+    val http4kVersion = providers.gradleProperty("http4kVersion").get()
 
     implementation(project(":invirt-data"))
     implementation(project(":invirt-utils"))

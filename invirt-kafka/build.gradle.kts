@@ -4,10 +4,12 @@ plugins {
     id("publish-conventions")
 }
 
+description = "Provides Kafka producer, consumer and topic management helpers built on the Kafka clients and streams APIs."
+
 dependencies {
-    val kafkaVersion: String by project
-    val http4kVersion: String by project
-    val jacksonVersion: String by project
+    val kafkaVersion = providers.gradleProperty("kafkaVersion").get()
+    val http4kVersion = providers.gradleProperty("http4kVersion").get()
+    val jacksonVersion = providers.gradleProperty("jacksonVersion").get()
 
     implementation(project(":invirt-utils"))
 
