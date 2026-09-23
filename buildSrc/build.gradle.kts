@@ -25,6 +25,8 @@ dependencies {
     implementation("org.jetbrains.dokka:dokka-gradle-plugin:2.2.0")
     implementation("org.jmailen.gradle:kotlinter-gradle:5.7.0")
     implementation("com.github.nbaztec:coveralls-jacoco-gradle-plugin:1.2.20")
+    implementation("com.gradleup.nmcp:com.gradleup.nmcp.gradle.plugin:1.6.2")
+    implementation("com.gradleup.nmcp.aggregation:com.gradleup.nmcp.aggregation.gradle.plugin:1.6.2")
 
     constraints {
         // Dokka's dokka-core resolves Jackson through jackson-bom 2.15.3, a line that trails its security

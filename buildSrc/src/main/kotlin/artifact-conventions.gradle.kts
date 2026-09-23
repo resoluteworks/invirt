@@ -1,3 +1,3 @@
-val invirtVersion: String by project
+val invirtVersion = providers.gradleProperty("invirtVersion").get()
 group = "dev.invirt"
 version = invirtVersion

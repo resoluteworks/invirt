@@ -4,10 +4,12 @@ plugins {
     id("publish-conventions")
 }
 
+description = "Provides a thin Kotlin layer over the MongoDB Kotlin driver, with a managed client wrapper, versioned and timestamped document interfaces, typed filters, sorts and indexes, and Mongock migration helpers."
+
 dependencies {
-    val mongoDriverVersion: String by project
-    val awaitilityVersion: String by project
-    val jacksonVersion: String by project
+    val mongoDriverVersion = providers.gradleProperty("mongoDriverVersion").get()
+    val awaitilityVersion = providers.gradleProperty("awaitilityVersion").get()
+    val jacksonVersion = providers.gradleProperty("jacksonVersion").get()
 
     implementation(project(":invirt-utils"))
     implementation(project(":invirt-data"))

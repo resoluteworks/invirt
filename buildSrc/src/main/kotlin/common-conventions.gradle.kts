@@ -15,8 +15,8 @@ kotlin {
 }
 
 dependencies {
-    val kotlinVersion: String by project
-    val kotlinLoggingVersion: String by project
+    val kotlinVersion = providers.gradleProperty("kotlinVersion").get()
+    val kotlinLoggingVersion = providers.gradleProperty("kotlinLoggingVersion").get()
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
@@ -53,7 +53,7 @@ dokka {
 // graph, so the generator runtime is held at the Jackson the modules build on and at a current jsoup.
 // jackson-annotations is left to the bom: it carries no patch component since 2.20, so jacksonVersion
 // does not resolve for it.
-val jacksonVersion: String by project
+val jacksonVersion = providers.gradleProperty("jacksonVersion").get()
 
 configurations.matching { it.name.startsWith("dokka") }.configureEach {
     resolutionStrategy.eachDependency {

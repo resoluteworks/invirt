@@ -4,13 +4,15 @@ plugins {
     id("publish-conventions")
 }
 
+description = "Provides the core MVC components for building web applications with http4k and Pebble templates, including routing, views, forms and request handling."
+
 dependencies {
     implementation(project(":invirt-data"))
     implementation(project(":invirt-utils"))
 
-    val http4kVersion: String by project
-    val jacksonVersion: String by project
-    val validkVersion: String by project
+    val http4kVersion = providers.gradleProperty("http4kVersion").get()
+    val jacksonVersion = providers.gradleProperty("jacksonVersion").get()
+    val validkVersion = providers.gradleProperty("validkVersion").get()
 
     implementation(platform("org.http4k:http4k-bom:${http4kVersion}"))
     implementation("org.http4k:http4k-client-okhttp")

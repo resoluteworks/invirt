@@ -2,7 +2,7 @@ plugins {
     base
     id("jacoco-report-aggregation")
     id("com.github.nbaztec.coveralls-jacoco")
-    id("com.gradleup.nmcp.aggregation").version("1.6.2")
+    id("com.gradleup.nmcp.aggregation")
 }
 
 group = "dev.invirt"
@@ -58,8 +58,11 @@ nmcpAggregation {
         password = System.getenv("SONATYPE_PUBLISH_PASSWORD")
         publishingType = "AUTOMATIC"
     }
+}
 
-    publishAllProjectsProbablyBreakingProjectIsolation()
+dependencies {
+    // The aggregation bundles every subproject, the same set invirt-bom constrains.
+    subprojects.sortedBy { it.name }.forEach { nmcpAggregation(project(it.path)) }
 }
 
 val Project.hasCoverage

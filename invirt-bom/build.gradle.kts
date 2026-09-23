@@ -10,6 +10,8 @@ plugins {
     id("publish-conventions")
 }
 
+description = "A Maven BOM that aligns the published versions of the Invirt modules for consumers that import it as a platform dependency."
+
 repositories {
     mavenCentral()
 }
@@ -19,6 +21,6 @@ dependencies {
         rootProject.subprojects
             .filter { it.name != project.name }
             .sortedBy { it.name }
-            .forEach { api(it) }
+            .forEach { api(project(it.path)) }
     }
 }

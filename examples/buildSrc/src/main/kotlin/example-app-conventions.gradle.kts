@@ -13,12 +13,12 @@ kotlin {
 }
 
 dependencies {
-    val kotlinVersion: String by project
-    val invirtVersion: String by project
-    val http4kVersion: String by project
-    val validkVersion: String by project
-    val awaitilityVersion: String by project
-    val kotlinLoggingVersion: String by project
+    val kotlinVersion = providers.gradleProperty("kotlinVersion").get()
+    val invirtVersion = providers.gradleProperty("invirtVersion").get()
+    val http4kVersion = providers.gradleProperty("http4kVersion").get()
+    val validkVersion = providers.gradleProperty("validkVersion").get()
+    val awaitilityVersion = providers.gradleProperty("awaitilityVersion").get()
+    val kotlinLoggingVersion = providers.gradleProperty("kotlinLoggingVersion").get()
 
     // Core, minimal dependencies
     implementation(platform("dev.invirt:invirt-bom:${invirtVersion}"))
@@ -39,8 +39,8 @@ dependencies {
     implementation("io.github.oshai:kotlin-logging-jvm:${kotlinLoggingVersion}")
 
     // Testing
-    val kotestVersion: String by project
-    val mockkVersion: String by project
+    val kotestVersion = providers.gradleProperty("kotestVersion").get()
+    val mockkVersion = providers.gradleProperty("mockkVersion").get()
     testImplementation("dev.invirt:invirt-test")
     testImplementation("io.kotest:kotest-assertions-core:${kotestVersion}")
     testImplementation("io.kotest:kotest-property:${kotestVersion}")

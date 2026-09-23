@@ -5,8 +5,10 @@ plugins {
     id("test-library-conventions")
 }
 
+description = "Provides test doubles for building an Authenticator and asserting AuthenticationResponse outcomes."
+
 dependencies {
-    val http4kVersion: String by project
+    val http4kVersion = providers.gradleProperty("http4kVersion").get()
 
     implementation(project(":invirt-core"))
     implementation(project(":invirt-security"))

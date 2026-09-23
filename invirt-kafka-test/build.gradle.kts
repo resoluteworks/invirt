@@ -5,8 +5,10 @@ plugins {
     id("test-library-conventions")
 }
 
+description = "Provides Kotest Testcontainer helpers for running Kafka tests against a Redpanda container."
+
 dependencies {
-    val testContainersVersion: String by project
+    val testContainersVersion = providers.gradleProperty("testContainersVersion").get()
 
     implementation(project(":invirt-utils"))
     implementation(project(":invirt-kafka"))
