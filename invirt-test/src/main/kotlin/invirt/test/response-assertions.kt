@@ -14,6 +14,9 @@ import org.http4k.core.cookie.cookies
 import org.http4k.kotest.shouldHaveStatus
 import org.http4k.lens.ResponseKey
 
+@PublishedApi
+internal val invirtRenderModelKey = ResponseKey.required<InvirtRenderModel>("invirtRenderModel")
+
 /**
  * Asserts that the response has a status code of 303 that redirects to the specified [url].
  *
@@ -41,7 +44,7 @@ infix fun Response.shouldHaveCookieIgnoringExpiry(cookie: Cookie) {
  * Asserts that the response contains a model of the expected type [M].
  */
 inline fun <reified M : Any> Response.shouldHaveModel(): M {
-    val renderModal = ResponseKey.of<InvirtRenderModel>("invirtRenderModel")(this)
+    val renderModal = invirtRenderModelKey(this)
     return renderModal.model.shouldBeInstanceOf<M>()
 }
 
@@ -49,7 +52,7 @@ inline fun <reified M : Any> Response.shouldHaveModel(): M {
  * Asserts that the response is rendered with the specified [template].
  */
 infix fun Response.shouldHaveTemplate(template: String) {
-    val renderModal = ResponseKey.of<InvirtRenderModel>("invirtRenderModel")(this)
+    val renderModal = invirtRenderModelKey(this)
     renderModal.template shouldBe template
 }
 
@@ -58,7 +61,7 @@ infix fun Response.shouldHaveTemplate(template: String) {
  * and returns a pair of the model and the validation errors.
  */
 inline fun <reified M : Any> Response.shouldBeErrorResponse(): Pair<M, ValidationErrors> {
-    val invirtRenderModel = ResponseKey.of<InvirtRenderModel>("invirtRenderModel")(this)
+    val invirtRenderModel = invirtRenderModelKey(this)
     invirtRenderModel.model shouldNotBe null
     invirtRenderModel.model.shouldBeInstanceOf<M>()
     invirtRenderModel.errors shouldNotBe null
@@ -69,7 +72,7 @@ inline fun <reified M : Any> Response.shouldBeErrorResponse(): Pair<M, Validatio
  * Asserts that the response contains validation errors and returns them.
  */
 fun Response.shouldBeErrorResponse(): ValidationErrors {
-    val invirtRenderModel = ResponseKey.of<InvirtRenderModel>("invirtRenderModel")(this)
+    val invirtRenderModel = invirtRenderModelKey(this)
     invirtRenderModel.errors shouldNotBe null
     return invirtRenderModel.errors!!
 }

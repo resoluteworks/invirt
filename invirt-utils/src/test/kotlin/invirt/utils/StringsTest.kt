@@ -60,7 +60,7 @@ class StringsTest : StringSpec({
     "titleCaseFirstChar" {
         "something else".titleCaseFirstChar() shouldBe "Something else"
         "SOMETHING ELSE".titleCaseFirstChar() shouldBe "SOMETHING ELSE"
-        "Ǆemal".titleCaseFirstChar(Locale("hr", "HR")) shouldBe "ǅemal"
+        "Ǆemal".titleCaseFirstChar(Locale.of("hr", "HR")) shouldBe "ǅemal"
         "ǆemal".titleCaseFirstChar() shouldBe "ǅemal"
         "".titleCaseFirstChar() shouldBe ""
     }
