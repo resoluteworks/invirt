@@ -143,11 +143,32 @@ class DateTimeTest : StringSpec({
         formatDateRange(day, day) shouldBe "5th November 2026"
     }
 
-    "formatDateRange - a range inside one year carries the year on its closing date alone" {
+    "formatDateRange - a range sharing month and year says the month and year once" {
+        formatDateRange(LocalDate.of(2026, 12, 6), LocalDate.of(2026, 12, 10)) shouldBe
+            "6th${enDash}10th December 2026"
+
+        // the start of a month
+        formatDateRange(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 2)) shouldBe
+            "1st${enDash}2nd January 2026"
+
+        // the end of a month, where the two days also take different ordinal suffixes
+        formatDateRange(LocalDate.of(2026, 5, 30), LocalDate.of(2026, 5, 31)) shouldBe
+            "30th${enDash}31st May 2026"
+    }
+
+    "formatDateRange - a range inside one year but crossing months carries the year on its closing date alone" {
         formatDateRange(LocalDate.of(2026, 11, 5), LocalDate.of(2026, 12, 5)) shouldBe
             "5th November $enDash 5th December 2026"
-        formatDateRange(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 2)) shouldBe
-            "1st January $enDash 2nd January 2026"
+
+        // adjacent calendar days either side of a month boundary are still a different-month range
+        formatDateRange(LocalDate.of(2026, 1, 31), LocalDate.of(2026, 2, 1)) shouldBe
+            "31st January $enDash 1st February 2026"
+    }
+
+    "formatDateRange - a same month but different year spells both dates out in full" {
+        // sharing a month is not enough on its own to shorten the range - the year must match too
+        formatDateRange(LocalDate.of(2025, 12, 6), LocalDate.of(2026, 12, 10)) shouldBe
+            "6th December 2025 $enDash 10th December 2026"
     }
 
     // The case that fails when the year pattern is written as the week-based YYYY: the 30th of December
@@ -171,6 +192,24 @@ class DateTimeTest : StringSpec({
             to = null,
             pattern = "EEEE, d MMMM yyyy"
         ) shouldBe "Thursday, 5th November 2026"
+    }
+
+    "formatDateRange - a same month and year range's day pattern and day separator are the caller's" {
+        formatDateRange(
+            from = LocalDate.of(2026, 12, 6),
+            to = LocalDate.of(2026, 12, 10),
+            dayPattern = "EEEE, d",
+            daySeparator = " to "
+        ) shouldBe "Sunday, 6th to 10th December 2026"
+
+        // a pattern with fields of its own (here a weekday) carries them on the closing date as given; the
+        // leading date keeps the default bare-day dayPattern unless the caller overrides that too - the same
+        // way yearlessPattern already needs its own override for a range crossing months
+        formatDateRange(
+            from = LocalDate.of(2026, 12, 6),
+            to = LocalDate.of(2026, 12, 10),
+            pattern = "EEEE, d MMMM yyyy"
+        ) shouldBe "6th${enDash}Thursday, 10th December 2026"
     }
 
     "String?.toLocalDateOrNull" {

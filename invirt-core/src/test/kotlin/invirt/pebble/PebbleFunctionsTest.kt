@@ -162,6 +162,13 @@ class PebbleFunctionsTest : StringSpec() {
                 mapOf("from" to LocalDate.of(2026, 12, 30), "to" to LocalDate.of(2027, 1, 2)),
                 "30th December 2026 $enDash 2nd January 2027"
             )
+
+            // a range sharing both month and year says the month and year once, joined by an unspaced en dash
+            testFunctionModel(
+                "dateRange", "/test",
+                mapOf("from" to LocalDate.of(2026, 12, 6), "to" to LocalDate.of(2026, 12, 10)),
+                "6th${enDash}10th December 2026"
+            )
         }
 
         "dateRange - a from that isn't a date" {
