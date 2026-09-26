@@ -94,24 +94,40 @@ fun Instant.formatWithDaySuffix(pattern: String, zone: ZoneId): String =
 
 /**
  * A pair of dates as one phrase, saying each part only once: a null [to] (how a single-day entry is
- * modelled) or a [to] equal to [from] is that one day; a range inside one calendar year carries the year
- * on its closing date alone ("5th November – 5th December 2026"); a range crossing years spells both out.
+ * modelled) or a [to] equal to [from] is that one day ("5th November 2026"); a range sharing both month and
+ * year says the month and year once, joining the two days with [daySeparator] ("6th–10th December 2026");
+ * a range inside one calendar year but crossing months carries the year on its closing date alone
+ * ("5th November – 5th December 2026"); a range crossing years spells both dates out in full
+ * ("30th December 2026 – 2nd January 2027").
  *
  * Both ends are formatted with [formatWithDaySuffix], so the day of month carries its English ordinal
- * suffix. [pattern] is the one that carries the year and [yearlessPattern] the one that drops it - the rule
- * needs two patterns, since no single `DateTimeFormatter` pattern can express it. Use `yyyy` for the year:
- * `YYYY` is the week-based year, which renders a plausible but wrong value on the days around new year.
- * [separator] defaults to a spaced en dash, the typographic range separator.
+ * suffix. Three patterns cover the three lengths a date can render at: [pattern] is the full date,
+ * [yearlessPattern] drops the year, and [dayPattern] is the day alone - the rule needs all three, since no
+ * single `DateTimeFormatter` pattern can express any of the shortenings. Use `yyyy` for the year: `YYYY` is
+ * the week-based year, which renders a plausible but wrong value on the days around new year. A [pattern]
+ * that adds fields of its own (a weekday, a longer month form) carries them on the closing date as given;
+ * [yearlessPattern] and [dayPattern] are the caller's to match if the same fields should also appear on a
+ * shortened leading date.
+ *
+ * [separator] defaults to a spaced en dash, the typographic range separator; [daySeparator] defaults to an
+ * unspaced one, since two bare day numbers read as a single compact range rather than two phrases.
  */
 fun formatDateRange(
     from: LocalDate,
     to: LocalDate?,
     pattern: String = "d MMMM yyyy",
     yearlessPattern: String = "d MMMM",
-    separator: String = " \u2013 "
+    separator: String = " \u2013 ",
+    dayPattern: String = "d",
+    daySeparator: String = "\u2013"
 ): String = when {
     to == null || to == from -> from.formatWithDaySuffix(pattern)
+
+    from.year == to.year && from.month == to.month ->
+        "${from.formatWithDaySuffix(dayPattern)}$daySeparator${to.formatWithDaySuffix(pattern)}"
+
     from.year == to.year -> "${from.formatWithDaySuffix(yearlessPattern)}$separator${to.formatWithDaySuffix(pattern)}"
+
     else -> "${from.formatWithDaySuffix(pattern)}$separator${to.formatWithDaySuffix(pattern)}"
 }
 

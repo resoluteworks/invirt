@@ -39,9 +39,10 @@ A matching Pebble filter is registered as
 
 ### Date ranges
 `formatDateRange` renders a pair of dates as one phrase that says each part only once: a null `to` (how a
-single-day entry is modelled) or a `to` equal to `from` is that one day, a range inside one calendar year
-carries the year on its closing date alone, and a range crossing years spells both out. Both ends are
-formatted with `formatWithDaySuffix`.
+single-day entry is modelled) or a `to` equal to `from` is that one day, a range inside one month says the
+month and year once and joins the two days with an unspaced en dash (6th&ndash;10th December 2026), a range
+inside one calendar year carries the year on its closing date alone, and a range crossing years spells both
+out. Both ends are formatted with `formatWithDaySuffix`.
 
 ```kotlin
 formatDateRange(LocalDate.of(2026, 11, 5), null)
@@ -54,8 +55,11 @@ formatDateRange(LocalDate.of(2026, 12, 30), LocalDate.of(2027, 1, 2))
 // "30th December 2026 – 2nd January 2027"
 ```
 
-The rule needs two patterns, since no single `DateTimeFormatter` pattern can express it: `pattern` carries
-the year and `yearlessPattern` drops it. Both, and the separator, are the caller's.
+The rule needs three patterns, since no single `DateTimeFormatter` pattern can express it: `pattern` is the
+full date, `yearlessPattern` drops the year, and `dayPattern` is the day alone. All three are the caller's,
+as are `separator` and `daySeparator`, the one between two days of the same month. A `pattern` with fields
+of its own, such as a weekday, needs a matching `yearlessPattern` and `dayPattern` for the leading date to
+carry them too.
 
 ```kotlin
 formatDateRange(
