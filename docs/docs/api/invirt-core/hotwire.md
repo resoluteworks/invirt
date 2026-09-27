@@ -53,3 +53,20 @@ next thing the user should see is another page.
     ```
   </TabItem>
 </Tabs>
+
+### turboStreamRemove
+Returns a Turbo Stream response with a `<turbo-stream action="remove">` body, used to remove the element
+with the given id from the current page, for a submission whose only visible outcome is that something on
+the page goes away.
+<Tabs>
+  <TabItem value="example" label="Example" default>
+    ```kotlin
+    turboStreamRemove("item-${item.id}")
+    ```
+  </TabItem>
+  <TabItem value="declaration" label="Declaration">
+    ```kotlin
+    fun turboStreamRemove(target: String): Response
+    ```
+  </TabItem>
+</Tabs>
