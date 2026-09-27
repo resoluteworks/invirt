@@ -33,4 +33,12 @@ class HotwireTest : StringSpec({
         response.header("Content-Type") shouldBe "text/vnd.turbo-stream.html"
         response.bodyString() shouldBe """<turbo-stream action="redirect" target="/items/42?from=20"></turbo-stream>"""
     }
+
+    "turboStreamRemove" {
+        val response = turboStreamRemove("item-42")
+
+        response shouldHaveStatus Status.OK
+        response.header("Content-Type") shouldBe "text/vnd.turbo-stream.html"
+        response.bodyString() shouldBe """<turbo-stream action="remove" target="item-42"></turbo-stream>"""
+    }
 })

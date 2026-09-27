@@ -25,3 +25,11 @@ fun turboStreamRefresh(): Response = Response(Status.OK)
 fun turboStreamRedirect(url: String): Response = Response(Status.OK)
     .body("""<turbo-stream action="redirect" target="$url"></turbo-stream>""")
     .turboStream()
+
+/**
+ * A response that renders a Turbo Stream action to remove the element with id [target] from the page, for a
+ * submission whose only visible outcome is that something on the current page goes away.
+ */
+fun turboStreamRemove(target: String): Response = Response(Status.OK)
+    .body("""<turbo-stream action="remove" target="$target"></turbo-stream>""")
+    .turboStream()
