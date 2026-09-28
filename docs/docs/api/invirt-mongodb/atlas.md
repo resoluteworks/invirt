@@ -23,7 +23,12 @@ collection.waitForDefaultSearchIndexReady(seconds = 60)
 collection.waitForSearchIndexReady("my-index", seconds = 60)
 
 collection.searchIndexReady("my-index"): Boolean
+collection.searchIndexExists("my-index"): Boolean
 ```
+
+`searchIndexReady` is true only for a `READY` index, while `searchIndexExists` is true for a listed index in any status (`PENDING`,
+`BUILDING`, `DELETING`, ...). `recreateSearchIndex` drops an existing index whatever its status, waits up to 60 seconds for the name to
+leave the listing, then creates the index from the new definition.
 
 ## Waiting for documents
 Useful in integration tests to give Atlas Search time to index newly-written documents.

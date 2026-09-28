@@ -27,14 +27,21 @@ fun MongoCollection<*>.recreateDefaultSearchIndex(definition: String) {
 
 /**
  * Recreates the search index [indexName] from the [definition] represented as a JSON string.
+ *
+ * An index with that name is dropped whatever its status, `PENDING` and `BUILDING` included: while an index is listed it
+ * holds its name, so a new index of the same name is rejected with `IndexAlreadyExists`. Atlas can remove an index
+ * asynchronously, listing it as `DELETING` meanwhile, so the new index is created only once the name is absent from
+ * [MongoCollection.listSearchIndexes], which the function waits for during 60 seconds.
+ *
+ * @throws org.awaitility.core.ConditionTimeoutException when the old index is still listed after 60 seconds.
  */
 fun MongoCollection<*>.recreateSearchIndex(indexName: String, definition: String) {
-    if (searchIndexReady(indexName)) {
+    if (searchIndexExists(indexName)) {
         dropSearchIndex(indexName)
     }
     await("Waiting for search index '${indexName}' to be removed")
         .atMost(Duration.ofSeconds(60))
-        .until { !searchIndexReady(indexName) }
+        .until { !searchIndexExists(indexName) }
 
     createSearchIndex(indexName, Document.parse(definition))
     log.info { "Created Mongo search index '$indexName' for collection ${this.namespace.collectionName}" }
@@ -60,6 +67,14 @@ fun MongoCollection<*>.waitForDefaultSearchIndexReady(seconds: Int = 60) {
 
 fun MongoCollection<*>.searchIndexReady(indexName: String): Boolean =
     listSearchIndexes().toList().any { it["name"] == indexName && it["status"] == "READY" }
+
+/**
+ * Whether an index named [indexName] is listed for this collection, in any status. Unlike [searchIndexReady], this is also
+ * true while the index is `PENDING` or `BUILDING`, and while Atlas is removing it (`DELETING`): the name stays taken until
+ * the index is absent from the listing.
+ */
+fun MongoCollection<*>.searchIndexExists(indexName: String): Boolean =
+    listSearchIndexes().toList().any { it["name"] == indexName }
 
 /**
  * Waits for the default search index to contain a document with the given [id].
