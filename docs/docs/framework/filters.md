@@ -18,6 +18,16 @@ val handler = CatchAll(
 ).then(routes(/* ... */))
 ```
 
+Each caught exception is logged through [`kotlin-logging`](https://github.com/oshai/kotlin-logging) with the constant
+message `Request failed with an exception`, so that events can be grouped on it. The status the filter answers with
+and the exception message are in the payload, under `status` and `errorMessage`, and the exception is the cause of
+the event, so its stack trace is logged too.
+
+The level follows the status the filter answers with. A status of 500 or above, which includes the
+`Status.INTERNAL_SERVER_ERROR` returned for an unmapped exception, is logged at `ERROR`. Anything below 500 is logged
+at `WARN`: an exception you map to a 4xx is an outcome your application chose, so it stays out of the `ERROR` events
+that alerting typically watches.
+
 ## ErrorPages
 Automatically renders a Pebble template for specified HTTP error statuses.
 The HTTP status of the underlying response is preserved in the final response.
