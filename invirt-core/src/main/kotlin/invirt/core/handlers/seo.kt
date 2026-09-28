@@ -36,6 +36,9 @@ data class SitemapEntry(val loc: String, val lastMod: Instant? = null)
  * changing the routes production serves: with it off, `/robots.txt` disallows the whole site and
  * `/sitemap.xml` is a 404, and [entries] is never called.
  *
+ * [disallow] lists the paths `/robots.txt` asks crawlers to stay out of while indexing is enabled, such as
+ * a GET route that starts a sign-in and does work a crawler should never trigger.
+ *
  * [entries] is invoked per request, so an application that reads a database to build the list is the one
  * that decides how often that happens - wrap it in whatever memoisation it wants. Both files also carry a
  * [cacheDuration] `Cache-Control` max-age for any cache sitting between the application and a crawler,
@@ -49,6 +52,7 @@ fun seoRoutes(
     baseUrl: String,
     indexingEnabled: Boolean,
     cacheDuration: Duration,
+    disallow: List<String> = emptyList(),
     entries: () -> List<SitemapEntry>
 ): RoutingHttpHandler {
     val sitemapUrl = "${baseUrl.trimEnd('/')}${SeoPaths.SITEMAP}"
@@ -63,7 +67,7 @@ fun seoRoutes(
                 SeoPaths.ROBOTS GET {
                     Response(Status.OK)
                         .header("Content-Type", ContentType.TEXT_PLAIN.toHeaderValue())
-                        .body("User-agent: *\nSitemap: $sitemapUrl\n")
+                        .body("User-agent: *\n" + disallow.joinToString("") { "Disallow: $it\n" } + "Sitemap: $sitemapUrl\n")
                 }
             )
         } else {
