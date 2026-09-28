@@ -36,8 +36,9 @@ The two files a crawler reads before anything else on the site: `/sitemap.xml`, 
 application supplies, and `/robots.txt`, which points back at it with the base URL of the deployment
 answering the request. `indexingEnabled` is the gate that keeps a non-production environment out of search
 results - with it off, `robots.txt` disallows the whole site, `sitemap.xml` is a 404 and `entries` is never
-called. Both files carry `cacheDuration` as a `Cache-Control` max-age, and the paths are available as
-`SeoPaths.SITEMAP` and `SeoPaths.ROBOTS` for a filter that has to let crawlers through.
+called. `disallow` lists the paths `robots.txt` asks crawlers to stay out of while indexing is enabled, such
+as a GET route that starts a sign-in. Both files carry `cacheDuration` as a `Cache-Control` max-age, and the
+paths are available as `SeoPaths.SITEMAP` and `SeoPaths.ROBOTS` for a filter that has to let crawlers through.
 
 `entries` is invoked per request, so an application reading a database to build the list is the one that
 decides how often that happens. The sitemap is a single `urlset`: there is no sitemap index, so a site past
@@ -66,6 +67,7 @@ the sitemaps.org limits (50,000 URLs or 50MB uncompressed) needs its own handler
         baseUrl: String,
         indexingEnabled: Boolean,
         cacheDuration: Duration,
+        disallow: List<String> = emptyList(),
         entries: () -> List<SitemapEntry>
     ): RoutingHttpHandler
 

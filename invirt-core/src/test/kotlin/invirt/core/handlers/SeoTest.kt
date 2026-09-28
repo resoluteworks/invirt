@@ -21,8 +21,9 @@ class SeoTest : StringSpec({
         indexingEnabled: Boolean = true,
         baseUrl: String = "https://example.com",
         cacheDuration: Duration = Duration.ofHours(1),
+        disallow: List<String> = emptyList(),
         entries: () -> List<SitemapEntry> = { defaultEntries }
-    ) = seoRoutes(baseUrl, indexingEnabled, cacheDuration, entries)
+    ) = seoRoutes(baseUrl, indexingEnabled, cacheDuration, disallow, entries)
 
     "sitemap lists every entry, with a lastmod only where there is one" {
         val response = routes()(Request(Method.GET, SeoPaths.SITEMAP))
@@ -67,6 +68,13 @@ class SeoTest : StringSpec({
         response.bodyString() shouldBe "User-agent: *\nSitemap: https://beta.example.com/sitemap.xml\n"
     }
 
+    "robots disallows each listed path, in order, ahead of the sitemap" {
+        val response = routes(disallow = listOf("/sign-in/google", "/private"))(Request(Method.GET, SeoPaths.ROBOTS))
+
+        response.bodyString() shouldBe
+            "User-agent: *\nDisallow: /sign-in/google\nDisallow: /private\nSitemap: https://example.com/sitemap.xml\n"
+    }
+
     "a base URL with a trailing slash does not double up" {
         val response = routes(baseUrl = "https://example.com/")(Request(Method.GET, SeoPaths.ROBOTS))
 
@@ -84,6 +92,7 @@ class SeoTest : StringSpec({
         var built = 0
         val handler = routes(
             indexingEnabled = false,
+            disallow = listOf("/sign-in/google"),
             entries = {
                 built++
                 defaultEntries
