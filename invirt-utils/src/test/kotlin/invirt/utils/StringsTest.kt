@@ -132,6 +132,11 @@ class StringsTest : StringSpec({
         "https://test.com/something/else.file".isUrl() shouldBe true
         "https://sommerhaus.gallery?param=123".isUrl() shouldBe true
         "https://sommerhaus.gallery/?a=test".isUrl() shouldBe true
+        // A single-character host label, as on X and its t.co links
+        "x.com".isUrl() shouldBe true
+        "https://x.com/jack".isUrl() shouldBe true
+        "x.com/@jack".isUrl() shouldBe true
+        "https://t.co/abc123".isUrl() shouldBe true
 
         // Case-insensitive: scheme, www and TLD in any case
         "HTTP://TEST.COM".isUrl() shouldBe true
@@ -152,6 +157,9 @@ class StringsTest : StringSpec({
         "£25".containsUrl() shouldBe false
         "£0. Others pay £25".containsUrl() shouldBe false
         "e.g. £25".containsUrl() shouldBe false
+        // Single-letter abbreviations are not hosts: their "TLD" is one letter
+        "p.s. see you there".containsUrl() shouldBe false
+        "Made in the U.S.A.".containsUrl() shouldBe false
 
         // A whole-string URL contains a URL
         "test.com".containsUrl() shouldBe true
@@ -160,6 +168,7 @@ class StringsTest : StringSpec({
         "https://test.com".containsUrl() shouldBe true
         // A URL embedded in surrounding text, in any case
         "pay at gallery.co.uk".containsUrl() shouldBe true
+        "follow me on x.com/jack".containsUrl() shouldBe true
         "buy tickets at https://test.com/pay now".containsUrl() shouldBe true
         "Visit HTTPS://TEST.COM now".containsUrl() shouldBe true
         "email WWW.Test.Com please".containsUrl() shouldBe true
