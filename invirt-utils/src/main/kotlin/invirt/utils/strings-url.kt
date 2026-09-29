@@ -2,8 +2,8 @@ package invirt.utils
 
 // Case-insensitive (RegexOption.IGNORE_CASE): scheme, `www.`, host and TLD all match regardless of
 // case. Matches an optional `http(s)://` and/or `www.` prefix, a `host.tld`, and an optional
-// path/query tail.
-private val REGEX_URL = """(https?://)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,32}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)"""
+// path/query tail. A host label may be a single character, as in x.com or t.co.
+private val REGEX_URL = """(https?://)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-z]{2,32}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)"""
     .toRegex(RegexOption.IGNORE_CASE)
 
 /** True when the entire string is a URL. Use [containsUrl] to detect a URL embedded in free text. */
