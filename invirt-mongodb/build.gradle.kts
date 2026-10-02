@@ -10,6 +10,7 @@ dependencies {
     val mongoDriverVersion = providers.gradleProperty("mongoDriverVersion").get()
     val awaitilityVersion = providers.gradleProperty("awaitilityVersion").get()
     val jacksonVersion = providers.gradleProperty("jacksonVersion").get()
+    val reflectionsVersion = providers.gradleProperty("reflectionsVersion").get()
 
     implementation(project(":invirt-utils"))
     implementation(project(":invirt-data"))
@@ -20,6 +21,9 @@ dependencies {
     api("io.mongock:mongock-api")
     implementation("io.mongock:mongock-standalone")
     implementation("io.mongock:mongodb-sync-v4-driver")
+    // The classpath scan Mongock runs for a package, which ChangeUnitScanner runs once and reuses. Held at the version
+    // mongock-runner-core 5.5.1 depends on, so declaring it leaves the Reflections every consumer resolves unchanged.
+    implementation("org.reflections:reflections:${reflectionsVersion}")
     constraints {
         // mongock-runner-core depends on maven-artifact 3.6.1, whose plexus-utils and commons-lang3 carry known CVEs
         implementation("org.codehaus.plexus:plexus-utils:3.6.1")

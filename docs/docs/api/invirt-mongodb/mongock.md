@@ -23,6 +23,22 @@ mongo.runMigrations(
 
 `dependencies` are registered with the Mongock runner and can be injected into migration classes.
 
+## Change unit discovery
+`runMigrations` finds a package's change units with the same classpath scan Mongock runs for a scan
+package (types in the package and its subpackages annotated with `@ChangeUnit` or the legacy
+`@ChangeLog`, plus their subtypes), and hands them to Mongock as explicit classes. The scan is kept per
+package and reused by later calls through the same context classloader, so a process that runs the
+same migrations many times, such as a test suite that boots an application per spec, scans once.
+Mongock still orders change units by their `order` and executes and records them as usual.
+
+Mongock scans the package itself instead when the package has no change units, or when the context
+classloader cannot resolve the scanned classes (Mongock resolves explicit classes by name through it,
+and would otherwise skip them without an error).
+
+Each run logs `Ran MongoDB migrations` with `packageName`, `changeUnits` (the number found),
+`discovery` (`scanned`, `cached` or `package-scan`), `discoveryMs` and `durationMs` (the Mongock run).
+`runMigration` logs the same message with `migrationClass` and `durationMs`.
+
 ## Migration interfaces
 Three convenience interfaces for the most common migration shapes. Implementations are picked up by
 package or class scan.
