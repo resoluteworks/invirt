@@ -13,8 +13,7 @@ It provides:
 * A bridge from Invirt's [`DataFilter`](/docs/api/invirt-data/data-filter) / [`Sort`](/docs/api/invirt-data/sort) /
   [`Page`](/docs/api/invirt-data/page) abstractions to native MongoDB constructs.
 * A cursor-based pagination helper for aggregation pipelines.
-* Helpers for [Atlas Search](https://www.mongodb.com/products/platform/atlas-search) and for running
-  [Mongock](https://www.mongock.io/) migrations.
+* Helpers for [Atlas Search](https://www.mongodb.com/products/platform/atlas-search).
 
 ## Dependency
 ```kotlin
@@ -114,5 +113,4 @@ See the API reference for the complete surface:
 * [Aggregates](/docs/api/invirt-mongodb/aggregates)
 * [Cursor pagination](/docs/api/invirt-mongodb/cursor)
 * [Atlas Search](/docs/api/invirt-mongodb/atlas)
-* [Mongock migrations](/docs/api/invirt-mongodb/mongock)
 * [Batch operations](/docs/api/invirt-mongodb/batch)

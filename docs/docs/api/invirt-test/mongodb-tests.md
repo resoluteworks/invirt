@@ -72,8 +72,8 @@ collection.setCreatedAt(id, Instant.now().minus(30, ChronoUnit.DAYS))
 
 ### Clearing collections between tests
 `clearCollections` deletes every document from every collection except rows matching `keep` and any
-collection whose name contains one of `skipCollectionNamesContaining` (the mongock bookkeeping
-collections by default). It deletes documents rather than dropping collections, so indices a migration
+collection whose name contains one of `skipCollectionNamesContaining` (none by default), such as a
+migration tool's bookkeeping collections. It deletes documents rather than dropping collections, so indices a migration
 created survive the truncation. A null `keep` deletes everything.
 
 ```kotlin

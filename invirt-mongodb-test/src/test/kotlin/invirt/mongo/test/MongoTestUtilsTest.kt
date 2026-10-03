@@ -22,18 +22,32 @@ class MongoTestUtilsTest : StringSpec() {
 
             val collectionA = mongo.database.getCollection<Doc>(uuid7())
             val collectionB = mongo.database.getCollection<Doc>(uuid7())
-            val mongockCollection = mongo.database.getCollection<Doc>("mongockChangeLog")
+            val historyCollection = mongo.database.getCollection<Doc>("migration-history")
 
             val kept = collectionA.insert(Doc(createdBy = "data-bootstrap"))
             collectionA.insert(Doc(createdBy = "user:1"))
             collectionB.insert(Doc(createdBy = "user:2"))
-            mongockCollection.insert(Doc(createdBy = "user:3"))
+            historyCollection.insert(Doc(createdBy = "user:3"))
 
-            mongo.clearCollections(keep = "createdBy".mongoEq("data-bootstrap"))
+            mongo.clearCollections(keep = "createdBy".mongoEq("data-bootstrap"), skipCollectionNamesContaining = listOf("history"))
 
             collectionA.find().toList().map { it.id } shouldBe listOf(kept.id)
             collectionB.countDocuments() shouldBe 0
-            mongockCollection.countDocuments() shouldBe 1
+            historyCollection.countDocuments() shouldBe 1
+        }
+
+        "clearCollections skips no collection by default" {
+            data class Doc(
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0
+            ) : VersionedDocument
+
+            val historyCollection = mongo.database.getCollection<Doc>("migration-history")
+            historyCollection.insert(Doc())
+
+            mongo.clearCollections()
+
+            historyCollection.countDocuments() shouldBe 0
         }
 
         "clearCollections with no keep filter deletes every document" {

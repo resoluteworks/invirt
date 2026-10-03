@@ -41,8 +41,3 @@ val updated = mongo.runInTransaction { session ->
     product
 }
 ```
-
-### Client session interop
-`invirt-mongodb` exposes a `JavaClientSession` typealias for `com.mongodb.client.ClientSession` and a
-`JavaClientSession.kotlin()` extension to convert it into the Kotlin driver's session type. This is
-used internally by the [Mongock migrations](/docs/api/invirt-mongodb/mongock) helpers.
