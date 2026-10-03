@@ -57,7 +57,9 @@ if [ -z "$tasks" ]; then
     exit 0
 fi
 
+# One module at a time: GitHub Packages answers some uploads with 409 when several modules publish at once, and a
+# module left half-published cannot be completed, because the registry refuses to overwrite a file of a release version.
 # Word splitting of $tasks is what turns it into one argument per task.
 # shellcheck disable=SC2086
-(cd "$repo_root" && ./gradlew $tasks)
+(cd "$repo_root" && ./gradlew --no-parallel $tasks)
 echo "publish: published invirt $version"

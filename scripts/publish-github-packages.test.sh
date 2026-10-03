@@ -51,7 +51,7 @@ fail() { echo "FAIL $1"; [ -f "$2/out" ] && sed 's/^/     /' "$2/out"; failures=
 
 # Nothing published yet: every module is published, in one Gradle run.
 repo=$(make_repo "invirtVersion = 1.2.3" "invirt-core invirt-bom" "")
-if run "$repo" && [ "$(cat "$repo/gradle.log")" = ":invirt-bom:publishMavenJavaPublicationToGitHubPackagesRepository :invirt-core:publishMavenJavaPublicationToGitHubPackagesRepository" ]; then
+if run "$repo" && [ "$(cat "$repo/gradle.log")" = "--no-parallel :invirt-bom:publishMavenJavaPublicationToGitHubPackagesRepository :invirt-core:publishMavenJavaPublicationToGitHubPackagesRepository" ]; then
     pass "publishes every module when none is published"
 else
     fail "publishes every module when none is published" "$repo"
@@ -66,7 +66,7 @@ fi
 
 # A partial earlier run: only the missing module is published.
 repo=$(make_repo "invirtVersion=1.2.3" "invirt-bom invirt-core" "invirt-bom 200")
-if run "$repo" && [ "$(cat "$repo/gradle.log")" = ":invirt-core:publishMavenJavaPublicationToGitHubPackagesRepository" ]; then
+if run "$repo" && [ "$(cat "$repo/gradle.log")" = "--no-parallel :invirt-core:publishMavenJavaPublicationToGitHubPackagesRepository" ]; then
     pass "publishes only the modules that are missing"
 else
     fail "publishes only the modules that are missing" "$repo"
@@ -93,7 +93,7 @@ fi
 # Only include("...") lines name modules: comments and other settings are not modules.
 repo=$(make_repo "invirtVersion = 1.2.3" "invirt-core" "")
 printf '// include("invirt-old")\nplugins { id("foo") }\n' >> "$repo/settings.gradle.kts"
-if run "$repo" && [ "$(cat "$repo/gradle.log")" = ":invirt-core:publishMavenJavaPublicationToGitHubPackagesRepository" ]; then
+if run "$repo" && [ "$(cat "$repo/gradle.log")" = "--no-parallel :invirt-core:publishMavenJavaPublicationToGitHubPackagesRepository" ]; then
     pass "reads modules only from include lines"
 else
     fail "reads modules only from include lines" "$repo"
