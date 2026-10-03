@@ -85,6 +85,10 @@ is not case-sensitive.
 Returns a [Page](/docs/api/invirt-data/page#page) object from the query parameters `from` and `size`,
 or a `Page` with the values from the default arguments when one or both these parameters are missing (see Declaration below).
 
+The size is capped at `maxSize`, and a `size` below 1 falls back to `defaultSize`. `from` is at least 0 and
+aligned down to a multiple of the size, as `Page` requires, so an offset written for another page size
+(`?from=30` on a listing of 20 per page) returns the page that holds it.
+
 
 <Tabs>
 <TabItem value="example" label="Example" default>

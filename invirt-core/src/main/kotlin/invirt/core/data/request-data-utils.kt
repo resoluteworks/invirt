@@ -15,6 +15,10 @@ internal val sortQuery = Query.optional("sort")
  * Returns a [Page] object from this request's query parameters `from` and `size`.
  * When any of the parameters are missing, the default values are used.
  *
+ * A `size` below 1 falls back to [defaultSize]. The offset is at least 0 and aligned down to a multiple of
+ * the size, which [Page] requires: a `from` written for another page size (a hand-edited link, or a size
+ * capped at [maxSize]) returns the page that holds that offset instead of failing.
+ *
  * @param defaultFrom The [Page.from] to return when `from` query parameter. Defaults to 0
  * @param defaultSize The [Page.size] to return when `size` query parameter. Defaults to 10
  * @param maxSize Maximum size allowed to be passed via the `size` query parameter. Any value greater
@@ -25,11 +29,11 @@ fun Request.page(
     defaultSize: Int = 10,
     maxSize: Int = defaultSize
 ): Page {
-    val from = fromQuery(this)
-    val size = sizeQuery(this)
+    val size = (sizeQuery(this)?.takeIf { it > 0 } ?: defaultSize).coerceAtMost(maxSize)
+    val from = (fromQuery(this) ?: defaultFrom).coerceAtLeast(0)
     return Page(
-        from = from ?: defaultFrom,
-        size = (size ?: defaultSize).coerceAtMost(maxSize)
+        from = from - from % size,
+        size = size
     )
 }
 
