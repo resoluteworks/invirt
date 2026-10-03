@@ -12,6 +12,7 @@ env:
 
 test:
 	./gradlew clean test jacocoRootReport
+	./scripts/publish-github-packages.test.sh
 	./gradlew coverallsJacoco
 
 docs-serve:
@@ -24,7 +25,7 @@ publish:
 	./gradlew publishAggregationToCentralPortal
 
 publish-local:
-	./gradlew publish
+	./gradlew publishToMavenLocal
 
 release: publish-local publish
 	@echo $(invirtVersion)

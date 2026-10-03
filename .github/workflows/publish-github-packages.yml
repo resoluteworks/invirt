@@ -1,0 +1,38 @@
+name: Publish to GitHub Packages
+
+# Publishes invirtVersion to GitHub Packages, the registry downstream consumers resolve invirt from. Maven
+# Central gets only the releases cut by hand with `make release`. A push that does not bump the version
+# publishes nothing: scripts/publish-github-packages.sh skips every module whose version is already there.
+
+permissions:
+  contents: read
+  packages: write
+
+on:
+  push:
+    branches:
+      - "main"
+
+# Two pushes in quick succession must not race to upload the same version.
+concurrency:
+  group: publish-github-packages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Set up JDK
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+      - name: Publish missing modules
+        run: ./scripts/publish-github-packages.sh
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

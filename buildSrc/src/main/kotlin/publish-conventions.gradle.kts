@@ -9,6 +9,18 @@ publishing {
 
     repositories {
         mavenLocal()
+
+        // The registry downstream consumers resolve every invirt version from, Maven Central carrying only the
+        // releases cut with `make release`. The publish-github-packages workflow is the only writer: it runs
+        // with the GITHUB_TOKEN of a GitHub Actions run, which is where both variables come from.
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/resoluteworks/invirt")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
     }
 
     publications {
@@ -41,6 +53,10 @@ publishing {
 }
 
 signing {
+    // A developer machine holds the signing key and signs every publication, which Maven Central requires.
+    // The publish workflow has no key, and GitHub Packages does not ask for signatures, so there the
+    // signing tasks are skipped.
+    isRequired = providers.gradleProperty("signing.keyId").isPresent
     sign(publishing.publications["mavenJava"])
 }
 

@@ -3,27 +3,54 @@
 Open-source Kotlin web toolkit (http4k + Pebble + MongoDB) in the `dev.invirt` namespace. Consumed by
 downstream libraries and applications.
 
-## Local publishing (read this before changing anything a consumer depends on)
+## Publishing (read this before changing anything a consumer depends on)
 
-invirt is published to **Maven Central**, but locally it is consumed from **mavenLocal**, which downstream
-builds (libraries, apps) list *before* mavenCentral. So a local change flows through mavenLocal, not Central.
+invirt publishes to three places, each for a different reader:
 
-Consumers form a chain (**invirt → downstream library → application**). Each hop resolves the one below from mavenLocal first.
+| Where | How | Who reads it |
+|---|---|---|
+| **mavenLocal** | `make publish-local` (`./gradlew publishToMavenLocal`) | downstream builds on the maintainer's machine, which list mavenLocal first |
+| **GitHub Packages** (`https://maven.pkg.github.com/resoluteworks/invirt`) | automatic: `.github/workflows/publish-github-packages.yml` on every push to `main` | downstream GitHub Actions runs, which have no mavenLocal |
+| **Maven Central** | `make release`, by hand, and only on the maintainer's explicit say-so | everyone else |
 
-To get a change into a consumer:
+GitHub Packages carries **every** version and Central only a deliberate subset. Central caps an organisation
+at 7 releases, 1,167 files and 78 MB a month
+(https://central.sonatype.org/publish/maven-central-publishing-limits/). One invirt release is about 260
+files (Central lists 25 per module: jar, sources, javadoc, POM and Gradle module, each signed and
+checksummed; 10 for the BOM), so the file cap allows about four releases a month, while invirt has shipped a
+dozen versions in two weeks. Day-to-day versions therefore never go to Central; the downstream repos do not
+need them there.
 
-1. **Bump `invirtVersion`** in `gradle.properties`. Do not republish the same version - Gradle treats a
-   release version as immutable and will keep serving the cached (Central or previous-local) artifact, so
-   the consumer silently won't see your change. Bumping forces clean re-resolution.
-2. **`make publish-local`** (from the invirt root) - this runs `./gradlew publish`, whose only configured
-   repository is `mavenLocal()` (see `buildSrc/.../publish-conventions.gradle.kts`). It signs the
-   publication, so a GPG signing key must be configured (it is on the maintainer's machine).
-3. **Bump the matching `invirtVersion` in the consumer** (every downstream library's and/or application's `gradle.properties`)
-   to the new version, so it resolves your freshly-published local build.
+Consumers form a chain (**invirt -> downstream library -> application**). To get a change into a consumer:
 
-A locally-published version exists only in mavenLocal until you cut a real release (`make release`, which
-tags and lets CI publish to Central). Until then, other machines / CI can't resolve it - keep that in mind
-before depending on a local-only bump from something that has to build elsewhere.
+1. **Bump `invirtVersion`** in `gradle.properties`. Never republish the same version: Gradle treats a release
+   version as immutable and keeps serving the cached artifact, and GitHub Packages rejects a second upload of a
+   version with a 409.
+2. **`make publish-local`** from the invirt root. It signs the publication with the GPG key configured in
+   `~/.gradle/gradle.properties` on the maintainer's machine.
+3. **Bump the matching `invirtVersion` in the consumer** (every downstream library's and application's `gradle.properties`).
+4. **Commit and push invirt to `main`** before pushing any consumer. The publish workflow uploads the new
+   version to GitHub Packages (a couple of minutes; `gh run watch` on its run), and only then can the
+   consumers' CI resolve it. A push that does not bump the version publishes nothing:
+   `scripts/publish-github-packages.sh` checks each module's POM and publishes only the missing ones, so a
+   re-run after a partial failure completes the version.
+
+`make release` (Central) is separate from all of this: it publishes the current version to mavenLocal and to
+Central through the nmcp aggregation, then tags `v<version>`, and the tag's `release.yml` creates the GitHub
+release. Tags and GitHub releases therefore mark Central releases only. Never run `make release` or
+`make publish` unless the maintainer asks for a Central release by name.
+
+Signing: `publish-conventions` makes signing required only where `signing.keyId` is set. The workflow has no
+key and GitHub Packages does not ask for signatures, so CI publishes unsigned; Central rejects an unsigned
+upload, which is why `make release` runs on the maintainer's machine.
+
+Reading GitHub Packages needs a token even for a public package: the consumers declare the registry with a
+classic PAT with `read:packages` (exported from `~/.zshenv` locally and
+held as an Actions secret in each consuming repo). The publish workflow writes with the run's own
+`GITHUB_TOKEN`, so invirt needs no secret.
+
+`make test` runs `scripts/publish-github-packages.test.sh` (no network, fake `curl` and `gradlew`) after the
+Gradle suite, then uploads coverage to Coveralls.
 
 ## Conventions
 
