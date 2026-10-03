@@ -1,9 +1,8 @@
 package invirt.mongodb.mongock.migrations.modelrollback
 
+import com.mongodb.client.model.Indexes
 import invirt.mongodb.JavaClientSession
 import invirt.mongodb.Mongo
-import invirt.mongodb.asc
-import invirt.mongodb.createIndices
 import invirt.mongodb.mongock.ModelAndDataMigration
 import invirt.mongodb.mongock.migrations.Company
 import io.mongock.api.annotations.BeforeExecution
@@ -18,9 +17,7 @@ class V1_CreateIndexWithRollback : ModelAndDataMigration {
 
     @BeforeExecution
     override fun model(mongo: Mongo) {
-        mongo.database.getCollection<Company>(Company.COLLECTION).createIndices(
-            Company::name.asc()
-        )
+        mongo.database.getCollection<Company>(Company.COLLECTION).createIndex(Indexes.ascending(Company::name.name))
     }
 
     @RollbackBeforeExecution

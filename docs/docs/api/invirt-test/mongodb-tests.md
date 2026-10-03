@@ -46,7 +46,7 @@ collection.shouldHaveTextIndex("title", "description")
 collection.shouldHaveTimestampedIndices()  // version asc, createdAt/updatedAt desc
 collection.shouldHaveTtlIndex("expiresAt", expireAfterSeconds = 3600)
 collection.shouldHavePartialUniqueIndex(listOf("organisationId", "email"), Document("status", "PENDING"))
-collection.shouldHaveCompoundIndex("organisationId".ascKey(), "createdAt".descKey())  // exact key, 2+ fields
+collection.shouldHaveCompoundIndex(Indexes.ascending("organisationId"), Indexes.descending("createdAt"))  // exact key, 2+ fields
 
 updated shouldBeUpdateOf previous            // updatedAt later AND version greater
 updated shouldBeNextUpdateOf previous        // updatedAt later AND version == previous.version + 1

@@ -1,5 +1,7 @@
 package invirt.mongodb.mongock
 
+import com.mongodb.client.model.IndexModel
+import com.mongodb.client.model.Indexes
 import invirt.mongo.test.shouldHaveAscIndex
 import invirt.mongo.test.shouldHaveDescIndex
 import invirt.mongo.test.shouldHaveTimestampedIndices
@@ -7,8 +9,6 @@ import invirt.mongo.test.shouldNotHaveAscIndex
 import invirt.mongo.test.testMongo
 import invirt.mongodb.Mongo
 import invirt.mongodb.TimestampedDocument
-import invirt.mongodb.asc
-import invirt.mongodb.createIndices
 import invirt.mongodb.mongock.migrations.Company
 import invirt.mongodb.mongock.migrations.ordered.A_RunsSecond
 import invirt.mongodb.mongock.migrations.ordered.B_RunsFirst
@@ -129,9 +129,10 @@ class SingleClassMigration : ModelMigration {
 
     @BeforeExecution
     override fun model(mongo: Mongo) {
-        mongo.database.getCollection<Company>(Company.COLLECTION).createIndices(
-            Company::name.asc(),
+        val companyIndices = listOf(
+            IndexModel(Indexes.ascending(Company::name.name)),
             *TimestampedDocument.allIndices()
         )
+        mongo.database.getCollection<Company>(Company.COLLECTION).createIndexes(companyIndices)
     }
 }

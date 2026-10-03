@@ -51,9 +51,11 @@ For schema-style changes that cannot run inside a transaction (e.g. index creati
 ```kotlin
 class CreateProductIndexes : ModelMigration {
     override fun model(mongo: Mongo) {
-        mongo.database.getCollection<Product>("products").createIndices(
-            Product::name.asc(),
-            *TimestampedDocument.allIndices()
+        mongo.database.getCollection<Product>("products").createIndexes(
+            listOf(
+                IndexModel(Indexes.ascending(Product::name.name)),
+                *TimestampedDocument.allIndices()
+            )
         )
     }
 }

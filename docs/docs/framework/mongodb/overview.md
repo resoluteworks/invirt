@@ -65,14 +65,15 @@ automatically. See [Collection operations](/docs/api/invirt-mongodb/collection) 
 
 ## Indexes
 
-Indexes can be defined fluently from a string or a `KProperty`:
+Indexes are built with the MongoDB driver's own `Indexes` and `IndexOptions`:
 
 ```kotlin
-collection.createIndices(
-    Product::name.asc(),
-    Product::priceMinor.desc(),
-    Product::name.asc { caseInsensitive() },
-    *TimestampedDocument.allIndices()
+collection.createIndexes(
+    listOf(
+        IndexModel(Indexes.ascending(Product::name.name), IndexOptions().collation(caseInsensitive())),
+        IndexModel(Indexes.descending(Product::priceMinor.name)),
+        *TimestampedDocument.allIndices()
+    )
 )
 ```
 
@@ -110,7 +111,6 @@ See the API reference for the complete surface:
 
 * [Collection operations](/docs/api/invirt-mongodb/collection)
 * [Filters and sorts](/docs/api/invirt-mongodb/filters)
-* [Indexes](/docs/api/invirt-mongodb/indexes)
 * [Aggregates](/docs/api/invirt-mongodb/aggregates)
 * [Cursor pagination](/docs/api/invirt-mongodb/cursor)
 * [Atlas Search](/docs/api/invirt-mongodb/atlas)

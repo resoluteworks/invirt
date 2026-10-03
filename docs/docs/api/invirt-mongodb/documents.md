@@ -51,7 +51,7 @@ data class Product(
     override var updatedAt: Instant = mongoNow()
 ) : TimestampedDocument
 
-collection.createIndices(*TimestampedDocument.allIndices())
+collection.createIndexes(TimestampedDocument.allIndices().toList())
 ```
 
 `mongoNow()` returns the current time truncated to millisecond precision &mdash; matching the storage

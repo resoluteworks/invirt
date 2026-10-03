@@ -1,6 +1,7 @@
 package invirt.mongodb
 
 import com.mongodb.client.model.IndexModel
+import com.mongodb.client.model.Indexes
 import java.time.Instant
 
 /**
@@ -15,7 +16,7 @@ interface VersionedDocument {
     var version: Long
 
     companion object {
-        fun versionIndex(): IndexModel = VersionedDocument::version.asc()
+        fun versionIndex(): IndexModel = IndexModel(Indexes.ascending(VersionedDocument::version.name))
     }
 }
 
@@ -30,13 +31,13 @@ interface TimestampedDocument : VersionedDocument {
 
     companion object {
         fun timestampIndicesList(): List<IndexModel> = listOf(
-            TimestampedDocument::createdAt.desc(),
-            TimestampedDocument::updatedAt.desc()
+            IndexModel(Indexes.descending(TimestampedDocument::createdAt.name)),
+            IndexModel(Indexes.descending(TimestampedDocument::updatedAt.name))
         )
 
         fun timestampIndices(): Array<IndexModel> = arrayOf(
-            TimestampedDocument::createdAt.desc(),
-            TimestampedDocument::updatedAt.desc()
+            IndexModel(Indexes.descending(TimestampedDocument::createdAt.name)),
+            IndexModel(Indexes.descending(TimestampedDocument::updatedAt.name))
         )
 
         fun allIndices(): Array<IndexModel> = arrayOf(

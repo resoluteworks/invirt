@@ -1,11 +1,8 @@
 package invirt.mongo.test
 
+import com.mongodb.client.model.IndexOptions
+import com.mongodb.client.model.Indexes
 import invirt.mongodb.VersionedDocument
-import invirt.mongodb.asc
-import invirt.mongodb.ascKey
-import invirt.mongodb.compoundIndex
-import invirt.mongodb.createIndices
-import invirt.mongodb.descKey
 import invirt.mongodb.mongoNow
 import invirt.utils.uuid7
 import io.kotest.assertions.shouldFail
@@ -33,7 +30,7 @@ class MongoAssertionsTest : StringSpec() {
             ) : VersionedDocument
 
             val collection = mongo.database.getCollection<Doc>(uuid7())
-            collection.createIndices("expiresAt".asc { expireAfter(3600L, TimeUnit.SECONDS) })
+            collection.createIndex(Indexes.ascending("expiresAt"), IndexOptions().expireAfter(3600L, TimeUnit.SECONDS))
 
             collection.shouldHaveTtlIndex("expiresAt", expireAfterSeconds = 3600)
 
@@ -55,15 +52,15 @@ class MongoAssertionsTest : StringSpec() {
 
             val collection = mongo.database.getCollection<Doc>(uuid7())
             val pendingFilter = Document("status", "PENDING")
-            collection.createIndices(
-                compoundIndex(Doc::organisationId.ascKey(), Doc::invitedEmail.ascKey()) {
-                    unique(true).partialFilterExpression(pendingFilter)
-                },
-                // A wider unique+partial index over an extra field, so the assertion is proven not to pass
-                // merely because the named fields are present among others.
-                compoundIndex(Doc::organisationId.ascKey(), Doc::invitedEmail.ascKey(), Doc::status.ascKey()) {
-                    unique(true).partialFilterExpression(Document("status", "ACCEPTED"))
-                }
+            collection.createIndex(
+                Indexes.ascending(Doc::organisationId.name, Doc::invitedEmail.name),
+                IndexOptions().unique(true).partialFilterExpression(pendingFilter)
+            )
+            // A wider unique+partial index over an extra field, so the assertion is proven not to pass
+            // merely because the named fields are present among others.
+            collection.createIndex(
+                Indexes.ascending(Doc::organisationId.name, Doc::invitedEmail.name, Doc::status.name),
+                IndexOptions().unique(true).partialFilterExpression(Document("status", "ACCEPTED"))
             )
 
             collection.shouldHavePartialUniqueIndex(listOf("organisationId", "invitedEmail"), pendingFilter)
@@ -86,22 +83,24 @@ class MongoAssertionsTest : StringSpec() {
             ) : VersionedDocument
 
             val collection = mongo.database.getCollection<Doc>(uuid7())
-            collection.createIndices(compoundIndex(Doc::organisationId.ascKey(), Doc::createdAt.descKey()))
+            collection.createIndex(
+                Indexes.compoundIndex(Indexes.ascending(Doc::organisationId.name), Indexes.descending(Doc::createdAt.name))
+            )
 
-            collection.shouldHaveCompoundIndex(Doc::organisationId.ascKey(), Doc::createdAt.descKey())
+            collection.shouldHaveCompoundIndex(Indexes.ascending(Doc::organisationId.name), Indexes.descending(Doc::createdAt.name))
 
             shouldFail {
-                collection.shouldHaveCompoundIndex(Doc::createdAt.descKey(), Doc::organisationId.ascKey())
+                collection.shouldHaveCompoundIndex(Indexes.descending(Doc::createdAt.name), Indexes.ascending(Doc::organisationId.name))
             }.message shouldContain "expected a compound index with key"
 
             shouldFail {
-                collection.shouldHaveCompoundIndex(Doc::organisationId.ascKey(), Doc::createdAt.ascKey())
+                collection.shouldHaveCompoundIndex(Indexes.ascending(Doc::organisationId.name), Indexes.ascending(Doc::createdAt.name))
             }.message shouldContain "expected a compound index with key"
 
             shouldThrowWithMessage<IllegalArgumentException>(
                 "shouldHaveCompoundIndex needs at least 2 keys to assert a compound index, got 1"
             ) {
-                collection.shouldHaveCompoundIndex(Doc::organisationId.ascKey())
+                collection.shouldHaveCompoundIndex(Indexes.ascending(Doc::organisationId.name))
             }
         }
 

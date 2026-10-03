@@ -1,9 +1,9 @@
 package invirt.mongodb.mongock.migrations.model
 
+import com.mongodb.client.model.IndexModel
+import com.mongodb.client.model.Indexes
 import invirt.mongodb.Mongo
 import invirt.mongodb.TimestampedDocument
-import invirt.mongodb.asc
-import invirt.mongodb.createIndices
 import invirt.mongodb.mongock.ModelMigration
 import invirt.mongodb.mongock.migrations.Company
 import io.mongock.api.annotations.BeforeExecution
@@ -15,9 +15,10 @@ class V1_CreateIndex : ModelMigration {
 
     @BeforeExecution
     override fun model(mongo: Mongo) {
-        mongo.database.getCollection<Company>(Company.COLLECTION).createIndices(
-            Company::name.asc(),
+        val companyIndices = listOf(
+            IndexModel(Indexes.ascending(Company::name.name)),
             *TimestampedDocument.allIndices()
         )
+        mongo.database.getCollection<Company>(Company.COLLECTION).createIndexes(companyIndices)
     }
 }

@@ -1,5 +1,7 @@
 package invirt.mongodb
 
+import com.mongodb.client.model.IndexOptions
+import com.mongodb.client.model.Indexes
 import invirt.data.Page
 import invirt.data.sortAsc
 import invirt.data.sortDesc
@@ -122,9 +124,7 @@ class PagedQueryTest : StringSpec() {
             ) : VersionedDocument
 
             val collection = mongo.randomTestCollection<TestDocument>()
-            collection.createIndices(
-                TestDocument::name.asc { caseInsensitive() }
-            )
+            collection.createIndex(Indexes.ascending(TestDocument::name.name), IndexOptions().collation(caseInsensitive()))
             collection.insertMany(
                 listOf(
                     TestDocument("Apple"),
