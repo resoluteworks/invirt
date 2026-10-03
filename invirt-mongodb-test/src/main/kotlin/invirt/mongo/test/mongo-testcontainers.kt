@@ -1,5 +1,6 @@
 package invirt.mongo.test
 
+import com.mongodb.MongoClientSettings
 import invirt.mongodb.Mongo
 import invirt.utils.uuid7
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -19,22 +20,30 @@ private val mongoAtlasExtension = TestContainerProjectExtension(
     container = MongoDBAtlasLocalContainer("mongodb/mongodb-atlas-local:8.0.17")
 )
 
-fun Spec.testMongo(): Mongo {
+/**
+ * A [Mongo] on a new database of the shared test container. [configureClient] is applied to the client's settings, for
+ * example to install a command listener.
+ */
+fun Spec.testMongo(configureClient: MongoClientSettings.Builder.() -> Unit = {}): Mongo {
     val container = install(mongoExtension)
     val connectionString = container.connectionString + "/${uuid7()}"
     log.info { "Test Mongo connection string is $connectionString" }
-    val mongo = Mongo(connectionString)
+    val mongo = Mongo(connectionString, configureClient)
     afterSpec {
         mongo.close()
     }
     return mongo
 }
 
-fun Spec.testMongoAtlas(): Mongo {
+/**
+ * A [Mongo] on a new database of the shared test container. [configureClient] is applied to the client's settings, for
+ * example to install a command listener.
+ */
+fun Spec.testMongoAtlas(configureClient: MongoClientSettings.Builder.() -> Unit = {}): Mongo {
     val container = install(mongoAtlasExtension)
     val connectionString = "mongodb://localhost:${container.getMappedPort(27017)}/${uuid7()}"
     log.info { "Test Mongo connection string is $connectionString" }
-    val mongo = Mongo(connectionString)
+    val mongo = Mongo(connectionString, configureClient)
     afterSpec {
         mongo.close()
     }

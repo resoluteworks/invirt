@@ -1,5 +1,7 @@
 package invirt.mongodb
 
+import com.mongodb.ConnectionString
+import com.mongodb.MongoClientSettings
 import com.mongodb.TransactionOptions
 import com.mongodb.WriteConcern
 import com.mongodb.kotlin.client.ClientSession
@@ -15,9 +17,14 @@ private val log = KotlinLogging.logger {}
 /**
  * Represents a connection to a MongoDB database.
  * @param connectionString The connection string to the MongoDB database.
+ * @param configureClient Applied to the client's settings after the connection string, for what a connection string
+ * cannot express, such as a command listener a test installs.
  * @throws IllegalArgumentException If the connection string is missing the database name.
  */
-class Mongo(val connectionString: String) {
+class Mongo(
+    val connectionString: String,
+    private val configureClient: MongoClientSettings.Builder.() -> Unit = {}
+) {
 
     val databaseName: String = URI(connectionString).path.replace("^/".toRegex(), "")
 
@@ -27,7 +34,12 @@ class Mongo(val connectionString: String) {
      * client rather than from a second one created for the same connection string.
      */
     val mongoClient: MongoClient by lazy {
-        MongoClient.create(connectionString)
+        MongoClient.create(
+            MongoClientSettings.builder()
+                .applyConnectionString(ConnectionString(connectionString))
+                .apply(configureClient)
+                .build()
+        )
     }
 
     val database: MongoDatabase by lazy {
