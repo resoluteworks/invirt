@@ -21,7 +21,12 @@ class Mongo(val connectionString: String) {
 
     val databaseName: String = URI(connectionString).path.replace("^/".toRegex(), "")
 
-    internal val mongoClient: MongoClient by lazy {
+    /**
+     * The driver client behind [database]. A session works only with collections of the client that started it, so
+     * code that opens its own sessions for this database (a migration runner, a job framework) is built from this
+     * client rather than from a second one created for the same connection string.
+     */
+    val mongoClient: MongoClient by lazy {
         MongoClient.create(connectionString)
     }
 
