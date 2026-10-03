@@ -3,7 +3,7 @@ include gradle.properties
 test:
 	./gradlew clean test jacocoRootReport
 	./scripts/publish-github-packages.test.sh
-	./gradlew coverallsJacoco
+	COVERALLS_REPO_TOKEN=$$COVERALLS_INVIRT ./gradlew coverallsJacoco
 
 docs-serve:
 	cd docs && npx docusaurus start

@@ -50,7 +50,7 @@ held as an Actions secret in each consuming repo). The publish workflow writes w
 `GITHUB_TOKEN`, so invirt needs no secret.
 
 `make test` runs `scripts/publish-github-packages.test.sh` (no network, fake `curl` and `gradlew`) after the
-Gradle suite, then uploads coverage to Coveralls.
+Gradle suite, then uploads coverage to Coveralls with the `COVERALLS_INVIRT` token exported from `~/.zshenv`.
 
 ## Conventions
 
