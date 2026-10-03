@@ -108,8 +108,8 @@ whose filter *is* the concurrency control, and `update` the tool for saving an e
 ```kotlin
 // Exactly one of the racing callers gets a document back
 val won = orders.versionedFindOneAndUpdate(
-    mongoAnd(mongoById(id), Filters.ne(Order::remindersSent.name, threshold)),
-    Updates.addEachToSet(Order::remindersSent.name, crossed)
+    mongoAnd(mongoById(id), Filters.ne(Order::remindersSent.name, reminder)),
+    Updates.addToSet(Order::remindersSent.name, reminder)
 ) != null
 ```
 
