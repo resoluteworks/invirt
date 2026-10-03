@@ -69,6 +69,14 @@ class UriTest : StringSpec({
             .toString() shouldBe "/test?q=nothing&size=5&from=100"
     }
 
+    "replaceQuery with resetPagination" {
+        Uri.of("/test").replaceQuery("filter", "b", true).toString() shouldBe "/test?filter=b"
+        Uri.of("/test?filter=a&from=20&size=50").replaceQuery("filter", "b", true).toString() shouldBe "/test?filter=b"
+        Uri.of("/test?q=x&filter=a&from=20&size=50").replaceQuery("filter", "b", true).toString() shouldBe "/test?q=x&filter=b"
+        Uri.of("/test?q=x&filter=a&from=20&size=50").replaceQuery("filter", "b", false)
+            .toString() shouldBe "/test?q=x&from=20&size=50&filter=b"
+    }
+
     "hasQueryParam" {
         Uri.of("/test?q=nothing&from=0&size=1").hasQueryParam("q") shouldBe true
         Uri.of("/test?Q=nothing&from=0&size=1").hasQueryParam("q") shouldBe true

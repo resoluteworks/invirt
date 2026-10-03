@@ -112,17 +112,25 @@ Removes all query parameters with the given names (regardless of value).
 ### replaceQuery
 Replaces the given query parameters with new values. All other query params are left unchanged.
 
+The single-parameter form takes a `resetPagination` flag. With `true`, pagination (`from`/`size`) is
+dropped as well, as [`replaceSort`](#replacesort) does, so a filter link starts the listing again from its
+first page instead of keeping an offset into the previous result set.
+
 <Tabs>
   <TabItem value="example" label="Example" default>
     ```kotlin
     // "/test?q=John&size=10"
     Uri.of("/test?q=nothing&size=5").replaceQuery("q" to "John", "size" to "10")
+
+    // "/test?type=company"
+    Uri.of("/test?type=person&from=40&size=20").replaceQuery("type", "company", resetPagination = true)
     ```
   </TabItem>
   <TabItem value="declaration" label="Declaration">
     ```kotlin
     fun Uri.replaceQuery(vararg queryValues: Pair<String, Any>): Uri
     fun Uri.replaceQuery(queries: Map<String, Any>): Uri
+    fun Uri.replaceQuery(name: String, value: Any, resetPagination: Boolean): Uri
     ```
   </TabItem>
 </Tabs>

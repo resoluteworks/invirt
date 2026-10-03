@@ -22,6 +22,7 @@ class InvirtRequest(val delegate: Request) : Request by delegate {
     fun toggleQueryValue(name: String, value: Any): Uri = delegate.uri.toggleQueryValue(name, value)
     fun replacePage(page: Page): Uri = delegate.uri.replacePage(page)
     fun replaceQuery(name: String, value: Any): Uri = delegate.uri.replaceQuery(name to value)
+    fun replaceQuery(name: String, value: Any, resetPagination: Boolean): Uri = delegate.uri.replaceQuery(name, value, resetPagination)
     fun removeQueryValue(name: String, value: Any): Uri = delegate.uri.removeQueryValue(name, value)
     fun removeQueries(names: Collection<String>): Uri = delegate.uri.removeQueries(names)
     fun csvAppend(name: String, value: Any): Uri = delegate.uri.csvAppend(name, value)

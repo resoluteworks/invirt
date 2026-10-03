@@ -42,6 +42,13 @@ resolve Kotlin extension functions), for [URI manipulation](/docs/api/invirt-cor
 {% endif %}
 ```
 
+On a paginated listing, pass `true` as a third argument to also drop `from` and `size`, so the filtered
+listing starts again from its first page:
+
+```html
+<a href="{{ request.replaceQuery('type', 'company', true) }}">Show companies</a>
+```
+
 ## Access from a handler
 Inside a handler the request is available as the lambda argument, so there is no need for a thread-local
 or context lookup.

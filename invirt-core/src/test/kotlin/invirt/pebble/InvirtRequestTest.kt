@@ -21,6 +21,12 @@ class InvirtRequestTest : StringSpec() {
             testRequestFunction("replaceQuery", "/test?size=100&from=0", "/test?size=100&from=10")
         }
 
+        "replaceQuery with resetPagination" {
+            testRequestFunction("replaceQueryResetPagination", "/test", "/test?filter=b")
+            testRequestFunction("replaceQueryResetPagination", "/test?filter=a&from=20&size=50", "/test?filter=b")
+            testRequestFunction("replaceQueryResetPagination", "/test?q=x&from=20&filter=a", "/test?q=x&filter=b")
+        }
+
         "revertOrSetSort" {
             testRequestFunction("revertOrSetSort", "/test", "/test?sort=createdAt%3Aasc")
             testRequestFunction("revertOrSetSort", "/test?sort=createdAt:asc", "/test?sort=createdAt%3Adesc")

@@ -64,6 +64,15 @@ fun Uri.replaceQuery(queries: Map<String, Any>): Uri {
     return uri
 }
 
+fun Uri.replaceQuery(name: String, value: Any, resetPagination: Boolean): Uri {
+    val uri = replaceQuery(name to value)
+    return if (resetPagination) {
+        uri.removeQueries(listOf("from", "size"))
+    } else {
+        uri
+    }
+}
+
 fun Uri.csvQuery(name: String): List<String> = queryValue(name)?.split(",") ?: emptyList()
 
 fun Uri.csvAppend(name: String, value: Any): Uri = replaceQuery(
