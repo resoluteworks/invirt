@@ -4,10 +4,17 @@ permissions:
   contents: write
   pages: write
 
+# A pull request that touches the docs site (Dependabot's monthly docs group above all) builds it, so a broken
+# dependency set shows as a failed check on the PR instead of on main. Only a push to main deploys.
 on:
   push:
     branches:
       - "main"
+  pull_request:
+    paths:
+      - "docs/**"
+      - "Makefile"
+      - ".github/workflows/publish-docs.yml"
 
 jobs:
   publish:
@@ -18,7 +25,7 @@ jobs:
       - name: Generate Documentation
         run: make docs-build
       - name: Deploy to GitHub Pages
-        if: success()
+        if: success() && github.event_name == 'push'
         uses: crazy-max/ghaction-github-pages@v4.0.0
         with:
           target_branch: gh-pages

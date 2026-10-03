@@ -16,10 +16,10 @@ test:
 	./gradlew coverallsJacoco
 
 docs-serve:
-	cd docs; npx docusaurus start
+	cd docs && npx docusaurus start
 
 docs-build:
-	cd docs; npm install; npm run build
+	cd docs && npm install && npm run build
 
 publish:
 	./gradlew publishAggregationToCentralPortal
