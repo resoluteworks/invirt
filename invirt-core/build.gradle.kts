@@ -20,7 +20,6 @@ dependencies {
     implementation("org.http4k:http4k-core")
     implementation("org.http4k:http4k-format-jackson")
     implementation("org.http4k:http4k-multipart")
-    implementation("org.http4k:http4k-server-netty")
     implementation("org.http4k:http4k-template-pebble")
 
     implementation("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")

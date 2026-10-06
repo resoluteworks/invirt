@@ -1,7 +1,7 @@
 name: Dependency submission
 
 # Uploads the resolved Gradle dependency graph so Dependabot alerts cover the runtime dependencies
-# invirt ships (http4k, Jackson, Netty, the MongoDB and Kafka clients), not only the docs site's npm lockfile.
+# invirt ships (http4k, Jackson, the MongoDB and Kafka clients), not only the docs site's npm lockfile.
 # GitHub cannot read a Gradle build on its own; without this submission the dependency graph holds zero Maven packages.
 #
 # The graph is scoped to runtimeClasspath and excludes buildSrc, so the alerts describe what a consumer of
