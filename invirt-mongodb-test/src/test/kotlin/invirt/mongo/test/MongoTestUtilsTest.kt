@@ -1,5 +1,6 @@
 package invirt.mongo.test
 
+import com.mongodb.client.model.Filters
 import invirt.mongodb.VersionedDocument
 import invirt.mongodb.insert
 import invirt.mongodb.mongoEq
@@ -34,6 +35,24 @@ class MongoTestUtilsTest : StringSpec() {
             collectionA.find().toList().map { it.id } shouldBe listOf(kept.id)
             collectionB.countDocuments() shouldBe 0
             historyCollection.countDocuments() shouldBe 1
+        }
+
+        "clearCollections keeps every row matching a keep filter that combines several fields" {
+            data class Doc(
+                val createdBy: String,
+                val pinned: Boolean? = null,
+                @BsonId override val id: String = uuid7(),
+                override var version: Long = 0
+            ) : VersionedDocument
+
+            val collection = mongo.database.getCollection<Doc>(uuid7())
+            val seeded = collection.insert(Doc(createdBy = "seed"))
+            val pinned = collection.insert(Doc(createdBy = "user:1", pinned = true))
+            collection.insert(Doc(createdBy = "user:2"))
+
+            mongo.clearCollections(keep = Filters.or("createdBy".mongoEq("seed"), Filters.exists("pinned")))
+
+            collection.find().toList().map { it.id }.toSet() shouldBe setOf(seeded.id, pinned.id)
         }
 
         "clearCollections skips no collection by default" {

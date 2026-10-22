@@ -41,6 +41,9 @@ fun MongoCollection<*>.waitForSearchDocuments(
  * collections. Deletes documents rather than dropping collections, so indices a migration created survive the
  * truncation.
  *
+ * [keep] is negated with `$nor`, so it can be any filter, including one that combines several fields with
+ * `$or` or `$and`; MongoDB has no top-level `$not`, which only negates a single field's condition.
+ *
  * A null [keep] deletes every document: there is then no filter to negate, so it resolves to
  * [Filters.empty], not to keeping everything.
  */
@@ -48,6 +51,6 @@ fun Mongo.clearCollections(keep: Bson? = null, skipCollectionNamesContaining: Li
     database.listCollectionNames().toList()
         .filter { name -> skipCollectionNamesContaining.none { name.contains(it) } }
         .forEach { name ->
-            database.getCollection<Document>(name).deleteMany(keep?.let { Filters.not(it) } ?: Filters.empty())
+            database.getCollection<Document>(name).deleteMany(keep?.let { Filters.nor(it) } ?: Filters.empty())
         }
 }
